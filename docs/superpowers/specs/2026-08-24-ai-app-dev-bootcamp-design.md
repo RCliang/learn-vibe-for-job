@@ -1,7 +1,7 @@
 # 《AI 应用开发速成营》课程设计（Spec）
 
 - 日期：2026-08-24
-- 状态：已获用户批准的设计，待编写实施计划
+- 状态：已获用户批准的设计，待编写实施计划（2026-08-25 补充：效果评估、Prompt Injection 安全、多轮记忆管理、SSE 流式、示例数据，28 天排期不变）
 - 项目仓库：`learn-vibe-coding`（本仓库）
 
 ## 1. 背景与目标
@@ -98,9 +98,9 @@ Prompt Engineering、RAG、Function Calling、Agent 开发、Linux/Docker/云部
 - 文档加载与切分策略（chunk size / overlap）
 - Chroma 入库与相似度检索
 - 检索增强生成：检索 → 拼接 prompt → 生成 → 引用标注
-- 调优：top-k、切分大小对效果的影响
-- 交付物：本地可跑的 RAG 问答脚本
-- JD 关键词：Embedding、RAG、知识库建设
+- 效果评估驱动调优（约半天，与原调优内容合并）：最小路径为手写 10 条测试问答集 + LLM as judge 打分脚本，对比不同 top-k / 切分参数的得分；完整路径为 Ragas 四指标（faithfulness、answer relevancy、context precision、context recall）
+- 交付物：本地可跑的 RAG 问答脚本 + 一份评估对比结果
+- JD 关键词：Embedding、RAG、知识库建设、效果评估、Ragas
 
 **项目 1：企业知识库问答机器人（Day 12-14，跟做）**
 - 完整链路：文档解析 → 切分 → 向量化 → 检索 → 带引用回答
@@ -114,17 +114,19 @@ Prompt Engineering、RAG、Function Calling、Agent 开发、Linux/Docker/云部
 **Ch4 Function Calling 与 Agent（Day 15-18）**
 - 工具定义、参数 schema、调用流程
 - 手写 mini Agent Loop：while 循环 + 工具调用 + 结果回填（先懂本质再谈框架）
-- MCP 是什么、解决什么问题（概念级）
-- LangChain/LangGraph 何时需要（概念级，速成版不上手）
-- 交付物：一个能多步调用工具的 mini Agent
-- JD 关键词：Function Calling、Agent 开发
+- 多轮对话记忆管理（约半天）：历史消息拼接、滑动窗口截断、token 预算控制
+- 安全：Prompt Injection 基础（约半天）：注入原理（用户输入覆盖 system 指令）、工具调用场景的风险、防御三板斧——输入过滤 / 指令与数据隔离 / 工具权限最小化；最小路径为给 mini Agent 加一条输入过滤
+- MCP 是什么、解决什么问题（概念级）；LangChain/LangGraph 何时需要（阅读材料）
+- 交付物：支持多轮对话、具备基础输入过滤的 mini Agent
+- JD 关键词：Function Calling、Agent 开发、LLM 应用安全
 
 **项目 2：垂直领域 Agent 助手（Day 19-21，独立完成，三选一，最后 1 天用于验收打磨）**
 - 选题 A：AI 客服（查订单 + 退改政策问答）
 - 选题 B：数据分析 Agent（CSV 上传 + 自然语言问答出图表）
 - 选题 C：工作流助手（如会议纪要 → 拆任务 → 生成待办）
 - 架构：FastAPI 后端 + AI 生成的极简 HTML/JS 聊天页前端，学员亲手体验前后端通过 API 通信
-- 硬性要求：≥2 个工具调用、多轮对话、错误处理
+- 硬性要求：≥2 个工具调用、多轮对话、错误处理（错误处理含对异常/恶意输入的兜底——不触发危险工具动作）
+- 加分项（完整路径选做）：SSE 流式输出（FastAPI SSE 接口 + 前端 EventSource 消费）
 - JD 关键词：Agent 开发、业务流程自动化、前后端分离
 
 ### Week 4 —— 工程化与上云（生产链路 + 求职）
@@ -151,20 +153,21 @@ Prompt Engineering、RAG、Function Calling、Agent 开发、Linux/Docker/云部
 **Ch8 求职冲刺（Day 28）**
 - README 架构写法（架构图、技术选型理由）
 - 简历项目描述模板（STAR 法则）
-- 高频面试题清单：RAG 原理、幻觉处理、切分策略、Agent Loop、Linux/Docker/部署
-- 求职期继续学习路线（微调、LangGraph、多智能体作为进阶方向）
+- 高频面试题清单：RAG 原理、幻觉处理、切分策略、Agent Loop、Linux/Docker/部署、RAG 效果评估（Ragas 指标）、Prompt Injection 防御
+- 项目深挖题：「你的 top-k 为什么是 5」「幻觉率怎么量化」「如果用户诱导 Agent 调用危险工具怎么办」
+- 求职期继续学习路线（微调、LangGraph、多智能体作为进阶方向）；延伸资源附对标参考课程：mlabonne/llm-course、datawhalechina/llm-universe、huggingface/agents-course、huggingface/mcp-course、Shubhamsaboo/awesome-llm-apps
 - 交付物：一份含两个项目的简历项目描述
 
 ## 7. 项目毕业标准
 
 **项目 1（跟做）：企业知识库问答机器人**
 - 在线可访问的 RAG 问答 Demo（HF Space 首选；README 附本地运行说明 + 演示 GIF）
-- 回答带引用来源；README 说明切分与检索策略
+- 回答带引用来源；README 说明切分与检索策略，并附评估结果（测试问答集得分）
 - GitHub 仓库结构清晰（代码、requirements、README）
 
 **项目 2（独立）：垂直领域 Agent 助手**
 - FastAPI 后端 + 极简前端，前后端分离
-- ≥2 个工具调用、多轮对话、错误处理
+- ≥2 个工具调用、多轮对话、错误处理（含异常/恶意输入兜底）
 - 公网可访问（真机路径）或 HF Space + 演示 GIF（零成本路径）
 - README 含架构图与设计决策说明，面试时能讲清"为什么这样设计"
 
@@ -184,6 +187,10 @@ learn-vibe-coding/
 │   ├── ch4-agent/
 │   ├── project1-kb-bot/       # 项目 1 完整参考实现
 │   └── project2-agent/        # 项目 2 三选一起始骨架 + 参考实现
+├── data/                      # 示例语料与数据集（学员可替换为自己领域文档）
+│   ├── project1-kb/           # 项目 1 企业知识库文档（制度/产品手册 markdown）
+│   ├── project2-orders.json   # 项目 2 选题 A mock 订单数据
+│   └── project2-sales.csv     # 项目 2 选题 B 示例数据
 ├── .github/workflows/         # VitePress 构建 + GitHub Pages 自动部署
 └── README.md                  # 项目介绍
 ```
@@ -214,6 +221,7 @@ Transformer 原理、微调/SFT、数学基础、多智能体高级编排、Lang
 | 学员不愿付云服务器费用 | 零成本部署路径兜底 |
 | HF Space 国内访问不稳 | 真机路径为主推；零成本路径附演示 GIF 与本地运行说明 |
 | AI 生成的代码学员完全看不懂 | Ch1 专设"读懂代码"训练 + 各章自测门槛 |
+| 评估/安全内容增加学员负担 | 最小路径各控制在半天；手写测试集不依赖新框架，Ragas 仅完整路径 |
 
 ## 13. 后续工作
 
