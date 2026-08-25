@@ -101,6 +101,7 @@ Prompt Engineering、RAG、Function Calling、Agent 开发、Linux/Docker/云部
 - Chroma 入库与相似度检索
 - 检索增强生成：检索 → 拼接 prompt → 生成 → 引用标注
 - 效果评估驱动调优（约半天，与原调优内容合并）：最小路径为手写 10 条测试问答集 + LLM as judge 打分脚本，对比不同 top-k / 切分参数的得分；完整路径为 Ragas 四指标（faithfulness、answer relevancy、context precision、context recall）
+- 进阶视野（完整路径）：GraphRAG 概念（多跳/全局问题的短板与图谱思路、面试答法）+ 迷你实验（LLM 抽取三元组建小图，与向量 RAG 同题对比）
 - 交付物：本地可跑的 RAG 问答脚本 + 一份评估对比结果
 - JD 关键词：Embedding、RAG、知识库建设、效果评估、Ragas
 
@@ -157,7 +158,7 @@ Prompt Engineering、RAG、Function Calling、Agent 开发、Linux/Docker/云部
 - 简历项目描述模板（STAR 法则）
 - 高频面试题清单：RAG 原理、幻觉处理、切分策略、Agent Loop、Linux/Docker/部署、RAG 效果评估（Ragas 指标）、Prompt Injection 防御
 - 项目深挖题：「你的 top-k 为什么是 5」「幻觉率怎么量化」「如果用户诱导 Agent 调用危险工具怎么办」
-- 求职期继续学习路线（微调、LangGraph、多智能体作为进阶方向）；延伸资源附对标参考课程：mlabonne/llm-course、datawhalechina/llm-universe、huggingface/agents-course、huggingface/mcp-course、Shubhamsaboo/awesome-llm-apps
+- 求职期继续学习路线（微调、LangGraph、多智能体、GraphRAG 作为进阶方向）；延伸资源附对标参考课程：mlabonne/llm-course、datawhalechina/llm-universe、huggingface/agents-course、huggingface/mcp-course、Shubhamsaboo/awesome-llm-apps
 - 交付物：一份含两个项目的简历项目描述
 
 ## 7. 项目毕业标准

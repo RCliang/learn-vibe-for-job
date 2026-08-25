@@ -15,6 +15,7 @@
 | `qa_pairs.json` | Day 11 | 10 条测试问答集（与语料对应） |
 | `judge_eval.py` | Day 11 | 最小路径：LLM as judge 打分，结果追加到 `eval_results.jsonl` |
 | `ragas_eval.py` | Day 11 | 完整路径（选做）：Ragas 四指标 |
+| `graph_rag_mini.py` | Day 11 | 完整路径（选做）：GraphRAG 迷你实验——LLM 抽关系建小图，对比向量 RAG 答枢纽/多跳问题 |
 | `.env.example` / `requirements.txt` | | 环境模板与依赖（chromadb 为本章新增） |
 
 ## 运行（按 Day 顺序）
