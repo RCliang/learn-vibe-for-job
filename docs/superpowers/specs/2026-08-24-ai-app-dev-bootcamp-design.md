@@ -80,8 +80,9 @@ Prompt Engineering、RAG、Function Calling、Agent 开发、Linux/Docker/云部
 **Ch1 Vibe Coding 工作流（Day 3-4）**
 - 完整循环：提需求 → AI 生成 → 读懂 → 修改 → 修 bug
 - 如何写好给 AI 的指令：任务上下文、约束、验收标准
-- 调试基本功：看报错、贴报错给 AI
-- 交付物：用 AI 结对完成一个小脚本并解决至少一个报错
+- 读懂代码训练：AI 针对生成代码出 3 道阅读理解题，答对 ≥2 通关（进入自测门槛）
+- 调试基本功：看报错（traceback 从下往上读）、贴报错给 AI；预置 3 段典型 bug 代码（NameError、缩进、API 401）供修复练习
+- 交付物：用 AI 结对完成周报生成器（流水账 → 结构化 Markdown 周报）并完成预置 bug 修复
 - JD 关键词：AI 辅助开发
 
 **Ch2 Prompt 工程实战（Day 5-7）**
@@ -183,6 +184,7 @@ learn-vibe-coding/
 │   └── appendix/              # 面试题库、FAQ、不讲清单、JD 关键词对照表、延伸资源
 ├── code/                      # 各章可运行示例代码
 │   ├── ch0-hello-llm/
+│   ├── ch1-vibe-workflow/     # 周报生成器参考实现 + 3 段预置 bug 练习
 │   ├── ch2-prompt/
 │   ├── ch3-rag/
 │   ├── ch4-agent/
