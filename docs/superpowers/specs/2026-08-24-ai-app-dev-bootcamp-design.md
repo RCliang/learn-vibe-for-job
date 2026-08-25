@@ -28,7 +28,7 @@ Prompt Engineering、RAG、Function Calling、Agent 开发、Linux/Docker/云部
 - 无编程基础、想转行 AI 开发岗位的成人学习者
 - 每天可投入约 2 小时，持续 4 周
 - 全程零翻墙：使用国内模型（GLM/DeepSeek）与国内可注册工具
-- 可接受可选的小额云服务器开销（约几十元/月，提供零成本备选路径）
+- 可接受小额工具订阅（GLM Coding Plan，每月一杯奶茶价位）与可选的云服务器开销（约几十元/月，提供零成本备选路径）
 
 ## 3. 定位与差异化
 
@@ -53,6 +53,7 @@ Prompt Engineering、RAG、Function Calling、Agent 开发、Linux/Docker/云部
 
 | 类别 | 选型 | 理由 |
 |---|---|---|
+| 开发环境 | VSCode + Claude Code（TUI 主选）/ ZCode（GUI 备选） | 行业主流工具栈、简历辨识度高；智谱 GLM Coding Plan 驱动，国内零翻墙 |
 | 语言 | Python 3.10+ | JD 压倒性主流；只教读懂 AI 代码所需最小集 |
 | LLM 接入 | `openai` SDK + `base_url` 指向 GLM/DeepSeek | OpenAI 兼容格式，切换模型零成本 |
 | 向量库 | Chroma | pip 安装即用、本地内嵌、零运维 |
@@ -68,10 +69,10 @@ Prompt Engineering、RAG、Function Calling、Agent 开发、Linux/Docker/云部
 ### Week 1 —— 上手与出活（建立信心）
 
 **Ch0 环境与第一行代码（Day 1-2）**
-- 云端/一体化 IDE：以 Trae（国内可直接使用、内置 AI 结对）为主选，Cursor 为备选；避免本地环境配置劝退
-- 申请 GLM/DeepSeek API Key
+- 开发环境：VSCode（主选，安装配置简单）+ Claude Code（TUI 主选）/ ZCode（GUI 备选），由 GLM Coding Plan 驱动，国内零翻墙
+- 开通 GLM Coding Plan 并申请 API Key（一个 Key 同时驱动编程工具与 API 调用；附按量付费备选）
 - HTTP 与 API 基础（约半天）：什么是前后端、请求/响应、JSON、状态码——调用 LLM API 本身就是一次 HTTP 请求
-- Python 最小集：变量、函数、字典、列表、import、pip、虚拟环境概念
+- Python 最小集（重点讲工程三件套）：import（模块与包、ModuleNotFoundError 排错）、pip（requirements.txt、换国内源）、venv（创建/激活/退出、Windows 多终端差异、VSCode 选择解释器）；变量/函数/字典/列表压缩为「读懂 AI 代码速查表」
 - Git/GitHub 最小集：init/add/commit/push
 - 交付物：跑通第一个 LLM API 调用并 push 到 GitHub
 - JD 关键词：Python、API 调用、Git
@@ -216,7 +217,7 @@ Transformer 原理、微调/SFT、数学基础、多智能体高级编排、Lang
 
 | 风险 | 对策 |
 |---|---|
-| 零基础学员卡在环境配置 | 云端 IDE 优先；Ch0 全程录排错指引 |
+| 零基础学员卡在环境配置 | VSCode/Python 一键安装包路线；Claude Code 配置步骤按智谱官方文档核对；Ch0 全程排错指引 |
 | 4 周学不完 | 双路径设计，可降级 5-6 周；每章独立可暂停 |
 | 学员不愿付云服务器费用 | 零成本部署路径兜底 |
 | HF Space 国内访问不稳 | 真机路径为主推；零成本路径附演示 GIF 与本地运行说明 |

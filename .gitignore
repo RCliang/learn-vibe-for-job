@@ -1,0 +1,19 @@
+# Node / VitePress
+node_modules/
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# 密钥与本地环境
+.env
+.env.*
+!.env.example
+
+# 工具
+.zcode/
+.DS_Store

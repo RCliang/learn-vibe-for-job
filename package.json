@@ -1,0 +1,15 @@
+{
+  "name": "learn-vibe-coding",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "《AI 应用开发速成营》课程站：28 天零基础转行 AI 应用开发",
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.4"
+  }
+}
