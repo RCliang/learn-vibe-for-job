@@ -1,0 +1,6 @@
+openai>=1.40.0
+python-dotenv>=1.0.0
+chromadb>=0.5.0
+
+# 选做（Day 11 完整路径 ragas_eval.py 才需要）：
+#   pip install "ragas>=0.2" langchain-openai
