@@ -87,9 +87,9 @@ Prompt Engineering、RAG、Function Calling、Agent 开发、Linux/Docker/云部
 
 **Ch2 Prompt 工程实战（Day 5-7）**
 - System/User 角色、few-shot、温度与参数
-- 结构化输出：JSON mode + Pydantic 解析
+- 结构化输出：JSON mode（response_format）+ Pydantic 校验解析、解析失败重试
 - Token 成本意识、上下文长度
-- 周末小实战：简历优化器小工具（输入简历文本 → 输出结构化改进建议）
+- 周末小实战：简历优化器（输入简历文本 → JSON mode + Pydantic 校验的结构化建议：总分、维度问题、STAR 改写、待补关键词）
 - 交付物：可运行的简历优化器
 - JD 关键词：Prompt Engineering
 
