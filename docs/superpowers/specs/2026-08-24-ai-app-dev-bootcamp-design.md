@@ -28,7 +28,7 @@ Prompt Engineering、RAG、Function Calling、Agent 开发、Linux/Docker/云部
 - 无编程基础、想转行 AI 开发岗位的成人学习者
 - 每天可投入约 2 小时，持续 4 周
 - 全程零翻墙：使用国内模型（GLM/DeepSeek）与国内可注册工具
-- 可接受小额工具订阅（GLM Coding Plan，每月一杯奶茶价位）与可选的云服务器开销（约几十元/月，提供零成本备选路径）
+- 可接受小额工具订阅（GLM Coding Plan，每月一杯奶茶价位）与 Week 2 起的云服务器开销（新用户约几十元/月；暂不付费可走 HF Space 零成本备选）
 
 ## 3. 定位与差异化
 
@@ -61,7 +61,7 @@ Prompt Engineering、RAG、Function Calling、Agent 开发、Linux/Docker/云部
 | 生产后端 | FastAPI | LLM 应用后端事实标准，同语言零额外学习成本 |
 | 前端 | AI 生成的极简 HTML/JS 页面 | 只要求能看懂、能小改 |
 | 容器 | Docker + docker compose | JD 高频；打包项目 2 |
-| 服务器 | 国内轻量云服务器（阿里云/腾讯云） | 生产部署实战 |
+| 服务器 | 阿里云 ECS/轻量应用服务器 | 生产部署实战（项目 1 起连续两次上云） |
 | 课程站 | VitePress + GitHub Pages | 中文生态好、易部署、easy-vibe 同款 |
 
 ## 6. 课程结构（3+1 周，28 天）
@@ -108,7 +108,7 @@ Prompt Engineering、RAG、Function Calling、Agent 开发、Linux/Docker/云部
 **项目 1：企业知识库问答机器人（Day 12-14，跟做）**
 - 完整链路：文档解析 → 切分 → 向量化 → 检索 → 带引用回答
 - Streamlit 聊天界面（含流式输出）
-- 部署：Hugging Face Space（首选）或本地 + 演示 GIF
+- 部署：阿里云 ECS/轻量服务器 + Docker 打包上线（Day 14 最小实操，原理留待 Ch6 系统化；零成本备选 HF Space + 演示 GIF）
 - 毕业标准见第 7 节
 - JD 关键词：知识库建设、流式输出
 
@@ -141,14 +141,14 @@ Prompt Engineering、RAG、Function Calling、Agent 开发、Linux/Docker/云部
 - JD 关键词：熟悉 Linux 环境
 
 **Ch6 Docker 容器化（Day 24-25）**
-- 镜像与容器概念、Dockerfile 编写、docker compose
+- 系统化（项目 1 已在 Day 14 初体验）：镜像与容器原理、Dockerfile 优化（层缓存）、docker compose 多容器编排
 - 把项目 2 打包成镜像并本地运行
 - 交付物：项目 2 的 Docker 镜像 + compose 文件
 - JD 关键词：Docker、容器化部署
 
 **Ch7 云服务部署实战（Day 26-27）**
-- 国内轻量云服务器选购（新用户约几十元/月）、安全组与端口
-- 部署项目 2 上线公网；域名与 HTTPS 概念
+- 第二次上云：部署项目 2 上线公网（项目 1 已走通全流程，本次聚焦熟练与规范）
+- 域名与 HTTPS 概念、服务安全加固（安全组最小开放、密钥管理）
 - 零成本备选路径：Hugging Face Space 部署 + 演示 GIF
 - 交付物：公网可访问的项目 2（或零成本等效物）
 - JD 关键词：云服务、工程化上线
@@ -164,7 +164,7 @@ Prompt Engineering、RAG、Function Calling、Agent 开发、Linux/Docker/云部
 ## 7. 项目毕业标准
 
 **项目 1（跟做）：企业知识库问答机器人**
-- 在线可访问的 RAG 问答 Demo（HF Space 首选；README 附本地运行说明 + 演示 GIF）
+- 在线可访问的 RAG 问答 Demo（公网 IP:8501，阿里云 ECS + Docker 部署；零成本备选 HF Space + 演示 GIF；README 附本地运行说明）
 - 回答带引用来源；README 说明切分与检索策略，并附评估结果（测试问答集得分）
 - GitHub 仓库结构清晰（代码、requirements、README）
 
@@ -201,8 +201,8 @@ learn-vibe-coding/
 
 ## 9. 部署策略（学员侧双路径）
 
-- **真机路径（推荐）**：轻量云服务器部署项目 2，面试可答部署细节；成本约几十元/月
-- **零成本路径**：HF Space 部署 + 演示 GIF，给暂不付费的学员；课程明确说明两条路径的取舍
+- **真机路径（主推，项目 1 起连续两次上云）**：阿里云 ECS/轻量服务器 + Docker 部署项目 1 与项目 2，面试可答部署细节；新用户优惠约几十元/月
+- **零成本路径（备选）**：HF Space 部署 + 演示 GIF，给暂不付费的学员；课程明确说明两条路径的取舍
 
 ## 10. 防弃坑机制
 
@@ -222,8 +222,8 @@ Transformer 原理、微调/SFT、数学基础、多智能体高级编排、Lang
 |---|---|
 | 零基础学员卡在环境配置 | VSCode/Python 一键安装包路线；Claude Code 配置步骤按智谱官方文档核对；Ch0 全程排错指引 |
 | 4 周学不完 | 双路径设计，可降级 5-6 周；每章独立可暂停 |
-| 学员不愿付云服务器费用 | 零成本部署路径兜底 |
-| HF Space 国内访问不稳 | 真机路径为主推；零成本路径附演示 GIF 与本地运行说明 |
+| 学员不愿付云服务器费用 | 新用户优惠降低门槛（约几十元/月）；HF Space 零成本路径兜底 |
+| HF Space 国内访问不稳 | 主路径为国内 ECS + Docker；HF 仅作零成本备选并附演示 GIF 与本地运行说明 |
 | AI 生成的代码学员完全看不懂 | Ch1 专设"读懂代码"训练 + 各章自测门槛 |
 | 评估/安全内容增加学员负担 | 最小路径各控制在半天；手写测试集不依赖新框架，Ragas 仅完整路径 |
 

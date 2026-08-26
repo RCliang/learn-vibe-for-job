@@ -9,8 +9,12 @@ from pathlib import Path
 import chromadb
 from openai import OpenAI
 
-# 语料与数据库位置：本地开发时指向仓库根 data/；部署 HF Space 时语料随仓库携带
-KB_DIR = Path(__file__).resolve().parents[2] / "data" / "project1-kb"
+# 语料位置双路径兼容：
+# 1) 项目目录内 ./data/project1-kb —— 部署形态（Docker 构建前把语料拷进项目）
+# 2) 仓库根 data/project1-kb     —— 课程仓库本地开发形态
+_PROJECT_KB = Path(__file__).resolve().parent / "data" / "project1-kb"
+_REPO_KB = Path(__file__).resolve().parents[2] / "data" / "project1-kb"
+KB_DIR = _PROJECT_KB if _PROJECT_KB.exists() else _REPO_KB
 DB_DIR = Path(__file__).resolve().parent / "chroma_db"
 COLLECTION_NAME = "company_kb"
 
