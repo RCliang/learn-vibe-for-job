@@ -116,35 +116,111 @@ def input_filter(text: str) -> tuple[bool, str]:
     return True, ""
 
 
-# ---------- 记忆：滑动窗口（system 永在，按「轮」截断，工具消息永不孤儿） ----------
+# ---------- 记忆：滑动窗口 + （完整路径）摘要压缩 ----------
 
 class ChatMemory:
     """按轮截断：一轮 = 一条 user 消息到下一条 user 消息之前。
 
     为什么按轮而不是按条：assistant(tool_calls) 和它的 tool 结果必须成对出现，
     从 user 消息边界切分，一轮之内的消息永远完整。
+
+    summarizer=None（默认）  ：滑出窗口的轮次直接丢弃——最小路径行为。
+    summarizer=可调用对象    ：滑出窗口的轮次先压缩成摘要，拼在 system 末尾，
+                              老对话从「全文」降级为「要点」但不丢关键事实——
+                              完整路径（--summary 开启）。
     """
 
-    def __init__(self, system_prompt: str, max_turns: int = 4, max_chars: int = 4000):
+    def __init__(self, system_prompt: str, max_turns: int = 4, max_chars: int = 4000,
+                 summarizer=None):
         self.system = {"role": "system", "content": system_prompt}
         self.messages: list[dict] = []  # 不含 system
         self.max_turns = max_turns
         self.max_chars = max_chars  # token 粗估：中文 1 字 ≈ 1-2 token，先用字符数当预算
+        self.summarizer = summarizer  # 形如 (旧摘要, 新滑出的对话文本) -> 新摘要
+        self._summary = ""
+        self._summarized_upto = 0      # messages 中已并入摘要的下标
 
     def append(self, msg: dict) -> None:
         self.messages.append(msg)
 
+    @staticmethod
+    def _render(msgs: list[dict]) -> str:
+        """把消息列表渲染成可读文本，供摘要模型消费。"""
+        role_names = {"user": "用户", "assistant": "助手", "tool": "工具结果"}
+        lines = []
+        for m in msgs:
+            role = role_names.get(m["role"], m["role"])
+            if m.get("tool_calls"):
+                names = ",".join(tc["function"]["name"] for tc in m["tool_calls"])
+                lines.append(f"{role}（请求调用工具：{names}）")
+            else:
+                content = str(m.get("content") or "")
+                if content:
+                    lines.append(f"{role}：{content[:200]}")
+        return "\n".join(lines)
+
     def build(self) -> list[dict]:
         user_indexes = [i for i, m in enumerate(self.messages) if m["role"] == "user"]
         start = user_indexes[-self.max_turns] if len(user_indexes) > self.max_turns else 0
+
+        # 摘要压缩：把刚滑出窗口的 [旧位置, start) 并入滚动摘要
+        # （每次只压缩到窗口起点；字符预算额外丢掉的轮次留待下次窗口推进时并入）
+        if self.summarizer is not None and start > self._summarized_upto:
+            dropped_text = self._render(self.messages[self._summarized_upto : start])
+            self._summary = self.summarizer(self._summary, dropped_text)
+            self._summarized_upto = start
+
         window = self.messages[start:]
-        # 字符预算兜底：超了就丢最老的一整轮
+        # 字符预算兜底：超了就丢最老的一整轮（至少保留最近一轮）
         while sum(len(str(m.get("content") or "")) for m in window) > self.max_chars:
             users = [i for i, m in enumerate(window) if m["role"] == "user"]
             if len(users) <= 1:
                 break
             window = window[users[1] :]
-        return [self.system] + window
+
+        system_msg = dict(self.system)
+        if self._summary:
+            system_msg["content"] = (
+                self.system["content"] + "\n\n【更早对话的摘要】\n" + self._summary
+            )
+        return [system_msg] + window
+
+
+# ---------- （完整路径）摘要压缩的 LLM 接线 ----------
+
+SUMMARY_PROMPT = """把客服对话历史压缩成要点摘要，供后续对话参考。
+
+要求：
+1. 保留关键事实：订单号、金额、状态、日期、用户诉求、已给出的答复
+2. 与已有摘要合并重写为一份新摘要（不是追加），不超过 150 字
+3. 只输出摘要本身，不要任何解释
+
+【已有摘要】
+{old_summary}
+
+【新滑出窗口的对话】
+{dropped_text}"""
+
+
+def make_summarizer(client: OpenAI):
+    """把「摘要怎么生成」接到 GLM 上；ChatMemory 只认回调，不认 OpenAI（依赖注入）。"""
+
+    def summarize(old_summary: str, dropped_text: str) -> str:
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[
+                {
+                    "role": "user",
+                    "content": SUMMARY_PROMPT.format(
+                        old_summary=old_summary or "（无）", dropped_text=dropped_text
+                    ),
+                }
+            ],
+            temperature=0.0,  # 摘要要忠实，不要发挥
+        )
+        return response.choices[0].message.content.strip()
+
+    return summarize
 
 
 # ---------- Agent Loop：本章的核心 15 行 ----------
@@ -195,12 +271,23 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description="mini Agent 客服")
     parser.add_argument("--turns", type=int, default=4, help="记忆窗口保留的轮数")
+    parser.add_argument(
+        "--summary",
+        action="store_true",
+        help="完整路径：滑出窗口的对话压缩成摘要（而不是丢弃），老对话保留要点级记忆",
+    )
     args = parser.parse_args()
 
     client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
-    memory = ChatMemory(SYSTEM_PROMPT, max_turns=args.turns)
+    memory = ChatMemory(
+        SYSTEM_PROMPT,
+        max_turns=args.turns,
+        summarizer=make_summarizer(client) if args.summary else None,
+    )
 
     print(f"mini Agent 客服已就绪（记忆窗口 {args.turns} 轮，最多连续 {MAX_STEPS} 轮工具调用）")
+    if args.summary:
+        print("摘要压缩已开启：滑出窗口的对话会被压缩成要点，拼在 system 末尾")
     print("试试：帮我查一下订单 SO-2026-1001 到哪了？\n")
 
     while True:
