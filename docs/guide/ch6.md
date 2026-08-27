@@ -10,7 +10,7 @@ outline: [2, 3]
 > **学完你能做什么**：动手操作自己的容器化应用——看懂 Dockerfile 与层缓存为什么那样写、`docker exec` 进容器排错、一条 compose 命令起停服务，并把项目 2 完整容器化（本章交付物）。
 
 ::: info 📋 本章路线
-**Day 24**：镜像与容器原理、命令体系、层缓存 · **Day 25**：docker compose + 项目 2 容器化交付
+**Day 24**：镜像与容器原理、命令体系、镜像命名/仓库/搬运、层缓存 · **Day 25**：docker compose + 项目 2 容器化交付
 :::
 
 **你已经会用但还不懂的三件事**：Day 14 你 build 过、run 过、看过 logs——本章回答三个当时略过的问题：镜像和容器到底是什么？为什么改一行代码重新 build 秒级完成？服务多了命令记不住怎么办？
@@ -56,11 +56,70 @@ docker rmi agent-app:latest       # 删除镜像
 docker system df                  # 磁盘占用（镜像/容器/缓存各占多少）
 ```
 
-**必做实验**：把项目 2 跑起来（5.1 有完整命令），然后 `docker exec -it agent-app bash` 进去，`ls /app` 看到你的代码、`cat requirements.txt`、`exit` 出来——「容器里就是一个隔离的小电脑」这件事，进去一次就永远懂了。
+**必做实验**：把项目 2 跑起来（6.1 有完整命令），然后 `docker exec -it agent-app bash` 进去，`ls /app` 看到你的代码、`cat requirements.txt`、`exit` 出来——「容器里就是一个隔离的小电脑」这件事，进去一次就永远懂了。
 
-## 2. 层缓存：Dockerfile 的顺序是艺术（Day 24 下午）
+## 2. 镜像的命名、仓库与搬运（Day 24 上午）
 
-### 2.1 缓存规则（一条就够）
+### 2.1 名字:标签——镜像的身份证
+
+你天天见的 `agent-app:latest`、`python:3.12-slim` 都遵循一个格式：**仓库名:标签（tag）**。
+
+- 不写标签 = 默认 `latest`。**陷阱**：latest 只是「默认标签」的名字，**不代表最新版**——团队协作和部署时永远显式写版本，如 `agent-app:v1`
+- 完整格式是 `registry地址/仓库名:tag`，如 `registry.cn-hangzhou.aliyuncs.com/myns/agent-app:v1`；不写 registry 前缀 = 默认仓库（Docker Hub）
+
+```bash
+docker tag agent-app:latest agent-app:v1   # 给同一镜像再打一个版本标签
+docker images                              # 两行、同一个 IMAGE ID——名字是标签，镜像本体只有一个
+```
+
+### 2.2 仓库（Registry）：镜像从哪来、到哪去
+
+1.1 说「本地没镜像就去仓库拉」——那个默认仓库就是 Docker Hub（`python:3.12-slim` 就是从它那拉的）。工作里更常见的是**私有仓库**：公司自建，或用阿里云「容器镜像服务」个人版（免费）。
+
+把镜像弄到服务器，实际工作有三条路（我们目前走的是第一条）：
+
+| 方式 | 命令链 | 适用 |
+| --- | --- | --- |
+| ① 服务器现场构建 | `git pull` → `docker compose up -d --build` | 课程路线，简单直接 |
+| ② 经仓库中转 | 本地 build → `docker push` → 服务器 `docker pull` | 免服务器构建；CI/CD 的雏形 |
+| ③ 离线搬运 | 本地 `docker save` → `scp` 上传 → 服务器 `docker load` | 没有仓库时的物理搬运 |
+
+**实操第 ③ 条**（把 Ch5 的 scp 用起来）：
+
+```bash
+# 本地
+docker save -o agent-app.tar agent-app:latest
+scp agent-app.tar root@你的服务器IP:/root/
+# 服务器
+docker load -i /root/agent-app.tar
+docker images        # 不 build 也有镜像了
+```
+
+### 2.3 国内加速：镜像加速器（一次配置，终身受益）
+
+从 Docker Hub 拉官方镜像国内时好时坏，标准解法是配**镜像加速器**：
+
+```bash
+# 服务器上：阿里云控制台搜「容器镜像服务 → 镜像加速器」有你的专属地址
+nano /etc/docker/daemon.json
+# 写入：{"registry-mirrors": ["https://你的加速器地址"]}
+systemctl daemon-reload && systemctl restart docker
+```
+
+（这用的是 Ch5 的 nano + 配置文件 + 重启服务全套技能。）
+
+### 2.4 悬空镜像：`docker images` 里的 `<none>`
+
+反复 rebuild 后，`docker images` 会出现 REPOSITORY 为 `<none>` 的行——旧构建被新层顶替后的遗留残骸，不影响运行但白占磁盘：
+
+```bash
+docker system df            # 先看磁盘被什么占了
+docker image prune          # 清理悬空镜像（配合 Ch6 末的 system prune 一起记）
+```
+
+## 3. 层缓存：Dockerfile 的顺序是艺术（Day 24 下午）
+
+### 3.1 缓存规则（一条就够）
 
 > 构建镜像时逐层比对：**指令（和它影响的文件）没变 → 直接复用缓存层；任何一层变了 → 该层及其后所有层全部重建**。
 
@@ -80,11 +139,11 @@ COPY app.py agent_core.py ./                     # 层5：改代码只重建这�
 2. 在 `requirements.txt` 加一个包 → 再 build → 观察 pip 层重新执行、耗时变长
 3. `docker history agent-app:latest` → 亲眼看镜像的层列表（每层多大、哪条指令建的）
 
-### 2.2 镜像瘦身三招（知道即可）
+### 3.2 镜像瘦身三招（知道即可）
 
 你已经用了前两招（Dockerfile 注释里埋过）：① `python:3.12-slim` 小基础镜像（不用完整版 debian）；② `pip install --no-cache-dir` 不留 pip 缓存。第三招**多阶段构建**（构建工具用完即弃、只拷产物进最终镜像）是进阶概念，见完整路径。
 
-## 3. docker compose：把 docker run 写成代码（Day 25 上午）
+## 4. docker compose：把 docker run 写成代码（Day 25 上午）
 
 回想 Day 14 那条命令：`docker run -d --name kb-bot -p 8501:8501 --env-file .env kb-bot`——参数越来越多、没人记得住、更没法版本管理。compose 的答案：**把所有参数写进 YAML**（项目 2 的 [`docker-compose.yml`](https://github.com/RCliang/learn-vibe-for-job/tree/main/code/project2-agent)）：
 
@@ -112,7 +171,7 @@ docker compose down            # 停止并清理
 
 **为什么团队都用 compose**：真实项目是「应用 + 数据库 + 缓存」多容器组合，compose 一个文件管全家；你现在是单服务，但心智模型已经就位，见到多服务时只需往 `services:` 下再加一段。
 
-## 4. 交付物：项目 2 容器化（Day 25 下午）
+## 5. 交付物：项目 2 容器化（Day 25 下午）
 
 **目标**：项目 2 以「一条 compose 命令」的方式在本地（或服务器）起停。
 
@@ -138,32 +197,37 @@ curl http://127.0.0.1:8000/api/health   # {"status":"ok"}
 
 这套 compose 文件就是 Ch7 上云的全部家当——服务器上 `git pull` + `docker compose up -d --build`，项目 2 就上线了。
 
-## 5. 自测门槛
+## 6. 自测门槛
 
 进入 Ch7 前确认你能：
 
 - [ ] 用「分层蛋糕」向 AI 出题考核的方式讲清：镜像 vs 容器、容器删了读写层数据去哪了
+- [ ] 拆解 `agent-app:latest` 各部分含义；亲手打过一次版本标签；说得出 latest 的陷阱
+- [ ] 说出把镜像弄到服务器的三条路（至少两条）
 - [ ] 说出层缓存的失效规则，解释 Dockerfile 为什么依赖清单先拷
 - [ ] 不看笔记完成 compose 五连：up / ps / logs / 重建 / down
 - [ ] `docker exec` 进容器查看文件；`docker history` 看层
 - [ ] 交付物四连验收全过
 
-## 6. 最小路径 vs 完整路径
+## 7. 最小路径 vs 完整路径
 
-- **最小路径（必做）**：第 1-4 节 + 自测门槛
+- **最小路径（必做）**：第 1-5 节 + 自测门槛
 - **完整路径（选做）**：
   - 给项目 1（Streamlit 版）也写一个 `docker-compose.yml`
   - 多阶段构建：给一个「builder 阶段编译、最终阶段只带产物」的最小示例跑通
   - volume 实践：把项目 2 的会话记忆写到挂载目录，`down` 后数据还在
   - `docker system prune` 清理实验（先 `system df` 看能省多少）
-  - 概念阅读：镜像仓库与推送（阿里云容器镜像服务），Ch7 部署的另一条路
+  - 注册阿里云容器镜像服务，把 agent-app push 上去、在服务器 pull 下来（第 2.2 节路线 ② 走通）
+  - 概念阅读：`--platform linux/amd64` 与多架构镜像——本地（如 Apple 芯片）构建的镜像在 x86 服务器跑不起来的坑
 
-## 7. 排错指引
+## 8. 排错指引
 
 | 现象 | 原因 | 解法 |
 | --- | --- | --- |
 | 每次改代码 build 都很慢 | 层缓存失效 | 核对指令顺序：`COPY 代码` 是否排在了 `pip install` 之前 |
 | `docker compose` 报命令不存在 | 老版独立 docker-compose / 未装 | 服务器用 Day 14 脚本装的 Docker 自带 compose 子命令；确认写法是 `docker compose`（空格）不是 `docker-compose`（横杠） |
+| `docker pull` 超时/龟速 | Docker Hub 国内直连不稳 | 配镜像加速器（2.3 节）；或用 save/load 离线搬运（2.2 节） |
+| 本地构建的镜像服务器跑不起来（exec format error） | 架构不匹配：本地（如 Apple 芯片）是 arm64，服务器是 amd64 | 本地构建加 `--platform linux/amd64`；或直接在服务器上构建 |
 | up 后端口访问不通 | 端口没映射 / 监听 127.0.0.1 / 安全组 | 核对 compose `ports`；uvicorn 必须 `--host 0.0.0.0`（项目 2 的 Dockerfile 已配） |
 | `port is already allocated` | 端口被占 | `docker compose down`；或换宿主机端口如 `"8001:8000"` |
 | 容器名冲突 `already in use` | 旧容器没清 | `docker rm -f agent-app` 或 `docker compose down` |
