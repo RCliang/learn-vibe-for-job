@@ -17,10 +17,11 @@
 
 ```
 project2-agent/
-├── server.py            # FastAPI 后端：/api/chat、/api/health、静态前端托管、三层错误兜底
-├── agent_core.py        # Agent 内核（Ch4 提炼）：4 工具 + Agent Loop + ChatMemory + 注入过滤
-├── frontend/index.html  # 极简聊天前端（原生 JS：fetch + JSON + DOM，约 130 行）
-├── Dockerfile           # Ch6/Ch7 部署用（含打包说明注释）
+├── server.py               # FastAPI 后端：/api/chat、/api/health、静态前端托管、三层错误兜底
+├── agent_core.py           # Agent 内核（Ch4 提炼）：4 工具 + Agent Loop + ChatMemory + 注入过滤
+├── frontend/index.html     # 极简聊天前端（原生 JS：fetch + JSON + DOM，约 130 行）
+├── docker-compose.yml      # 容器编排（Ch6 交付物）：build/ports/env_file/restart 一站式
+├── Dockerfile              # 镜像定义（层缓存顺序已优化）
 ├── requirements.txt
 └── .env.example
 ```
@@ -38,10 +39,20 @@ uvicorn server:app --reload
 
 试这句（触发链式多工具）：`我（张小明）有哪些订单？第一单到哪了？`
 
-## Docker 部署（Ch6 系统化、Ch7 上云，命令先备好）
+## Docker 部署（Ch6 交付物：镜像 + compose）
 
 ```bash
 mkdir data && cp ../../data/project2-orders.json data/   # 语料拷进项目目录（镜像内自包含）
+cp .env.example .env && nano .env                        # 填入 GLM_API_KEY
+
+docker compose up -d --build    # 构建镜像并后台启动（等价于 build + run 的一长串参数）
+docker compose logs -f          # 看日志（Ctrl+C 退出查看，服务仍在）
+docker compose down             # 停止并清理
+```
+
+单容器方式（compose 之前的原始姿势，Ch6 会讲两者的关系）：
+
+```bash
 docker build -t agent-app .
 docker run -d --name agent-app -p 8000:8000 --env-file .env agent-app
 ```

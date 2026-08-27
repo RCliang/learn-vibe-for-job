@@ -1,0 +1,15 @@
+# 项目 2 的容器编排：把 docker run 的长命令变成可版本管理的代码
+# 用法：docker compose up -d --build   （构建并后台启动）
+#      docker compose logs -f          （看日志）
+#      docker compose down             （停止并清理）
+
+services:
+  agent-app:
+    build: .                  # 用当前目录 Dockerfile 构建
+    image: agent-app:latest   # 构建出的镜像名
+    container_name: agent-app
+    ports:
+      - "8000:8000"           # 宿主机:容器（服务器安全组记得放行 8000）
+    env_file:
+      - .env                  # 密钥运行时注入，不进镜像（Ch5 环境变量机制的容器版）
+    restart: always           # 容器崩溃 / 服务器重启后自动拉起——生产服务的标配
