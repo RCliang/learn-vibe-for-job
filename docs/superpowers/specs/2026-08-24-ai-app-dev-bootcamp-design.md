@@ -149,8 +149,7 @@ Prompt Engineering、RAG、Function Calling、Agent 开发、Linux/Docker/云部
 **Ch7 云服务部署实战（Day 26-27）**
 - 第二次上云：部署项目 2 上线公网（项目 1 已走通全流程，本次聚焦熟练与规范）
 - 域名与 HTTPS 概念、服务安全加固（安全组最小开放、密钥管理）
-- 零成本备选路径：Hugging Face Space 部署 + 演示 GIF
-- 交付物：公网可访问的项目 2（或零成本等效物）
+- 交付物：公网可访问的项目 2
 - JD 关键词：云服务、工程化上线
 
 **Ch8 求职冲刺（Day 28）**

@@ -129,18 +129,7 @@ compose 会智能地只替换变化的层（Ch6 层缓存），整个过程通�
 - [ ] （可选）域名 A 记录解析生效，`ping 域名` 返回你的 IP
 - [ ] 能对别人讲清：HTTPS 为什么需要、证书是干嘛的、Let's Encrypt 是什么
 
-## 5. 零成本备选路径：HF Docker Space
-
-暂不付费的学员，项目 2 也能上 HF Space（它是 FastAPI 不是 Streamlit，所以用 **Docker SDK**）：
-
-1. 新建 Space，SDK 选 **Docker**（SDK 选择页有 Blank Docker 模板）
-2. 上传项目 2 全部文件（`server.py`、`agent_core.py`、`frontend/`、`requirements.txt`、`data/`）
-3. 两个适配点：Dockerfile 的 `EXPOSE`/端口改为 **7860**（Space 固定监听端口）；uvicorn 的 `--port` 同步改
-4. Settings → Secrets 加 `GLM_API_KEY`（Space 的 secrets 会以环境变量注入，`load_dotenv` 读不到但 `os.getenv` 读得到——正好走我们 `get_secret` 的第一分支）
-
-HF 国内访问不稳的老问题依旧：README 附演示 GIF + 本地运行说明兜底。
-
-## 6. 自测门槛
+## 5. 自测门槛
 
 - [ ] 六步部署不看笔记独立完成
 - [ ] 上线检查单 7 项全过并截图
@@ -148,7 +137,7 @@ HF 国内访问不稳的老问题依旧：README 附演示 GIF + 本地运行说
 - [ ] 说清：域名解析 A 记录在干嘛 / HTTPS 解决什么 / 证书的作用
 - [ ] 安全组为什么只开 22/8000/8501；`chmod 600 .env` 限制了什么
 
-## 7. 最小路径 vs 完整路径
+## 6. 最小路径 vs 完整路径
 
 - **最小路径（必做）**：第 1-4 节 + 自测门槛（域名解析为可选）
 - **完整路径（选做）**：
@@ -157,7 +146,7 @@ HF 国内访问不稳的老问题依旧：README 附演示 GIF + 本地运行说
   - Docker 日志限制：compose 里给服务加 `logging: options: max-size: "10m"`
   - 域名备案全流程 + HTTPS 正式上线（求职期任务）
 
-## 8. 排错指引
+## 7. 排错指引
 
 | 现象 | 原因 | 解法 |
 | --- | --- | --- |
