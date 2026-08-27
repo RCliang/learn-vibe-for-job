@@ -1,0 +1,6 @@
+fastapi>=0.110.0
+uvicorn>=0.29.0
+openai>=1.40.0
+python-dotenv>=1.0.0
+
+# 选题 B（数据分析）才需要：pandas matplotlib
