@@ -189,6 +189,7 @@ learn-vibe-coding/
 │   ├── ch2-prompt/
 │   ├── ch3-rag/
 │   ├── ch4-agent/
+│   ├── ch5-linux/           # 心跳脚本等 Linux 章配套（交付物：上云跑通+看日志）
 │   ├── project1-kb-bot/       # 项目 1 完整参考实现
 │   └── project2-agent/        # 项目 2 三选一起始骨架 + 参考实现
 ├── data/                      # 示例语料与数据集（学员可替换为自己领域文档）
