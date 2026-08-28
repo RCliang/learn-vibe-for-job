@@ -1,6 +1,6 @@
 # Ch5 Linux 与服务器基础：配套代码
 
-章节：[Ch5 Linux 与服务器基础（Day 22-23）](https://your-name.github.io/learn-vibe-coding/guide/ch5)
+章节：[Ch5 Linux 与服务器基础（Day 22-23）](https://rcliang.github.io/learn-vibe-for-job/guide/ch5)
 
 ## 文件说明
 

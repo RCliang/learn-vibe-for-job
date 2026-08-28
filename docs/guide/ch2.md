@@ -93,7 +93,7 @@ messages = [
 
 ### 4.2 实验：亲眼看温度的差异
 
-课程提供 [code/ch2-prompt/temperature_lab.py](https://github.com/your-name/learn-vibe-coding/tree/main/code/ch2-prompt)：同一个 prompt「用一个比喻解释什么是 temperature 参数」，分别在 0.2 / 0.7 / 1.0 下各跑一次，对比三次输出的差异。**调参之前先看现象**，这是本章的实验精神。
+课程提供 [code/ch2-prompt/temperature_lab.py](https://github.com/RCliang/learn-vibe-for-job/tree/main/code/ch2-prompt)：同一个 prompt「用一个比喻解释什么是 temperature 参数」，分别在 0.2 / 0.7 / 1.0 下各跑一次，对比三次输出的差异。**调参之前先看现象**，这是本章的实验精神。
 
 ### 4.3 token 与成本账本
 
@@ -116,7 +116,7 @@ print(response.usage)  # prompt_tokens / completion_tokens / total_tokens
 
 Ch0 讲过「JSON 是数据的世界语」。模型输出的是**文本**，而你的程序（后面的 RAG 引用、Agent 工具）需要**结构化数据**——这一节就是把文本变成数据，是从「聊天玩具」到「应用」的分水岭。
 
-### 5.2 三步演进（跟着 [json_parsing_demo.py](https://github.com/your-name/learn-vibe-coding/tree/main/code/ch2-prompt) 逐步运行）
+### 5.2 三步演进（跟着 [json_parsing_demo.py](https://github.com/RCliang/learn-vibe-for-job/tree/main/code/ch2-prompt) 逐步运行）
 
 **第 1 步：只靠 prompt 约束（脆弱）**。在 prompt 里写「只输出 JSON」，然后 `json.loads(text)`。常见翻车：模型给 JSON 套上 ```` ```json ```` 代码块、前后加说明文字——解析直接崩。它不是「错」，只是不可靠。
 
@@ -184,7 +184,7 @@ Pydantic 是 JD 里的常客（FastAPI 的内置校验库，Ch4 项目 2 会再�
 3. `v2`：加 Pydantic 校验 + 失败自纠重试 + 友好打印（参考实现的样子）
 4. 迭代练习：把 temperature 从 0.7 调到 0.2 对比建议稳定性；往 prompt 里加一对 few-shot 改写示例，看 `star_rewrites` 质量变化
 
-**测试素材**：[code/ch2-prompt/sample_resume.txt](https://github.com/your-name/learn-vibe-coding/tree/main/code/ch2-prompt) 是一份「典型差简历」（口语化、无量化、职责堆砌）——先跑它，再用你自己真实的简历（这工具从今天起就是你的求职装备）。
+**测试素材**：[code/ch2-prompt/sample_resume.txt](https://github.com/RCliang/learn-vibe-for-job/tree/main/code/ch2-prompt) 是一份「典型差简历」（口语化、无量化、职责堆砌）——先跑它，再用你自己真实的简历（这工具从今天起就是你的求职装备）。
 
 完成后执行 Ch1 学过的 **AI 出题考核**：让 AI 针对你的 Pydantic 模型设计出 3 道题（比如「如果模型把 overall_score 返回成 "85 分" 字符串会发生什么」），3 对 2 通关。
 

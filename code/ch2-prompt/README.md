@@ -1,6 +1,6 @@
 # Ch2 Prompt 工程实战：配套代码
 
-章节：[Ch2 Prompt 工程实战（Day 5-7）](https://your-name.github.io/learn-vibe-coding/guide/ch2)
+章节：[Ch2 Prompt 工程实战（Day 5-7）](https://rcliang.github.io/learn-vibe-for-job/guide/ch2)
 
 ## 目录结构
 

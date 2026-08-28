@@ -1,6 +1,6 @@
 # Ch4 Function Calling 与 Agent：配套代码
 
-章节：[Ch4 Function Calling 与 Agent（Day 15-18）](https://your-name.github.io/learn-vibe-coding/guide/ch4)
+章节：[Ch4 Function Calling 与 Agent（Day 15-18）](https://rcliang.github.io/learn-vibe-for-job/guide/ch4)
 
 ## 目录结构
 

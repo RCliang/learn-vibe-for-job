@@ -12,7 +12,7 @@ export default defineConfig({
       { text: '面试题库', link: '/appendix/interview' },
       {
         text: 'GitHub',
-        link: 'https://github.com/your-name/learn-vibe-coding',
+        link: 'https://github.com/RCliang/learn-vibe-for-job',
       },
     ],
     sidebar: [

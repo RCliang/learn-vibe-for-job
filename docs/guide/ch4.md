@@ -33,7 +33,7 @@ AI 客服查订单、数据分析 Agent 画图表、编程 Agent 改文件——
 
 这个认知是 Day 17 安全课的地基：既然执行权在你手里，你就握着最终的闸门。
 
-### 2.2 完整流程四步（跟着 [first_tool_call.py](https://github.com/your-name/learn-vibe-coding/tree/main/code/ch4-agent) 跑一遍）
+### 2.2 完整流程四步（跟着 [first_tool_call.py](https://github.com/RCliang/learn-vibe-for-job/tree/main/code/ch4-agent) 跑一遍）
 
 ```text
 ① 定义工具    用 JSON Schema 告诉模型：函数名、干什么、要什么参数
@@ -86,7 +86,7 @@ for step in range(1, MAX_STEPS + 1):            # 保险丝：防无限循环
 
 ### 3.2 动手：mini Agent 客服
 
-[mini_agent.py](https://github.com/your-name/learn-vibe-coding/tree/main/code/ch4-agent) 实现了「星辰商城客服」：三个工具（查订单 / 退换政策 / 当前时间，数据在 `data/project2-orders.json`）。运行后试这个多步任务：
+[mini_agent.py](https://github.com/RCliang/learn-vibe-for-job/tree/main/code/ch4-agent) 实现了「星辰商城客服」：三个工具（查订单 / 退换政策 / 当前时间，数据在 `data/project2-orders.json`）。运行后试这个多步任务：
 
 ```text
 你：帮我查一下订单 SO-2026-1001 到哪了，今天几号，还有几天到？

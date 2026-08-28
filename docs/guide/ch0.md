@@ -333,7 +333,7 @@ git push -u origin main
 
 ## 6. 交付物：跑通第一个 LLM API 调用
 
-课程仓库 [code/ch0-hello-llm/](https://github.com/your-name/learn-vibe-coding/tree/main/code/ch0-hello-llm) 提供了完整代码。**这一步把今天所有知识串起来**：
+课程仓库 [code/ch0-hello-llm/](https://github.com/RCliang/learn-vibe-for-job/tree/main/code/ch0-hello-llm) 提供了完整代码。**这一步把今天所有知识串起来**：
 
 ```bash
 # 1. 把代码下载/复制到你的项目目录

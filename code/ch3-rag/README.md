@@ -1,6 +1,6 @@
 # Ch3 RAG 知识库：配套代码
 
-章节：[Ch3 RAG 知识库（Day 8-11）](https://your-name.github.io/learn-vibe-coding/guide/ch3)
+章节：[Ch3 RAG 知识库（Day 8-11）](https://rcliang.github.io/learn-vibe-for-job/guide/ch3)
 
 语料在仓库根目录 `data/project1-kb/`（星辰科技：请假制度 / 报销制度 / 产品 FAQ），
 可整体替换为你自己领域的文档。

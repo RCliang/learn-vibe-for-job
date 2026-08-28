@@ -38,7 +38,7 @@ outline: [2, 3]
   问题向量化 → 在向量库里找最相似的 k 块 → 拼进 prompt → 模型生成带引用的回答
 ```
 
-本章代码在 [code/ch3-rag/](https://github.com/your-name/learn-vibe-coding/tree/main/code/ch3-rag)，语料在 `data/project1-kb/`（虚构公司「星辰科技」的三份制度文档）——**建库脚本不挑文档，随时可以换成你感兴趣领域的资料**。
+本章代码在 [code/ch3-rag/](https://github.com/RCliang/learn-vibe-for-job/tree/main/code/ch3-rag)，语料在 `data/project1-kb/`（虚构公司「星辰科技」的三份制度文档）——**建库脚本不挑文档，随时可以换成你感兴趣领域的资料**。
 
 ---
 
@@ -234,7 +234,7 @@ GraphRAG 用 LLM 从语料中抽取**实体和关系**（三元组：头-关系-
 
 ### 6.3 迷你实验：亲手建一张小图
 
-运行 [graph_rag_mini.py](https://github.com/your-name/learn-vibe-coding/tree/main/code/ch3-rag)（选做，约 10 分钟）：
+运行 [graph_rag_mini.py](https://github.com/RCliang/learn-vibe-for-job/tree/main/code/ch3-rag)（选做，约 10 分钟）：
 
 1. **建图**：对三份语料各做一次 JSON mode 调用，抽取实体和三元组关系，打印全部边
 2. **对比问答**：三个问题分别用向量 RAG 和图方式回答，并排观察——

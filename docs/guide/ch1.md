@@ -144,7 +144,7 @@ pip install openai python-dotenv
 
 ### 参考实现
 
-课程仓库 [code/ch1-vibe-workflow/](https://github.com/your-name/learn-vibe-coding/tree/main/code/ch1-vibe-workflow) 提供 `weekly_report.py` 参考实现。**先自己生成，卡壳超过 20 分钟再对照**——直接抄参考实现 = 跳过本章全部训练。
+课程仓库 [code/ch1-vibe-workflow/](https://github.com/RCliang/learn-vibe-for-job/tree/main/code/ch1-vibe-workflow) 提供 `weekly_report.py` 参考实现。**先自己生成，卡壳超过 20 分钟再对照**——直接抄参考实现 = 跳过本章全部训练。
 
 ---
 
@@ -186,7 +186,7 @@ AI 修 bug 的效果，取决于你给它多少信息。模板：
 
 ### 5.3 预置 bug 修复实战（必做）
 
-课程提供 3 段带 bug 的代码，在 [code/ch1-vibe-workflow/bugs/](https://github.com/your-name/learn-vibe-coding/tree/main/code/ch1-vibe-workflow/bugs)。对每段执行：**运行 → 自己从下往上读报错 → 说出猜测 → 贴给 AI 验证 → 修复 → 再运行验证**。
+课程提供 3 段带 bug 的代码，在 [code/ch1-vibe-workflow/bugs/](https://github.com/RCliang/learn-vibe-for-job/tree/main/code/ch1-vibe-workflow/bugs)。对每段执行：**运行 → 自己从下往上读报错 → 说出猜测 → 贴给 AI 验证 → 修复 → 再运行验证**。
 
 | 文件 | 你会遇到的报错 | 训练点 |
 | --- | --- | --- |

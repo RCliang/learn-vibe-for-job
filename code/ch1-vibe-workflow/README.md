@@ -1,6 +1,6 @@
 # Ch1 Vibe Coding 工作流：配套代码
 
-章节：[Ch1 Vibe Coding 工作流（Day 3-4）](https://your-name.github.io/learn-vibe-coding/guide/ch1)
+章节：[Ch1 Vibe Coding 工作流（Day 3-4）](https://rcliang.github.io/learn-vibe-for-job/guide/ch1)
 
 ## 目录结构
 
