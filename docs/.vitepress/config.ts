@@ -2,6 +2,7 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
   lang: 'zh-CN',
+  base: '/learn-vibe-for-job/', // GitHub Pages 子路径：站内链接/资源都必须带这个前缀
   title: 'AI 应用开发速成营',
   description:
     '28 天零基础转行 AI 应用开发：JD 逆向设计，产出两个可写上简历的项目',
