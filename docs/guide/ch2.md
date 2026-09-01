@@ -99,7 +99,7 @@ messages = [
 
 - **token 是模型计费和计算长度的单位**。直觉：1 个汉字 ≈ 1~2 token，1 个英文单词 ≈ 1 token。
 - **上下文窗口** = 模型一次能「看到」的 token 上限。聊天记录越长，每次重发的 token 越多——**越贵也越慢**，这就是 Ch1 说「对话太乱就 `/clear`」的底层原因。
-- **成本 =（输入 token ＋ 输出 token）× 单价**。`glm-4-flash` 免费适合练习；付费模型的价格在[智谱定价页](https://open.bigmodel.cn/pricing)查询。养成习惯：每次调用后看一眼响应里的 `usage` 字段——它告诉你这次花了多少 token。
+- **成本 =（输入 token ＋ 输出 token）× 单价**。DeepSeek 按量计费、价格是主流模型里最低的一档（现价见[官方价格页](https://api-docs.deepseek.com/zh-cn/quick_start/pricing)），本章几章的练习总共花费不到 1 元。养成习惯：每次调用后看一眼响应里的 `usage` 字段——它告诉你这次花了多少 token。
 
 ::: details 在代码里看 usage
 ```python
@@ -120,7 +120,7 @@ Ch0 讲过「JSON 是数据的世界语」。模型输出的是**文本**，而�
 
 **第 1 步：只靠 prompt 约束（脆弱）**。在 prompt 里写「只输出 JSON」，然后 `json.loads(text)`。常见翻车：模型给 JSON 套上 ```` ```json ```` 代码块、前后加说明文字——解析直接崩。它不是「错」，只是不可靠。
 
-**第 2 步：JSON mode（可靠）**。GLM 支持在调用时声明输出格式（[官方文档](https://docs.bigmodel.cn/cn/guide/capabilities/struct-output)）：
+**第 2 步：JSON mode（可靠）**。DeepSeek 支持在调用时声明输出格式（[官方文档](https://api-docs.deepseek.com/zh-cn/guides/json_mode)）：
 
 ```python
 response = client.chat.completions.create(
@@ -207,7 +207,7 @@ Pydantic 是 JD 里的常客（FastAPI 的内置校验库，Ch4 项目 2 会再�
 - **完整路径（选做）**：
   - 用官方文档提到的 `jsonschema` 库做一次校验，对比 Pydantic 的开发体验
   - 把简历优化器改成命令行参数输入：`python resume_optimizer.py 我的简历.txt`
-  - 同一份简历分别发给 `glm-4-flash` 和一个付费模型，对比建议质量与 token 成本
+  - 同一份简历分别发给 `deepseek-chat` 和 `deepseek-reasoner`，对比建议质量与 token 成本
 
 ## 9. 排错指引
 

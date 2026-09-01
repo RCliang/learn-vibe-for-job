@@ -70,16 +70,24 @@ python --version
 
 ## 2. Day 1 下午：接入你的 AI 结对程序员
 
-本课程的「Vibe Coding」工具链：**VSCode 写代码 + Claude Code 当结对程序员**，由智谱 **GLM Coding Plan** 提供模型能力，全程国内可用、不需要海外账号。
+本课程的「Vibe Coding」工具链：**VSCode 写代码 + Claude Code 当结对程序员**，模型能力由 **DeepSeek API** 提供，全程国内可用、不需要海外账号。DeepSeek 按量计费、价格便宜，**充值 10 元足够支撑整个课程**。
 
-### 2.1 开通 GLM Coding Plan
+::: info 为什么是 DeepSeek
+注册即用（手机号）、按量付费不用订阅、价格是主流模型里最低的一档、官方提供 Anthropic 兼容端点可以直接驱动 Claude Code。课程所有代码也默认指向 DeepSeek，但配置全部抽在 `.env` 里——**以后想换智谱、月之暗面等任何 OpenAI 兼容厂商，改两行环境变量即可，代码零改动**（第 3.2 节你会明白为什么）。
+:::
 
-1. 打开智谱开放平台 [https://open.bigmodel.cn](https://open.bigmodel.cn)，手机号注册登录
-2. 进入「编程套餐」（GLM Coding Plan），订阅**个人版**套餐（每月一杯奶茶价位）
-3. 在「**个人编程套餐 → 套餐概览**」页面点「新建 API Key」，复制保存
+### 2.1 开通 DeepSeek API
+
+1. 打开 DeepSeek 开放平台 [https://platform.deepseek.com](https://platform.deepseek.com)，手机号注册登录
+2. 左侧「API Keys」→ 创建 API Key，**立即复制保存**（只显示一次）
+3. 左侧「充值」→ 充值 10 元左右（按量扣费，用不完一直在）
 
 ::: warning 🔑 API Key 就是你的密码
 Key 等同于付费凭证：**不发群里、不贴截图、不写进代码提交到 GitHub**。后面我们会用 `.env` 文件保管它。
+:::
+
+::: tip 💰 动手前先看一眼价格
+各模型现价以[官方价格页](https://api-docs.deepseek.com/zh-cn/quick_start/pricing)为准。放心：本课程全部 API 调用（含 RAG、Agent 项目）总花费大约一杯奶茶的零头。
 :::
 
 ### 2.2 安装 Claude Code
@@ -95,29 +103,30 @@ npm install -g @anthropic-ai/claude-code
 claude --version   # 能输出版本号即成功
 ```
 
-### 2.3 配置 Claude Code 使用 GLM
+### 2.3 配置 Claude Code 使用 DeepSeek
 
-让 Claude Code 把请求发到智谱的兼容端点。**Windows 手动配置法**（来自[智谱官方文档](https://docs.bigmodel.cn/cn/guide/develop/claude)）：
+Claude Code 原生只认 Anthropic 的接口格式，而 DeepSeek 官方提供了 **Anthropic 兼容端点**——只需告诉 Claude Code「把请求发到 DeepSeek」即可（配置方法来自[DeepSeek 官方文档](https://api-docs.deepseek.com/zh-cn/quick_start/agent_integrations/claude_code/)）。
 
 用编辑器打开 `C:\Users\你的用户名\.claude\settings.json`（文件不存在就新建，注意 `.claude` 是文件夹、`settings.json` 是文件），填入：
 
 ```json
 {
   "env": {
-    "ANTHROPIC_AUTH_TOKEN": "把这里换成你的智谱 API Key",
-    "ANTHROPIC_BASE_URL": "https://open.bigmodel.cn/api/anthropic",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "glm-4.7",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-5.2[1m]",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-5.2[1m]",
-    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "1000000",
-    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": 1,
+    "ANTHROPIC_AUTH_TOKEN": "把这里换成你的 DeepSeek API Key",
+    "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
+    "ANTHROPIC_MODEL": "deepseek-chat",
+    "ANTHROPIC_SMALL_FAST_MODEL": "deepseek-chat",
     "API_TIMEOUT_MS": "3000000"
   }
 }
 ```
 
-::: details 不想手改 JSON？
-智谱也提供了官方配置助手，在终端运行 `npx @z_ai/coding-helper`，按提示交互式完成同样的配置。
+::: details 抢到了 GLM Coding Plan？也可以用它
+如果你订阅了智谱 GLM Coding Plan，把上面三个值换成智谱的即可：`ANTHROPIC_BASE_URL` 改为 `https://open.bigmodel.cn/api/anthropic`、Token 用智谱 Key、模型名按[智谱官方文档](https://docs.bigmodel.cn/cn/guide/develop/claude)填写。课程主线按 DeepSeek 讲，用 GLM 不影响任何练习——这正是「配置与代码解耦」的好处。
+:::
+
+::: warning ⚠️ 这段配置是全课程最可能「过期」的地方
+Claude Code 和模型厂商都在快速迭代，端点 URL、环境变量名、模型名都可能变化。**如果照抄上面没配成功，不要反复重试**，直接去 [DeepSeek 官方的 Claude Code 接入文档](https://api-docs.deepseek.com/zh-cn/quick_start/agent_integrations/claude_code/)抄最新版配置，再用[排错指引](#_9-排错指引)末尾的「配置过时兜底三步」排查。
 :::
 
 ### 2.4 第一次对话验证
@@ -127,11 +136,11 @@ mkdir hello-claude && cd hello-claude
 claude          # 启动，进入对话界面
 ```
 
-进入后输入 `/status`，确认模型指向 GLM 即配置成功。试着让它「写一个 Python 的 hello world 并解释每一行」。
+进入后输入 `/status`，确认模型指向 DeepSeek 即配置成功。试着让它「写一个 Python 的 hello world 并解释每一行」。
 
 ### 2.5 备选路径：ZCode（图形界面）
 
-如果命令行实在不适应，可以用 **ZCode** 桌面版（GUI）：官网下载安装后，用智谱账号（GLM Coding Plan）登录即可使用，无需配置文件。功能上同样是「AI 结对编程」，后续课程内容两种工具通用。
+如果命令行实在不适应，可以用 **ZCode** 桌面版（GUI）：官网下载安装后，配置一个 DeepSeek 或其他模型的 API Key 即可使用，无需改配置文件。功能上同样是「AI 结对编程」，后续课程内容两种工具通用。
 
 ::: tip 本课程以 Claude Code 为主线讲解
 因为它是目前 JD 和技术社区里辨识度最高的 AI 编程工具，面试聊起来有天然话题。ZCode 用户可以照做所有练习，只是操作入口不同。
@@ -160,9 +169,9 @@ claude          # 启动，进入对话界面
 | 组成 | 例子 | 说明 |
 | --- | --- | --- |
 | 方法 | `GET` / `POST` | GET 是「查」，POST 是「交」（提交数据） |
-| URL | `https://open.bigmodel.cn/api/paas/v4/chat/completions` | 请求打到哪个「窗口」 |
+| URL | `https://api.deepseek.com/chat/completions` | 请求打到哪个「窗口」 |
 | 请求头 | `Authorization: Bearer 你的Key` | 附带的身份信息 |
-| 请求体 | `{"model": "glm-4-flash", "messages": [...]}` | 你提交的数据，JSON 格式 |
+| 请求体 | `{"model": "deepseek-chat", "messages": [...]}` | 你提交的数据，JSON 格式 |
 
 服务器 → 你（响应）：
 
@@ -346,7 +355,7 @@ python -m venv .venv
 # 3. 按清单安装依赖（4.2 节）
 pip install -r requirements.txt
 
-# 4. 复制 .env.example 为 .env，填入你的智谱 API Key
+# 4. 复制 .env.example 为 .env，填入你的 DeepSeek API Key
 
 # 5. 运行！
 python hello_llm.py
@@ -354,7 +363,7 @@ python hello_llm.py
 
 看到模型返回一句话，就是 **Day 2 的交付物**。然后把整个目录（确认 `.gitignore` 里有 `.env`）`add → commit → push` 到你自己的 GitHub 仓库。
 
-**这个脚本里发生了什么**：`import` 拿到 OpenAI SDK（4.1）→ SDK 在 venv 里（4.3）→ pip 从 requirements.txt 装的（4.2）→ 它向 `https://open.bigmodel.cn/api/paas/v4/chat/completions` 发了一次 **POST 请求**（第 3 节）→ 带着 JSON 请求体 → 拿到 JSON 响应 → 打印出来。**今天一天的知识，全在这一段 20 行的代码里。**
+**这个脚本里发生了什么**：`import` 拿到 OpenAI SDK（4.1）→ SDK 在 venv 里（4.3）→ pip 从 requirements.txt 装的（4.2）→ 它向 `https://api.deepseek.com/chat/completions` 发了一次 **POST 请求**（第 3 节）→ 带着 JSON 请求体 → 拿到 JSON 响应 → 打印出来。**今天一天的知识，全在这一段 20 行的代码里。**
 
 ---
 
@@ -363,7 +372,7 @@ python hello_llm.py
 进入 Ch1 前，确认你能：
 
 - [ ] `python --version` 能输出版本号
-- [ ] Claude Code 能对话，`/status` 显示 GLM 模型
+- [ ] Claude Code 能对话，`/status` 显示 DeepSeek 模型
 - [ ] 能说清 200 / 401 / 404 / 429 分别是什么意思
 - [ ] **独立**在一个新目录创建 venv、激活、安装一个包
 - [ ] 能说出遇到 `ModuleNotFoundError` 时的两步排错法
@@ -389,10 +398,20 @@ python hello_llm.py
 | `pip 不是内部或外部命令` | 同上 | 同上 |
 | `npm 不是内部或外部命令` | Node.js 没装好 | 重装 Node LTS，重开终端 |
 | `claude` 无响应或连不上 | 环境变量/配置未生效 | 检查 `.claude/settings.json` 的 JSON 格式（多逗号/少引号都会失效），**重开终端**再试 |
-| API 返回 `401` | Key 错/没生效 | 核对 `.env` 里的 Key；智谱后台重新复制 |
+| `claude` 报 401 / 404 / model not found | 端点或模型名已变化 | 走下面的「配置过时兜底三步」 |
+| API 返回 `401` | Key 错/没生效 | 核对 `.env` 里的 Key；DeepSeek 后台重新复制 |
+| API 返回 `404` | 模型名写错 | 打开[官方模型列表](https://api-docs.deepseek.com/zh-cn/quick_start/pricing)核对 `.env` 里的 `LLM_MODEL` |
 | API 返回 `429` | 请求太频繁 | 等几秒重试 |
 | `ModuleNotFoundError: No module named 'openai'` | 没装 / 没激活 venv | 确认终端前面有 `(.venv)`，再 `pip install -r requirements.txt` |
 | PowerShell「禁止运行脚本」 | 执行策略限制 | 见 4.3 节 details 框 |
 | pip 下载极慢/超时 | 默认源在国外 | 加 `-i https://pypi.tuna.tsinghua.edu.cn/simple` |
 | 脚本输出乱码 | Windows 终端编码 | 终端先执行 `chcp 65001` 切 UTF-8 |
 | `git push` 要求登录 | 首次使用 | 按提示浏览器登录 GitHub 即可 |
+
+### 配置过时兜底三步（教程跟不上现实时用）
+
+工具和模型迭代快，本教程里写死的 URL / 环境变量名 / 模型名**以官方文档为准**。照抄后不成功，按这三步走：
+
+1. **找官方最新配置**：Claude Code 接入看 [DeepSeek 官方文档](https://api-docs.deepseek.com/zh-cn/quick_start/agent_integrations/claude_code/)；API 调用看 [DeepSeek API 文档](https://api-docs.deepseek.com/zh-cn/)；模型名和价格看[价格页](https://api-docs.deepseek.com/zh-cn/quick_start/pricing)。
+2. **只换值、不改结构**：把文档里的新 URL / 变量名 / 模型名填进原来的位置——`.claude/settings.json` 的结构、`.env` 的三个变量名（`LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL`）是不变的。
+3. **还不行就问 AI**：把「我的 `.claude/settings.json` 内容 + 完整报错」贴给 Claude Code（或把 `.env` 内容**隐去 Key** 后贴出来），让它帮你对照最新文档找差异。这也是 Ch1 要练的核心动作。

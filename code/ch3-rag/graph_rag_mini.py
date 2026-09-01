@@ -19,9 +19,9 @@ from rag_chat import generate_answer
 
 load_dotenv()
 
-API_KEY = os.getenv("GLM_API_KEY")
-BASE_URL = os.getenv("GLM_BASE_URL", "https://open.bigmodel.cn/api/paas/v4")
-MODEL = os.getenv("GLM_MODEL", "glm-4-flash")
+API_KEY = os.getenv("LLM_API_KEY")
+BASE_URL = os.getenv("LLM_BASE_URL", "https://api.deepseek.com")
+MODEL = os.getenv("LLM_MODEL", "deepseek-chat")
 
 KB_DIR = Path(__file__).resolve().parents[2] / "data" / "project1-kb"
 
@@ -87,7 +87,7 @@ def graph_answer(client: OpenAI, edges: list[dict], question: str) -> str:
 
 def main() -> None:
     if not API_KEY:
-        raise SystemExit("未读到 GLM_API_KEY：请复制 .env.example 为 .env 并填入 Key")
+        raise SystemExit("未读到 LLM_API_KEY：请复制 .env.example 为 .env 并填入 Key")
 
     client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
 

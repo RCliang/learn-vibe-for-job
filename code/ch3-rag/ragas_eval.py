@@ -28,17 +28,20 @@ from rag_chat import generate_answer, retrieve
 
 load_dotenv()
 
-API_KEY = os.getenv("GLM_API_KEY")
-BASE_URL = os.getenv("GLM_BASE_URL", "https://open.bigmodel.cn/api/paas/v4")
-MODEL = os.getenv("GLM_MODEL", "glm-4-flash")
-EMBED_MODEL = os.getenv("GLM_EMBED_MODEL", "embedding-3")
+API_KEY = os.getenv("LLM_API_KEY")
+BASE_URL = os.getenv("LLM_BASE_URL", "https://api.deepseek.com")
+MODEL = os.getenv("LLM_MODEL", "deepseek-chat")
+# 向量化走硅基流动（DeepSeek 不提供 embedding API），与对话模型是两套凭证
+EMBED_API_KEY = os.getenv("EMBED_API_KEY")
+EMBED_BASE_URL = os.getenv("EMBED_BASE_URL", "https://api.siliconflow.cn/v1")
+EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-m3")
 
 QA_FILE = Path(__file__).resolve().parent / "qa_pairs.json"
 
 
 def main() -> None:
     if not API_KEY:
-        raise SystemExit("未读到 GLM_API_KEY：请复制 .env.example 为 .env 并填入 Key")
+        raise SystemExit("未读到 LLM_API_KEY：请复制 .env.example 为 .env 并填入 Key")
 
     parser = argparse.ArgumentParser(description="Ragas 四指标评估（选做）")
     parser.add_argument("--k", type=int, default=3, help="RAG 检索 top-k")
@@ -60,12 +63,12 @@ def main() -> None:
             f"缺少选做依赖（{exc}）。安装：pip install \"ragas>=0.2\" langchain-openai"
         )
 
-    # 评委模型和向量模型都指向 GLM（与 RAG 本身同一套 Key）
+    # 评委模型走 DeepSeek，向量指标走硅基流动（与 RAG 本身同一套配置）
     evaluator_llm = LangchainLLMWrapper(
         ChatOpenAI(model=MODEL, api_key=API_KEY, base_url=BASE_URL, temperature=0)
     )
     evaluator_embeddings = LangchainEmbeddingsWrapper(
-        OpenAIEmbeddings(model=EMBED_MODEL, api_key=API_KEY, base_url=BASE_URL)
+        OpenAIEmbeddings(model=EMBED_MODEL, api_key=EMBED_API_KEY, base_url=EMBED_BASE_URL)
     )
 
     qa_pairs = json.loads(QA_FILE.read_text(encoding="utf-8"))

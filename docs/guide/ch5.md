@@ -81,7 +81,7 @@ Linux 只有一棵树，从根 `/` 开始（Windows 的 C:\、D:\ 在这里不�
 
 ```bash
 find / -name "heartbeat.py" 2>/dev/null   # 全盘找文件（2>/dev/null：把「没权限」的报错丢掉，明天讲）
-grep -rn "GLM_API_KEY" /root               # 在目录里递归搜文本：哪个文件、第几行、内容
+grep -rn "LLM_API_KEY" /root               # 在目录里递归搜文本：哪个文件、第几行、内容
 ```
 
 `grep` 是排错时「在几十个配置文件里找那一行」的利器——配合 Ch1 的报错搜索思维用。
@@ -127,7 +127,7 @@ nohup python3 app.py > app.log 2>&1 &
 
 - `echo $PATH` 打印 PATH——它是**命令的搜索路径清单**：你敲 `python3`，系统挨个在清单里的目录找可执行文件
 - `command not found` 的真相：要么没装，要么装了但**不在 PATH 里**（Ch0「pip 不是内部命令」的 Linux 版）
-- `export GLM_API_KEY=xxx` 本次会话生效；写进 `~/.bashrc` 再 `source ~/.bashrc` 才持久——**Ch0 里 Claude Code 配置要重开终端生效，底层就是这个机制**
+- `export LLM_API_KEY=xxx` 本次会话生效；写进 `~/.bashrc` 再 `source ~/.bashrc` 才持久——**Ch0 里 Claude Code 配置要重开终端生效，底层就是这个机制**
 
 ### 3.4 交付物：心跳脚本上云（三段玩法）
 
@@ -161,7 +161,7 @@ ps aux | grep heartbeat             # 确认没了
 
 - [ ] `ssh` 免密登录已配好，能解释公钥私钥各在哪一侧
 - [ ] 不看表格完成：新建目录 → 复制文件进去 → 改名 → cat 查看 → 删除
-- [ ] 一条命令在 /root 下搜出所有包含 `GLM` 的文件及行号
+- [ ] 一条命令在 /root 下搜出所有包含 `LLM_API_KEY` 的文件及行号
 - [ ] 默写生产组合拳 `nohup ... > log 2>&1 &` 并解释每个符号
 - [ ] 完成交付物三段玩法；解释 `flush=True` 不加会怎样
 - [ ] 遇到 `command not found` 说出两种原因

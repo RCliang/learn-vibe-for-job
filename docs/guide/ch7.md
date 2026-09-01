@@ -33,7 +33,7 @@ cd 你的仓库/code/project2-agent
 
 # ③ 语料 + 密钥
 mkdir data && cp ../../data/project2-orders.json data/
-cp .env.example .env && nano .env           # 填 GLM_API_KEY
+cp .env.example .env && nano .env           # 填 LLM_API_KEY
 chmod 600 .env                              # 只有 root 能读（Day 27 讲为什么）
 
 # ④ 安全组放行 8000（控制台操作）
@@ -113,7 +113,7 @@ compose 会智能地只替换变化的层（Ch6 层缓存），整个过程通�
 
 1. **权限收窄**：`chmod 600 .env`——Linux 权限位（Ch5）的实际应用：只有属主能读
 2. **三个「永不」**：Key 永不进 Git（.gitignore）、永不进镜像（.dockerignore + env_file 注入）、永不贴聊天截图
-3. **泄露就轮换**：怀疑泄露立刻去智谱后台作废旧 Key 换新的——**轮换成本低，事故成本高**
+3. **泄露就轮换**：怀疑泄露立刻去 DeepSeek 后台作废旧 Key 换新的——**轮换成本低，事故成本高**
 
 ### 3.3 三个概念级加固（知道 + 知道去哪学）
 

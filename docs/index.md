@@ -25,7 +25,7 @@ features:
     details: 原型（Streamlit）→ 前后端分离（FastAPI）→ 生产部署（Docker + 云服务器），面试能讲细节
   - icon: 🇨🇳
     title: 全程零翻墙
-    details: VSCode + Claude Code/ZCode 由 GLM Coding Plan 驱动，模型用 GLM/DeepSeek，工具全部国内可注册
+    details: VSCode + Claude Code/ZCode 由 DeepSeek API 驱动（按量计费，充值 10 元够全程），工具全部国内可注册
   - icon: 🛤️
     title: 双路径防弃坑
     details: 每章区分最小路径（必做）与完整路径（选做），学不完可降级为 5-6 周
@@ -44,5 +44,5 @@ features:
 | Week 4 | 工程化与上云 | Ch5 Linux · Ch6 Docker · Ch7 云部署 · Ch8 求职冲刺 | 公网可访问的项目 2 + 简历项目描述 |
 
 ::: tip 💰 成本说明
-课程需要的小额开销：GLM Coding Plan 订阅（每月一杯奶茶价位，驱动 AI 编程工具）+ 云服务器（Week 2 起部署项目，新用户约几十元/月；暂不付费可先用 HF Space 零成本备选）。
+课程需要的小额开销：DeepSeek API 按量付费（对话模型，充值 10 元左右足够全程；Ch3 起向量模型用硅基流动的免费 bge-m3）+ 云服务器（Week 2 起部署项目，新用户约几十元/月；暂不付费可先用 HF Space 零成本备选）。
 :::

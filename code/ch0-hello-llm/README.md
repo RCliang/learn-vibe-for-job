@@ -15,7 +15,7 @@ python -m venv .venv
 # 3. 按清单安装依赖
 pip install -r requirements.txt
 
-# 4. 准备你的 Key：复制 .env.example 为 .env，填入 GLM_API_KEY
+# 4. 准备你的 Key：复制 .env.example 为 .env，填入 LLM_API_KEY
 
 # 5. 运行
 python hello_llm.py
@@ -24,7 +24,7 @@ python hello_llm.py
 ## 前置条件
 
 - Python 3.10+（终端 `python --version` 可用）
-- 智谱开放平台 API Key：[open.bigmodel.cn](https://open.bigmodel.cn) 注册后，在「编程套餐 → 套餐概览」或「API Keys」页面创建
+- DeepSeek 开放平台 API Key：[platform.deepseek.com](https://platform.deepseek.com) 注册后，在「API Keys」页面创建并充值少量金额（按量计费）
 
 ## 文件说明
 

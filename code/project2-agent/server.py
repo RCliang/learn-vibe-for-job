@@ -18,9 +18,9 @@ from agent_core import ChatMemory, SYSTEM_PROMPT, input_filter, run_agent
 
 load_dotenv()
 
-API_KEY = os.getenv("GLM_API_KEY")
-BASE_URL = os.getenv("GLM_BASE_URL", "https://open.bigmodel.cn/api/paas/v4")
-MODEL = os.getenv("GLM_MODEL", "glm-4-flash")
+API_KEY = os.getenv("LLM_API_KEY")
+BASE_URL = os.getenv("LLM_BASE_URL", "https://api.deepseek.com")
+MODEL = os.getenv("LLM_MODEL", "deepseek-chat")
 
 app = FastAPI(title="星辰商城 AI 客服", version="1.0.0")
 
@@ -61,7 +61,7 @@ def chat(req: ChatRequest) -> dict:
     if not API_KEY:
         return JSONResponse(
             status_code=503,
-            content={"reply": "服务端未配置 GLM_API_KEY，请联系管理员", "tools_used": []},
+            content={"reply": "服务端未配置 LLM_API_KEY，请联系管理员", "tools_used": []},
         )
 
     # 第 3 道：业务异常兜底——不让堆栈信息漏给用户

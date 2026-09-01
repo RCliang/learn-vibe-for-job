@@ -26,10 +26,13 @@ def get_secret(name: str) -> str | None:
         return None
 
 
-API_KEY = get_secret("GLM_API_KEY")
-BASE_URL = get_secret("GLM_BASE_URL") or "https://open.bigmodel.cn/api/paas/v4"
-MODEL = get_secret("GLM_MODEL") or "glm-4-flash"
-EMBED_MODEL = get_secret("GLM_EMBED_MODEL") or "embedding-3"
+API_KEY = get_secret("LLM_API_KEY")
+BASE_URL = get_secret("LLM_BASE_URL") or "https://api.deepseek.com"
+MODEL = get_secret("LLM_MODEL") or "deepseek-chat"
+# 向量化走硅基流动（DeepSeek 不提供 embedding API），与对话模型是两套凭证
+EMBED_API_KEY = get_secret("EMBED_API_KEY")
+EMBED_BASE_URL = get_secret("EMBED_BASE_URL") or "https://api.siliconflow.cn/v1"
+EMBED_MODEL = get_secret("EMBED_MODEL") or "BAAI/bge-m3"
 
 # ---------- 页面骨架 ----------
 st.set_page_config(page_title="企业知识库问答", page_icon="🏢", layout="centered")
@@ -47,20 +50,23 @@ with st.sidebar:
     st.divider()
     st.markdown(f"📚 语料目录：`{KB_DIR.name}/`（三份制度文档，可整体替换）")
 
-if not API_KEY:
+if not API_KEY or not EMBED_API_KEY:
     st.error(
-        "未配置 GLM_API_KEY：本地请在项目根目录放 `.env`（参考 .env.example）；\n"
-        "HF Space 请在 Settings → Variables and secrets 添加名为 GLM_API_KEY 的 Secret。"
+        "未配置 API Key：本地请在项目根目录放 `.env`（参考 .env.example），需要两把钥匙：\n"
+        "- `LLM_API_KEY`（DeepSeek，负责生成回答）\n"
+        "- `EMBED_API_KEY`（硅基流动，负责向量化检索）\n\n"
+        "HF Space 请在 Settings → Variables and secrets 添加同名 Secret。"
     )
     st.stop()
 
 openai_client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
+embed_client = OpenAI(api_key=EMBED_API_KEY, base_url=EMBED_BASE_URL)
 
 
 # ---------- 知识库：只建一次，进程内缓存 ----------
 @st.cache_resource(show_spinner="正在构建知识库（首次约 1 分钟，之后走缓存）…")
 def get_collection():
-    return build_kb(API_KEY, BASE_URL, EMBED_MODEL)
+    return build_kb(EMBED_API_KEY, EMBED_BASE_URL, EMBED_MODEL)
 
 
 collection = get_collection()
@@ -83,7 +89,7 @@ if question:
         st.markdown(question)
 
     with st.chat_message("assistant"):
-        chunks, sources = retrieve(openai_client, EMBED_MODEL, collection, question, TOP_K)
+        chunks, sources = retrieve(embed_client, EMBED_MODEL, collection, question, TOP_K)
 
         # 引用来源可折叠查看——「可回溯」是本项目毕业标准之一
         with st.expander("📖 引用来源（点开查看检索到的原文）"):

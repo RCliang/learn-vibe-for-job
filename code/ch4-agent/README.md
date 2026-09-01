@@ -19,7 +19,7 @@ cd code/ch4-agent
 python -m venv .venv
 .venv\Scripts\activate              # Git Bash: source .venv/Scripts/activate
 pip install -r requirements.txt
-# 复制 .env.example 为 .env，填入 GLM_API_KEY
+# 复制 .env.example 为 .env，填入 LLM_API_KEY
 
 python first_tool_call.py           # Day 15：单次调用
 python mini_agent.py                # Day 16-17：mini Agent

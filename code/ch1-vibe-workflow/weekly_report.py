@@ -1,6 +1,6 @@
 """Ch1 实战参考实现：周报生成器。
 
-流水账 → GLM → 结构化 Markdown 周报。
+流水账 → DeepSeek → 结构化 Markdown 周报。
 先自己用 AI 结对生成你的版本，卡壳超过 20 分钟再来对照本文件
 （本文件已包含课程第 4 节 Step 3 的三个迭代要求）。
 """
@@ -12,9 +12,9 @@ from openai import OpenAI
 
 load_dotenv()
 
-API_KEY = os.getenv("GLM_API_KEY")
-BASE_URL = os.getenv("GLM_BASE_URL", "https://open.bigmodel.cn/api/paas/v4")
-MODEL = os.getenv("GLM_MODEL", "glm-4-flash")
+API_KEY = os.getenv("LLM_API_KEY")
+BASE_URL = os.getenv("LLM_BASE_URL", "https://api.deepseek.com")
+MODEL = os.getenv("LLM_MODEL", "deepseek-chat")
 
 # 把你本周的流水账粘贴到这里（一行一条）
 RAW_TEXT = """周一 开需求会，定了周报自动化的边界
@@ -52,14 +52,14 @@ def generate_weekly_report(raw_text: str) -> str:
 
 def main() -> None:
     if not API_KEY:
-        raise SystemExit("未读到 GLM_API_KEY：请复制 .env.example 为 .env 并填入 Key")
+        raise SystemExit("未读到 LLM_API_KEY：请复制 .env.example 为 .env 并填入 Key")
 
     try:
         report = generate_weekly_report(RAW_TEXT)
     except Exception as exc:  # API 调用失败给人能看懂的提示（401 = Key 问题）
         raise SystemExit(
-            f"调用 GLM 失败：{exc}\n"
-            "排查建议：1) 检查 .env 里的 GLM_API_KEY 是否正确；"
+            f"调用模型失败：{exc}\n"
+            "排查建议：1) 检查 .env 里的 LLM_API_KEY 是否正确；"
             "2) 网络是否可用；3) 把完整报错贴给 AI 帮你分析。"
         )
 

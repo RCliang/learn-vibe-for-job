@@ -32,7 +32,7 @@ project2-agent/
 cd code/project2-agent
 python -m venv .venv && .venv\Scripts\activate   # Git Bash: source .venv/Scripts/activate
 pip install -r requirements.txt
-# 复制 .env.example 为 .env，填入 GLM_API_KEY
+# 复制 .env.example 为 .env，填入 LLM_API_KEY
 uvicorn server:app --reload
 # 浏览器打开 http://127.0.0.1:8000（接口文档自动生成在 /docs）
 ```
@@ -43,7 +43,7 @@ uvicorn server:app --reload
 
 ```bash
 mkdir data && cp ../../data/project2-orders.json data/   # 语料拷进项目目录（镜像内自包含）
-cp .env.example .env && nano .env                        # 填入 GLM_API_KEY
+cp .env.example .env && nano .env                        # 填入 LLM_API_KEY
 
 docker compose up -d --build    # 构建镜像并后台启动（等价于 build + run 的一长串参数）
 docker compose logs -f          # 看日志（Ctrl+C 退出查看，服务仍在）

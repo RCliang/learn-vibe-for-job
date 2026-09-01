@@ -1,6 +1,6 @@
 """Day 8 实验：亲眼看「语义相近 = 向量距离近」。
 
-把几句话用 GLM embedding-3 向量化，两两计算余弦相似度，
+把几句话用 bge-m3 向量化，两两计算余弦相似度，
 观察语义关系如何在数字上体现。运行：python embedding_lab.py
 """
 
@@ -12,9 +12,10 @@ from openai import OpenAI
 
 load_dotenv()
 
-API_KEY = os.getenv("GLM_API_KEY")
-BASE_URL = os.getenv("GLM_BASE_URL", "https://open.bigmodel.cn/api/paas/v4")
-EMBED_MODEL = os.getenv("GLM_EMBED_MODEL", "embedding-3")
+# 本章只做向量化实验，只用 EMBED_* 三件套（硅基流动，见 .env.example）
+EMBED_API_KEY = os.getenv("EMBED_API_KEY")
+EMBED_BASE_URL = os.getenv("EMBED_BASE_URL", "https://api.siliconflow.cn/v1")
+EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-m3")
 
 # 三组句子：前两句同主题（请假）、中间两句同主题（报销）、最后两句与工作无关
 SENTENCES = [
@@ -29,7 +30,7 @@ SENTENCES = [
 
 def embed(texts: list[str]) -> list[list[float]]:
     """调用 embedding API，把一组文本变成一组向量。"""
-    client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
+    client = OpenAI(api_key=EMBED_API_KEY, base_url=EMBED_BASE_URL)
     response = client.embeddings.create(model=EMBED_MODEL, input=texts)
     return [item.embedding for item in response.data]
 
@@ -42,8 +43,10 @@ def cosine_similarity(a: list[float], b: list[float]) -> float:
 
 
 def main() -> None:
-    if not API_KEY:
-        raise SystemExit("未读到 GLM_API_KEY：请复制 .env.example 为 .env 并填入 Key")
+    if not EMBED_API_KEY:
+        raise SystemExit(
+            "未读到 EMBED_API_KEY：向量化用硅基流动（见 .env.example），填入其 Key 后重试"
+        )
 
     vectors = embed(SENTENCES)
     print(f"模型：{EMBED_MODEL}，每句话变成了一个 {len(vectors[0])} 维向量\n")

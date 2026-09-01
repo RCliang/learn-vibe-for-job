@@ -18,9 +18,9 @@ from pydantic import BaseModel, Field
 
 load_dotenv()
 
-API_KEY = os.getenv("GLM_API_KEY")
-BASE_URL = os.getenv("GLM_BASE_URL", "https://open.bigmodel.cn/api/paas/v4")
-MODEL = os.getenv("GLM_MODEL", "glm-4-flash")
+API_KEY = os.getenv("LLM_API_KEY")
+BASE_URL = os.getenv("LLM_BASE_URL", "https://api.deepseek.com")
+MODEL = os.getenv("LLM_MODEL", "deepseek-chat")
 
 DEFAULT_RESUME = "sample_resume.txt"
 MAX_ATTEMPTS = 2  # 最多调用两次：失败把报错喂回模型自纠
@@ -125,7 +125,7 @@ def print_advice(advice: ResumeAdvice) -> None:
 
 def main() -> None:
     if not API_KEY:
-        raise SystemExit("未读到 GLM_API_KEY：请复制 .env.example 为 .env 并填入 Key")
+        raise SystemExit("未读到 LLM_API_KEY：请复制 .env.example 为 .env 并填入 Key")
 
     path = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_RESUME
     try:

@@ -227,7 +227,7 @@ cp -r ../../data/project1-kb ./data/
 
 # 3. 准备密钥（服务器上新建 .env，只留在服务器上）
 cp .env.example .env
-nano .env        # 填入 GLM_API_KEY，Ctrl+O 保存 Ctrl+X 退出
+nano .env        # 填入 LLM_API_KEY 和 EMBED_API_KEY（两把钥匙），Ctrl+O 保存 Ctrl+X 退出
 
 # 4. 构建镜像并运行
 docker build -t kb-bot .
@@ -242,7 +242,7 @@ docker logs -f kb-bot     # 看启动日志，Ctrl+C 退出查看
 
 ### 3.6 零成本备选路径（暂不付费的学员）
 
-Hugging Face Streamlit Space：上传 `app.py`/`rag_core.py`/`requirements.txt`/`data/`，Settings → Secrets 加 `GLM_API_KEY`（README 顶部 frontmatter 已备好）。注意 HF 国内访问不稳，README 必须附演示 GIF 与本地运行说明兜底；服务器真机部署经历留到 Ch7 用项目 2 补回。
+Hugging Face Streamlit Space：上传 `app.py`/`rag_core.py`/`requirements.txt`/`data/`，Settings → Secrets 加 `LLM_API_KEY` 和 `EMBED_API_KEY`（README 顶部 frontmatter 已备好）。注意 HF 国内访问不稳，README 必须附演示 GIF 与本地运行说明兜底；服务器真机部署经历留到 Ch7 用项目 2 补回。
 
 ### 3.7 毕业级 README（简历视角的写作法）
 

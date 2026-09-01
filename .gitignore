@@ -17,3 +17,4 @@ venv/
 # 工具
 .zcode/
 .DS_Store
+.gstack/

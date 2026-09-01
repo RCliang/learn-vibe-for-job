@@ -44,7 +44,7 @@ def split_text(text: str, chunk_size: int = CHUNK_SIZE, overlap: int = OVERLAP) 
 
 
 def embed_texts(client: OpenAI, embed_model: str, texts: list[str]) -> list[list[float]]:
-    """批量向量化（智谱单次最多 64 条，按 32 一批）。"""
+    """批量向量化（不同供应商单次条数上限不同，按 32 一批保守处理）。"""
     result: list[list[float]] = []
     for i in range(0, len(texts), 32):
         batch = texts[i : i + 32]

@@ -50,20 +50,22 @@ Embedding 模型把一段文本变成一个很长的数字列表（向量，比�
 
 衡量两个向量「方向有多一致」用**余弦相似度**（-1 到 1，越接近 1 越相似）。数学不神秘，几行代码就能算，我们在实验里亲手写一遍。
 
-### 2.2 调用 GLM 的 Embedding API
+### 2.2 调用 Embedding API（硅基流动）
 
-和聊天接口同一套 SDK，只是端点换成 embeddings：
+**一个预告过的分叉**：DeepSeek 只有对话 API，不提供 embedding。本章向量化改用**硅基流动（SiliconFlow）**——国内手机号注册（[cloud.siliconflow.cn](https://cloud.siliconflow.cn)，注册送免费额度），`bge-m3` 中文向量模型**免费**，且同样是 OpenAI 兼容接口：同一套 SDK，换个 base_url 和模型名而已。
+
+> **实操**：去硅基流动控制台「API 密钥」新建一个 Key，填进 `.env` 的 `EMBED_API_KEY`。对话仍走 DeepSeek 的 `LLM_API_KEY`——**从本章起 `.env` 里有两把钥匙，各管一件事**（`.env.example` 里有注释说明）。
 
 ```python
-client = OpenAI(api_key=API_KEY, base_url="https://open.bigmodel.cn/api/paas/v4")
+client = OpenAI(api_key=EMBED_API_KEY, base_url="https://api.siliconflow.cn/v1")
 response = client.embeddings.create(
-    model="embedding-3",           # 0.5 元/百万 token，本章全程花费不到 1 分钱
+    model="BAAI/bge-m3",           # 免费中文向量模型，本章全程花费 0 元
     input=["我想请年假去旅游", "年假的申请流程是什么"],
 )
-vectors = [item.embedding for item in response.data]  # 每句话一个 2048 维向量
+vectors = [item.embedding for item in response.data]  # 每句话一个 1024 维向量
 ```
 
-（[官方 Embedding-3 文档](https://docs.bigmodel.cn/cn/guide/models/embedding/embedding-3)：支持 256-2048 维自定义，单次最多 64 条输入。）
+（[硅基流动 Embeddings API 文档](https://docs.siliconflow.cn/cn/api-reference/embeddings/create-embeddings)：OpenAI 兼容格式，单条输入最长 8192 token。）
 
 ### 2.3 实验：亲眼看见语义距离
 
@@ -104,7 +106,7 @@ import chromadb
 client = chromadb.PersistentClient(path="./chroma_db")
 collection = client.get_or_create_collection("company_kb")
 
-# 存：id + 原文 + 向量（我们显式传入 GLM 的向量，不依赖 Chroma 默认模型）
+# 存：id + 原文 + 向量（我们显式传入 bge-m3 的向量，不依赖 Chroma 默认模型）
 collection.add(ids=["leave_0"], documents=["年假 10 天..."], embeddings=[[0.1, ...]])
 
 # 查：把问题也向量化，找余弦距离最近的 k 块
@@ -112,7 +114,7 @@ result = collection.query(query_embeddings=[[0.2, ...]], n_results=3)
 ```
 
 ::: warning 为什么显式传向量？
-Chroma 默认会自动下载一个英文向量化模型（国内下载慢且中文效果差）。我们显式传入 GLM embedding-3 的结果，**检索质量我们自己说了算**——这也是理解「向量库只管存和查，语义在 embedding 模型」的关键。
+Chroma 默认会自动下载一个英文向量化模型（国内下载慢且中文效果差）。我们显式传入 bge-m3 的结果，**检索质量我们自己说了算**——这也是理解「向量库只管存和查，语义在 embedding 模型」的关键。
 :::
 
 ### 3.3 实操
@@ -206,7 +208,7 @@ python judge_eval.py --k 5 --label "chunk300-k5"   # 先把库切回 chunk300
 | ContextPrecision | 检索结果里相关内容的占比 | 检索**不准**：调 chunk / 换 embedding |
 | ContextRecall | 标准答案被检索覆盖的程度 | 检索**不全**：调大 top-k / 改切分 |
 
-运行 `ragas_eval.py`（选做，需 `pip install "ragas>=0.2" langchain-openai`），评委模型同样指向 GLM。四个数字出来后按上表第三列定位问题——**先定位维度，再动手改参数**。
+运行 `ragas_eval.py`（选做，需 `pip install "ragas>=0.2" langchain-openai`），评委模型走 DeepSeek、向量指标走硅基流动（复用 `.env` 里那两把钥匙）。四个数字出来后按上表第三列定位问题——**先定位维度，再动手改参数**。
 
 ---
 

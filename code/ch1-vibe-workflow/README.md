@@ -19,7 +19,7 @@ cd code/ch1-vibe-workflow
 python -m venv .venv
 .venv\Scripts\activate              # Git Bash: source .venv/Scripts/activate
 pip install -r requirements.txt
-# 复制 .env.example 为 .env，填入 GLM_API_KEY
+# 复制 .env.example 为 .env，填入 LLM_API_KEY
 # 修改 weekly_report.py 顶部的 RAW_TEXT 为你自己的流水账
 python weekly_report.py             # 生成 weekly_report.md
 ```
@@ -34,4 +34,4 @@ python weekly_report.py             # 生成 weekly_report.md
 | --- | --- |
 | bug1 | 输出「你好，AI 同学！欢迎进入 Vibe Coding 世界。」 |
 | bug2 | 依次输出三行喝茶步骤 |
-| bug3 | 打印出 GLM 返回的一句话（需要可用的 `.env`） |
+| bug3 | 打印出模型返回的一句话（需要可用的 `.env`） |

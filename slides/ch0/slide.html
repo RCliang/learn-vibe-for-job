@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch0 环境与第一行代码 · 课程幻灯片</title>
+<style>
+  :root {
+    --bg: #fafafa;
+    --ink: #1f2937;
+    --muted: #6b7280;
+    --accent: #3eaf7c;
+    --accent-deep: #2f8f64;
+    --accent-wash: #ecfdf5;
+    --line: #e5e7eb;
+    --code-bg: #f6f8fa;
+    --warn-bg: #fff7ed;
+    --warn-line: #fdba74;
+    --warn-ink: #c2410c;
+    --danger: #dc2626;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: #e8eaed;
+    font-family: system-ui, -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    color: var(--ink);
+  }
+
+  #stage {
+    position: absolute; left: 50%; top: 50%;
+    width: 1280px; height: 720px;
+    transform-origin: center center;
+    background: var(--bg);
+    box-shadow: 0 10px 40px rgba(0,0,0,.18);
+    overflow: hidden;
+  }
+
+  .slide {
+    display: none;
+    position: absolute; inset: 0;
+    padding: 52px 72px 70px;
+    flex-direction: column;
+  }
+  .slide.active { display: flex; }
+
+  .kicker {
+    font-size: 15px; font-weight: 700; letter-spacing: .18em;
+    color: var(--accent-deep); text-transform: uppercase; margin-bottom: 10px;
+  }
+  h1 { font-size: 34px; line-height: 1.25; margin-bottom: 22px; }
+  h1 .sub { display:block; font-size: 17px; font-weight: 400; color: var(--muted); margin-top: 6px; }
+  .grow { flex: 1; min-height: 0; }
+
+  p.lead { font-size: 21px; line-height: 1.6; }
+  ul.pts { list-style: none; }
+  ul.pts li {
+    font-size: 20px; line-height: 1.55; padding-left: 26px; position: relative; margin-bottom: 12px;
+  }
+  ul.pts li::before {
+    content: ""; position: absolute; left: 2px; top: 12px;
+    width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+  }
+  ul.pts li b { color: #111827; }
+  .muted { color: var(--muted); }
+  .accent { color: var(--accent-deep); }
+
+  .cols { display: flex; gap: 28px; }
+  .col { flex: 1; min-width: 0; }
+
+  .card {
+    background: #fff; border: 1px solid var(--line); border-radius: 14px;
+    padding: 18px 22px; margin-bottom: 14px;
+  }
+  .card h3 { font-size: 18px; margin-bottom: 8px; color: #111827; }
+  .card p, .card li { font-size: 16.5px; line-height: 1.55; }
+
+  .warn {
+    background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 14px;
+    padding: 16px 22px;
+  }
+  .warn .warn-title { font-weight: 700; color: var(--warn-ink); font-size: 17px; margin-bottom: 6px; }
+  .warn p, .warn li { font-size: 16.5px; line-height: 1.55; color: #7c2d12; }
+
+  .code {
+    background: var(--code-bg); border: 1px solid var(--line); border-radius: 10px;
+    padding: 13px 18px; font-family: "SF Mono", "Cascadia Code", Consolas, "JetBrains Mono", monospace;
+    font-size: 16.5px; line-height: 1.6; color: #24292e; white-space: pre; overflow: hidden;
+    margin: 10px 0;
+  }
+  .code .c { color: #6a737d; }
+  .code .k { color: #cf222e; }
+  .code .s { color: #0a3069; }
+
+  table.tbl { border-collapse: collapse; width: 100%; background: #fff; }
+  table.tbl th, table.tbl td {
+    border: 1px solid var(--line); padding: 9px 16px; font-size: 17px; text-align: left;
+  }
+  table.tbl th { background: #f3f4f6; font-weight: 700; }
+  table.tbl td code, .incode {
+    font-family: "SF Mono", "Cascadia Code", Consolas, monospace;
+    font-size: 15.5px; background: var(--code-bg); padding: 2px 7px; border-radius: 5px;
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip {
+    background: var(--accent-wash); color: var(--accent-deep); border: 1px solid #bbe7d0;
+    border-radius: 999px; padding: 6px 18px; font-size: 16.5px; font-weight: 600;
+  }
+  .sc { border-radius: 8px; padding: 2px 10px; font-weight: 700; color: #fff; font-family: Consolas, monospace; }
+  .sc.g200 { background: #16a34a; } .sc.o401 { background: #ea580c; }
+  .sc.o404 { background: #d97706; } .sc.a429 { background: #ca8a04; } .sc.r500 { background: #dc2626; }
+
+  /* 分隔页 */
+  .divider { background: linear-gradient(135deg, #f4fbf7 0%, #e6f7ee 60%, #dcf3e7 100%); justify-content: center; }
+  .divider .day-tag {
+    display: inline-block; background: var(--accent); color: #fff; border-radius: 999px;
+    padding: 7px 26px; font-size: 18px; font-weight: 700; letter-spacing: .12em; margin-bottom: 30px;
+    align-self: flex-start;
+  }
+  .divider h1 { font-size: 54px; margin-bottom: 26px; }
+  .divider p.desc { font-size: 21px; color: #375e4c; line-height: 1.7; }
+
+  /* 封面 */
+  .cover { background: linear-gradient(160deg, #ffffff 0%, #f2faf6 70%, #e8f6ef 100%); justify-content: center; }
+  .cover .camp { font-size: 19px; font-weight: 700; letter-spacing: .2em; color: var(--accent-deep); margin-bottom: 26px; }
+  .cover h1 { font-size: 62px; line-height: 1.2; margin-bottom: 18px; }
+  .cover .sub { font-size: 25px; color: var(--muted); margin-bottom: 40px; }
+  .cover .hint { position: absolute; bottom: 78px; left: 72px; font-size: 15px; color: #9ca3af; }
+
+  .checklist { list-style: none; }
+  .checklist li { font-size: 19px; line-height: 1.55; margin-bottom: 11px; padding-left: 34px; position: relative; }
+  .checklist li::before {
+    content: "✓"; position: absolute; left: 0; top: 0; width: 24px; height: 24px;
+    background: var(--accent-wash); color: var(--accent-deep); border: 1px solid #bbe7d0;
+    border-radius: 6px; font-size: 15px; font-weight: 800; text-align: center; line-height: 23px;
+  }
+
+  .flow { display: flex; flex-wrap: wrap; gap: 8px 0; align-items: center; margin: 14px 0; }
+  .flow .fbox {
+    background: #fff; border: 1.5px solid var(--accent); border-radius: 10px;
+    padding: 9px 14px; font-size: 15.5px; line-height: 1.35; text-align: center;
+  }
+  .flow .fbox small { display: block; color: var(--muted); font-size: 12.5px; }
+  .flow .arr { color: var(--accent); font-size: 20px; font-weight: 700; padding: 0 8px; }
+
+  /* 全局 footer：进度条 + 页码 */
+  #bar { position: absolute; left: 0; bottom: 0; height: 5px; background: var(--accent); width: 0; transition: width .15s; z-index: 30; }
+  #pager {
+    position: absolute; right: 26px; bottom: 16px; font-size: 14px; color: #9ca3af;
+    font-family: Consolas, monospace; z-index: 30;
+  }
+  #brand { position: absolute; left: 26px; bottom: 16px; font-size: 13px; color: #c0c4cc; letter-spacing: .08em; z-index: 30; }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- 1 封面 -->
+  <section class="slide cover active">
+    <div class="camp">零基础 Agent 开发营 · WEEK 1</div>
+    <h1>Ch0 环境与第一行代码</h1>
+    <div class="sub">Day 1-2 · 跨出第一步，跑通人生第一个 LLM API 调用</div>
+    <div class="chips">
+      <span class="chip">Python</span><span class="chip">API 调用</span><span class="chip">Git</span>
+    </div>
+    <div class="hint">→ / 空格 翻页 · F 全屏 · 点击画面也可翻页</div>
+  </section>
+
+  <!-- 2 本章路线 -->
+  <section class="slide">
+    <div class="kicker">Roadmap</div>
+    <h1>本章路线<span class="sub">学完你能：搭好环境 · 看懂一次 HTTP 请求 · 管住包 · 推上 GitHub · 跑通第一个 LLM 调用</span></h1>
+    <div class="grow cols">
+      <div class="col">
+        <div class="card" style="height:100%">
+          <h3 class="accent">Day 1 · 装好武器</h3>
+          <p>装好 <b>VSCode、Python、Claude Code</b> 三样工具，接入你的 AI 结对程序员（模型由 DeepSeek 提供）</p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card" style="height:100%">
+          <h3 class="accent">Day 2 · 看懂门道</h3>
+          <p><b>上午</b>：HTTP 与 API 基础<br><b>下午</b>：Python 三件套 import / pip / venv<br><b>收尾</b>：Git + 第一个 LLM API 调用</p>
+        </div>
+      </div>
+    </div>
+    <div class="warn" style="margin-top:6px">
+      <p>本章是全程唯一的「装环境」章节，也是<b>零基础弃坑第一高峰</b>——卡住就查排错指引，或把报错完整贴给 AI。</p>
+    </div>
+  </section>
+
+  <!-- 3 分隔 Day1 上午 -->
+  <section class="slide divider">
+    <span class="day-tag">DAY 1 · 上午</span>
+    <h1>装好三样东西</h1>
+    <p class="desc">VSCode · Python · 终端<br>装环境不烧脑，跟着做就行——但有一个坑，80% 的人第一天都会踩。</p>
+  </section>
+
+  <!-- 4 VSCode + 终端 -->
+  <section class="slide">
+    <div class="kicker">Day 1 上午 · 装环境</div>
+    <h1>VSCode 与终端</h1>
+    <div class="grow cols">
+      <div class="col">
+        <div class="card">
+          <h3>① 安装 VSCode</h3>
+          <p>官网 <span class="incode">code.visualstudio.com</span> 下载 Windows 版 → 一路下一步<br>
+          扩展面板（Ctrl+Shift+X）装<b>「中文（简体）语言包」</b><br>
+          <span class="muted">它本身就是简历上合格的一行字</span></p>
+        </div>
+        <div class="card">
+          <h3>② 打开终端</h3>
+          <p>VSCode 内按 <span class="incode">Ctrl+`</span>——后面所有命令都在这里敲</p>
+        </div>
+      </div>
+      <div class="col">
+        <table class="tbl">
+          <tr><th>命令</th><th>作用</th><th>类比</th></tr>
+          <tr><td><code>cd 目录名</code></td><td>进入文件夹</td><td>双击打开</td></tr>
+          <tr><td><code>cd ..</code></td><td>返回上一级</td><td>返回按钮</td></tr>
+          <tr><td><code>dir</code></td><td>看里面有什么</td><td>看文件列表</td></tr>
+          <tr><td><code>cls</code></td><td>清屏</td><td>擦黑板</td></tr>
+        </table>
+        <div class="card" style="margin-top:14px">
+          <p>✅ <b>验收</b>：能打开 VSCode，界面是中文</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 Python -->
+  <section class="slide">
+    <div class="kicker">Day 1 上午 · 装环境</div>
+    <h1>安装 Python：Windows 最大的坑在第一步</h1>
+    <div class="grow">
+      <ul class="pts">
+        <li>官网 <span class="incode">python.org/downloads</span> 下载 <b>Python 3.12+</b> 安装包</li>
+        <li>安装后<b>重新打开</b>终端，验证：<span class="incode">python --version</span> → 输出 <span class="incode">Python 3.13.1</span></li>
+      </ul>
+      <div class="warn" style="margin:18px 0">
+        <div class="warn-title">⚠️ 关键一步：第一屏必须勾选最下方的 Add python.exe to PATH</div>
+        <p>不勾 → 后面所有 <span class="incode" style="background:#ffedd5">python</span> / <span class="incode" style="background:#ffedd5">pip</span> 都报「不是内部或外部命令」。<b>零基础第一天最常见的事故。</b></p>
+      </div>
+      <p class="muted" style="font-size:17px">忘了勾？最省事的修复：重新运行安装包 → Modify → 一路下一步，它会补上 PATH。</p>
+    </div>
+  </section>
+
+  <!-- 6 分隔 Day1 下午 -->
+  <section class="slide divider">
+    <span class="day-tag">DAY 1 · 下午</span>
+    <h1>接入你的 AI 结对程序员</h1>
+    <p class="desc">VSCode 写代码 + Claude Code 当结对程序员<br>模型能力由 DeepSeek API 提供——国内可用、不需要海外账号</p>
+  </section>
+
+  <!-- 7 工具链 -->
+  <section class="slide">
+    <div class="kicker">Day 1 下午 · 工具链</div>
+    <h1>为什么是这套组合？</h1>
+    <div class="grow cols">
+      <div class="col" style="flex:1.1">
+        <ul class="pts">
+          <li><b>VSCode</b>：写代码的编辑器</li>
+          <li><b>Claude Code</b>：跑在终端里的 AI 编程助手（JD 里辨识度最高）</li>
+          <li><b>DeepSeek API</b>：提供模型能力，按量计费，<b>充值 10 元足够整个课程</b></li>
+        </ul>
+      </div>
+      <div class="col">
+        <div class="card" style="height:100%">
+          <h3>DeepSeek 的四个理由</h3>
+          <p>📱 手机号注册即用，全程零翻墙<br>
+          💰 按量付费，不用订阅<br>
+          🔌 官方提供 Anthropic 兼容端点，直接驱动 Claude Code<br>
+          🔁 想换智谱等厂商？改两行环境变量，<b>代码零改动</b></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 API Key -->
+  <section class="slide">
+    <div class="kicker">Day 1 下午 · 工具链</div>
+    <h1>开通 DeepSeek API Key</h1>
+    <div class="grow">
+      <ul class="pts">
+        <li>打开 <span class="incode">platform.deepseek.com</span>，手机号注册登录</li>
+        <li>左侧「API Keys」→ 创建 API Key → <b>立即复制保存（只显示一次）</b></li>
+        <li>左侧「充值」→ 充 10 元左右（按量扣费，用不完一直在）</li>
+      </ul>
+      <div class="warn" style="margin-top:16px">
+        <div class="warn-title">🔑 API Key 就是你的密码，三条红线</div>
+        <p><b>不发群里 · 不贴截图 · 不写进代码提交到 GitHub</b>——后面我们用 <span class="incode" style="background:#ffedd5">.env</span> 文件保管它</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 安装 Claude Code -->
+  <section class="slide">
+    <div class="kicker">Day 1 下午 · 工具链</div>
+    <h1>安装 Claude Code</h1>
+    <div class="grow">
+      <p class="lead" style="margin-bottom:8px">前置：先装 <b>Node.js 18+ LTS</b>（nodejs.org）和 <b>Git</b>（git-scm.com），均一路下一步</p>
+      <div class="code">npm install -g @anthropic-ai/claude-code
+claude --version   <span class="c"># 能输出版本号即成功</span></div>
+      <ul class="pts" style="margin-top:10px">
+        <li>装完<b>重新打开终端</b>再验证</li>
+        <li>命令行实在不适应？备选 <b>ZCode 桌面版</b>（图形界面，同样能 AI 结对）——课程主线仍以 Claude Code 讲解</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 10 配置 -->
+  <section class="slide">
+    <div class="kicker">Day 1 下午 · 工具链</div>
+    <h1>让 Claude Code 用上 DeepSeek</h1>
+    <div class="grow cols">
+      <div class="col" style="flex:1.15">
+        <p style="font-size:16.5px;margin-bottom:4px">编辑 <span class="incode">C:\Users\你\.claude\settings.json</span>（不存在就新建）：</p>
+        <div class="code" style="font-size:15px">{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "你的 DeepSeek Key",
+    "ANTHROPIC_BASE_URL":
+      "https://api.deepseek.com/anthropic",
+    "ANTHROPIC_MODEL": "deepseek-chat",
+    "ANTHROPIC_SMALL_FAST_MODEL": "deepseek-chat"
+  }
+}</div>
+      </div>
+      <div class="col">
+        <div class="warn">
+          <div class="warn-title">⚠️ 全课程最可能「过期」的配置</div>
+          <p>照抄没配成功，<b>不要反复重试</b>，直接抄 DeepSeek 官方文档最新版</p>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <h3>兜底三步</h3>
+          <p>① 找官方最新配置<br>② 只换值、不改结构<br>③ 还不行 → 配置 + 完整报错贴给 AI</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 验证 -->
+  <section class="slide">
+    <div class="kicker">Day 1 下午 · 工具链</div>
+    <h1>第一次对话验证</h1>
+    <div class="grow">
+      <div class="code">mkdir hello-claude &amp;&amp; cd hello-claude
+claude          <span class="c"># 启动，进入对话界面</span></div>
+      <ul class="pts" style="margin-top:12px">
+        <li>输入 <span class="incode">/status</span>，确认模型指向 <b>DeepSeek</b> → 配置成功</li>
+        <li>试着让它：<b>「写一个 Python 的 hello world 并解释每一行」</b></li>
+        <li>从这一刻起，你的结对程序员已就位 <span class="muted">—— Day 1 完工 ✅</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 12 分隔 Day2 上午 -->
+  <section class="slide divider">
+    <span class="day-tag">DAY 2 · 上午</span>
+    <h1>HTTP 与 API 基础</h1>
+    <p class="desc">后面写的每一个 AI 应用，核心动作都是「发一次 HTTP 请求调用 LLM API」。<br>看懂它，后面所有章节的报错你都能自己读一半。</p>
+  </section>
+
+  <!-- 13 餐厅类比 -->
+  <section class="slide">
+    <div class="kicker">Day 2 上午 · HTTP 与 API</div>
+    <h1>把网站想象成一家餐厅</h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col"><div class="card" style="height:100%;text-align:center">
+        <h3 style="font-size:34px">🪑</h3><h3>前端</h3>
+        <p>大堂和菜单——你看到的界面<br><span class="muted">网页、按钮、聊天窗口</span></p>
+      </div></div>
+      <div class="col"><div class="card" style="height:100%;text-align:center">
+        <h3 style="font-size:34px">👨‍🍳</h3><h3>后端</h3>
+        <p>后厨——真正做菜的地方<br><span class="muted">服务器上的程序，算出结果</span></p>
+      </div></div>
+      <div class="col"><div class="card" style="height:100%;text-align:center;border-color:var(--accent)">
+        <h3 style="font-size:34px">🤵</h3><h3 class="accent">API</h3>
+        <p>服务员——递需求、端菜回来<br><span class="muted">点单 + 上菜 = 两次数据传递</span></p>
+      </div></div>
+    </div>
+    <p class="lead" style="text-align:center;margin-top:14px">这来回的「规矩」，就是 <b class="accent">HTTP 协议</b></p>
+  </section>
+
+  <!-- 14 请求解剖 + 状态码 -->
+  <section class="slide">
+    <div class="kicker">Day 2 上午 · HTTP 与 API</div>
+    <h1>一次 HTTP 请求长什么样<span class="sub">必须认识的 5 个状态码——后面天天见</span></h1>
+    <div class="grow cols">
+      <div class="col">
+        <table class="tbl">
+          <tr><th colspan="2">你 → 服务器（请求）</th></tr>
+          <tr><td>方法</td><td><code>GET</code> 查 / <code>POST</code> 交</td></tr>
+          <tr><td>URL</td><td><code>api.deepseek.com/chat/completions</code></td></tr>
+          <tr><td>请求头</td><td><code>Authorization: Bearer 你的Key</code></td></tr>
+          <tr><td>请求体</td><td>JSON 数据</td></tr>
+          <tr><th colspan="2">服务器 → 你（响应）</th></tr>
+          <tr><td>状态码 + 响应体</td><td><code>200</code> + JSON 结果</td></tr>
+        </table>
+      </div>
+      <div class="col">
+        <table class="tbl">
+          <tr><th>状态码</th><th>在 LLM 开发中意味着</th></tr>
+          <tr><td><span class="sc g200">200</span></td><td>成功，一切正常</td></tr>
+          <tr><td><span class="sc o401">401</span></td><td>API Key 错了 / 没传</td></tr>
+          <tr><td><span class="sc o404">404</span></td><td>URL 写错了</td></tr>
+          <tr><td><span class="sc a429">429</span></td><td>请求太频繁，稍等重试</td></tr>
+          <tr><td><span class="sc r500">500</span></td><td>对方的问题，重试或换模型</td></tr>
+        </table>
+        <p class="muted" style="font-size:15.5px;margin-top:10px">选做：F12 → Network 面板，亲眼看一次真实请求</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 JSON -->
+  <section class="slide">
+    <div class="kicker">Day 2 上午 · HTTP 与 API</div>
+    <h1>JSON：数据的世界语</h1>
+    <div class="grow cols">
+      <div class="col" style="flex:1.15">
+        <div class="code" style="font-size:16px">{
+  "name": "小明",             <span class="c">// 键: 值（字符串双引号）</span>
+  "age": 18,                 <span class="c">// 数字不用引号</span>
+  "skills": ["Python", "RAG"], <span class="c">// 数组用 []</span>
+  "is_vip": true             <span class="c">// 布尔 true/false</span>
+}</div>
+      </div>
+      <div class="col">
+        <div class="card" style="height:100%">
+          <h3>语法只有三条</h3>
+          <p>① 键值对，字符串用<b>双引号</b><br>② 数字、布尔不加引号<br>③ 数组用方括号 <span class="incode">[]</span><br><br>
+          <span class="muted">API 传递数据几乎都用 JSON——你发的是它，收回的也是它</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 分隔 Day2 下午 -->
+  <section class="slide divider">
+    <span class="day-tag">DAY 2 · 下午</span>
+    <h1>Python 三件套 + Git</h1>
+    <p class="desc">教学法的分工：语法定义让 AI 写、你负责读懂；<br>但 import / pip / venv 是环境问题——每天都会撞见，必须自己拿手。</p>
+  </section>
+
+  <!-- 17 三件套 -->
+  <section class="slide">
+    <div class="kicker">Day 2 下午 · Python 最小集</div>
+    <h1>import / pip / venv</h1>
+    <div class="grow cols">
+      <div class="col"><div class="card" style="height:100%">
+        <h3 class="accent">import · 拿积木</h3>
+        <p>三层来源：<br>① <b>标准库</b>（os/json）不用装<br>② <b>第三方包</b>（openai）要先装<br>③ <b>你自己的文件</b>要在当前目录</p>
+        <p style="margin-top:8px"><span class="incode">ModuleNotFoundError</span> 排错两步：先问是第三方包吗？→ 装它；是自己文件吗？→ 查路径和大小写</p>
+      </div></div>
+      <div class="col"><div class="card" style="height:100%">
+        <h3 class="accent">pip · 装积木</h3>
+        <p><span class="incode">pip install openai</span><br><span class="incode">pip list</span> 看装了什么</p>
+        <p style="margin-top:8px"><span class="incode">requirements.txt</span> = 项目购物清单，一条命令装齐<br>下载慢 → 加清华镜像 <span class="incode">-i https://pypi.tuna...</span></p>
+      </div></div>
+      <div class="col"><div class="card" style="height:100%">
+        <h3 class="accent">venv · 独立盒子</h3>
+        <p>每个项目一个独立干净的 Python 环境，互不干扰</p>
+        <p style="margin-top:8px"><span class="incode">python -m venv .venv</span><br>激活 <span class="incode">.venv\Scripts\activate</span><br>看到 <span class="incode">(.venv)</span> 前缀 = 进盒了</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- 18 Git -->
+  <section class="slide">
+    <div class="kicker">Day 2 收尾 · Git</div>
+    <h1>Git：今天只用会 4 条命令</h1>
+    <div class="grow cols">
+      <div class="col" style="flex:1.2">
+        <div class="code" style="font-size:16px">git init                    <span class="c"># 开新存档</span>
+git add .                   <span class="c"># 选择要存的内容</span>
+git commit -m "第一个LLM调用"  <span class="c"># 提交存档</span>
+git push                    <span class="c"># 推送到 GitHub</span></div>
+        <p class="muted" style="font-size:16px;margin-top:6px">首次推送：GitHub 建空仓库 → <span class="incode">git remote add origin …</span> → <span class="incode">git push -u origin main</span></p>
+      </div>
+      <div class="col">
+        <div class="warn" style="height:100%">
+          <div class="warn-title">⚠️ 提交前必看</div>
+          <p>项目根目录放 <span class="incode" style="background:#ffedd5">.gitignore</span>，写上 <span class="incode" style="background:#ffedd5">.env</span><br><br>
+          GitHub 是你未来<b>简历的项目展示地</b>——别把 API Key 公开上去</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 19 交付物 -->
+  <section class="slide">
+    <div class="kicker">Day 2 · 交付物</div>
+    <h1>跑通第一个 LLM API 调用<span class="sub">ch0-hello-llm 目录：python hello_llm.py —— 全天知识，全在这 20 行代码里</span></h1>
+    <div class="grow">
+      <div class="code" style="font-size:15.5px"><span class="c"># 建虚拟环境 → 按清单装依赖 → 复制 .env.example 为 .env 填 Key → 运行</span>
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python hello_llm.py   <span class="c"># 模型回话 = Day 2 交付物 ✅</span></div>
+      <div class="flow">
+        <span class="fbox">import<small>拿到 OpenAI SDK</small></span><span class="arr">→</span>
+        <span class="fbox">venv<small>SDK 装在独立环境</small></span><span class="arr">→</span>
+        <span class="fbox">pip<small>按 requirements 安装</small></span><span class="arr">→</span>
+        <span class="fbox">POST<small>发往 DeepSeek</small></span><span class="arr">→</span>
+        <span class="fbox">JSON 响应<small>状态码 200</small></span><span class="arr">→</span>
+        <span class="fbox">打印<small>屏幕见回话</small></span>
+      </div>
+      <p style="font-size:17px">跑通后：确认 <span class="incode">.gitignore</span> 里有 <span class="incode">.env</span> → <span class="incode">add → commit → push</span> 到你的 GitHub</p>
+    </div>
+  </section>
+
+  <!-- 20 自测 + 预告 -->
+  <section class="slide">
+    <div class="kicker">通关自测</div>
+    <h1>进入 Ch1 前，确认你能<span class="sub">卡住超过 30 分钟 → 查排错指引 → 把完整报错贴给 AI（这正是 Ch1 要练的）</span></h1>
+    <div class="grow cols">
+      <div class="col">
+        <ul class="checklist">
+          <li><span class="incode">python --version</span> 能输出版本号</li>
+          <li>Claude Code 能对话，<span class="incode">/status</span> 显示 DeepSeek</li>
+          <li>能说清 200 / 401 / 404 / 429 是什么意思</li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul class="checklist">
+          <li><b>独立</b>完成：新目录建 venv → 激活 → 装一个包</li>
+          <li>能说出 <span class="incode">ModuleNotFoundError</span> 两步排错法</li>
+          <li><span class="incode">hello_llm.py</span> 跑通并 push 到 GitHub（.env 没被推上去）</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card" style="margin-top:4px">
+      <p>⏭️ 下一章 <b>Ch1 Vibe Coding 工作流</b>：让 AI 替你写代码，你负责验收</p>
+    </div>
+  </section>
+
+  <div id="bar"></div>
+  <div id="pager"></div>
+  <div id="brand">零基础 Agent 开发营 · CH0</div>
+</div>
+
+<script>
+  const stage = document.getElementById('stage');
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const bar = document.getElementById('bar');
+  const pager = document.getElementById('pager');
+  let cur = 0;
+
+  function show(n) {
+    cur = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, i) => s.classList.toggle('active', i === cur));
+    bar.style.width = ((cur + 1) / slides.length * 100) + '%';
+    pager.textContent = (cur + 1) + ' / ' + slides.length;
+    history.replaceState(null, '', '#' + (cur + 1));
+  }
+  function next() { show(cur + 1); }
+  function prev() { show(cur - 1); }
+
+  document.addEventListener('keydown', (e) => {
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); next(); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') { show(0); }
+    else if (e.key === 'End') { show(slides.length - 1); }
+    else if (e.key === 'f' || e.key === 'F') {
+      document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('a')) return;
+    next();
+  });
+
+  function fit() {
+    const s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    stage.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
+  }
+  window.addEventListener('resize', fit);
+
+  const h = parseInt(location.hash.slice(1), 10);
+  show(isNaN(h) ? 0 : h - 1);
+  fit();
+</script>
+</body>
+</html>

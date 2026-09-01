@@ -178,7 +178,7 @@ docker compose down            # 停止并清理
 ```bash
 cd code/project2-agent
 mkdir data && cp ../../data/project2-orders.json data/   # 语料进项目目录
-cp .env.example .env && nano .env                        # 填 GLM_API_KEY
+cp .env.example .env && nano .env                        # 填 LLM_API_KEY
 
 docker compose up -d --build
 docker compose ps                       # STATUS: Up

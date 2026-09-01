@@ -22,13 +22,13 @@ pinned: false
 ```
                  离线（启动时执行一次，st.cache_resource 缓存）
  ┌──────────────────────────────────────────────┐
- │ 语料 *.md → 滑窗切分(300/50) → GLM embedding-3 │
+ │ 语料 *.md → 滑窗切分(300/50) → bge-m3 向量化    │
  │            → Chroma 向量库（余弦距离）           │
  └──────────────────────────────────────────────┘
                  在线（每次提问）
  ┌──────────────────────────────────────────────┐
  │ 用户问题 → 向量化 → top-3 检索 → 编号拼接 prompt │
- │   → glm-4-flash 流式生成 → 引用标注 + 拒答纪律  │
+ │   → deepseek-chat 流式生成 → 引用标注 + 拒答纪律 │
  └──────────────────────────────────────────────┘
 ```
 
@@ -51,7 +51,7 @@ pinned: false
 ```bash
 python -m venv .venv && .venv\Scripts\activate   # Git Bash: source .venv/Scripts/activate
 pip install -r requirements.txt
-# 复制 .env.example 为 .env，填入 GLM_API_KEY
+# 复制 .env.example 为 .env，填入 LLM_API_KEY
 # 课程仓库内开发时语料读仓库根 data/project1-kb/，无需额外操作
 streamlit run app.py
 ```
@@ -70,7 +70,7 @@ curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
 # 4. 拉代码并准备语料与密钥：
 git clone https://github.com/你的用户名/你的仓库.git && cd 你的仓库/code/project1-kb-bot
 cp -r ../../data/project1-kb ./data/        # 若仓库未含项目内语料
-cp .env.example .env && nano .env           # 填入 GLM_API_KEY
+cp .env.example .env && nano .env           # 填入 LLM_API_KEY
 
 # 5. 构建并运行：
 docker build -t kb-bot .
@@ -83,7 +83,7 @@ docker logs -f kb-bot                        # 出问题先看日志
 ## 零成本备选路径：Hugging Face Space
 
 暂不购买服务器时：HF 新建 Streamlit Space，上传 `app.py`/`rag_core.py`/`requirements.txt`/`data/`，
-Settings → Secrets 添加 `GLM_API_KEY`。本文件顶部的 YAML frontmatter（`sdk: streamlit`、
+Settings → Secrets 添加 `LLM_API_KEY`（DeepSeek）和 `EMBED_API_KEY`（硅基流动）。本文件顶部的 YAML frontmatter（`sdk: streamlit`、
 `app_file: app.py` 等）可直接作为 Space 的 README 配置（sdk_version 以 Space 自动生成的为准）。
 注意 HF 国内访问不稳，README 需附演示 GIF 与本地运行说明兜底。
 

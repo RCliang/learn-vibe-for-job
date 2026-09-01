@@ -27,9 +27,9 @@ from rag_chat import generate_answer
 
 load_dotenv()
 
-API_KEY = os.getenv("GLM_API_KEY")
-BASE_URL = os.getenv("GLM_BASE_URL", "https://open.bigmodel.cn/api/paas/v4")
-MODEL = os.getenv("GLM_MODEL", "glm-4-flash")
+API_KEY = os.getenv("LLM_API_KEY")
+BASE_URL = os.getenv("LLM_BASE_URL", "https://api.deepseek.com")
+MODEL = os.getenv("LLM_MODEL", "deepseek-chat")
 
 QA_FILE = Path(__file__).resolve().parent / "qa_pairs.json"
 RESULT_FILE = Path(__file__).resolve().parent / "eval_results.jsonl"
@@ -67,7 +67,7 @@ def judge(client: OpenAI, question: str, reference: str, response: str, contexts
 
 def main() -> None:
     if not API_KEY:
-        raise SystemExit("未读到 GLM_API_KEY：请复制 .env.example 为 .env 并填入 Key")
+        raise SystemExit("未读到 LLM_API_KEY：请复制 .env.example 为 .env 并填入 Key")
 
     parser = argparse.ArgumentParser(description="LLM as judge 评估")
     parser.add_argument("--k", type=int, default=3, help="RAG 检索 top-k")

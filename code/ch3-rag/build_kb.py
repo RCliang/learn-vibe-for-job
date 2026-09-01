@@ -4,7 +4,7 @@
     python build_kb.py                     # 默认 chunk=300, overlap=50
     python build_kb.py --chunk 600         # 换切分参数重建（Day 11 调优用）
 
-流程：读 data/project1-kb/*.md → 手写滑窗切分 → embedding-3 向量化
+流程：读 data/project1-kb/*.md → 手写滑窗切分 → bge-m3 向量化
 → 存入本地 Chroma（目录 chroma_db/）。
 """
 
@@ -18,9 +18,10 @@ from openai import OpenAI
 
 load_dotenv()
 
-API_KEY = os.getenv("GLM_API_KEY")
-BASE_URL = os.getenv("GLM_BASE_URL", "https://open.bigmodel.cn/api/paas/v4")
-EMBED_MODEL = os.getenv("GLM_EMBED_MODEL", "embedding-3")
+# 本章只有向量化，不需要对话模型——只用 EMBED_* 三件套
+EMBED_API_KEY = os.getenv("EMBED_API_KEY")
+EMBED_BASE_URL = os.getenv("EMBED_BASE_URL", "https://api.siliconflow.cn/v1")
+EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-m3")
 
 # 语料目录：仓库根下的 data/project1-kb/（与本脚本的相对位置固定）
 KB_DIR = Path(__file__).resolve().parents[2] / "data" / "project1-kb"
@@ -46,8 +47,8 @@ def split_text(text: str, chunk_size: int, overlap: int) -> list[str]:
 
 
 def embed(texts: list[str]) -> list[list[float]]:
-    """批量向量化。智谱单次最多 64 条输入，这里按 32 一批保守处理。"""
-    client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
+    """批量向量化。不同供应商单次条数上限不同，这里按 32 一批保守处理。"""
+    client = OpenAI(api_key=EMBED_API_KEY, base_url=EMBED_BASE_URL)
     result: list[list[float]] = []
     for i in range(0, len(texts), 32):
         batch = texts[i : i + 32]
@@ -57,8 +58,11 @@ def embed(texts: list[str]) -> list[list[float]]:
 
 
 def main() -> None:
-    if not API_KEY:
-        raise SystemExit("未读到 GLM_API_KEY：请复制 .env.example 为 .env 并填入 Key")
+    if not EMBED_API_KEY:
+        raise SystemExit(
+            "未读到 EMBED_API_KEY：本章向量化用硅基流动（DeepSeek 不提供 embedding API），"
+            "请复制 .env.example 为 .env 并填入硅基流动的 Key"
+        )
 
     parser = argparse.ArgumentParser(description="构建企业知识库")
     parser.add_argument("--chunk", type=int, default=300, help="每块字符数")

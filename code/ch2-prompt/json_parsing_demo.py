@@ -18,9 +18,9 @@ from pydantic import BaseModel
 
 load_dotenv()
 
-API_KEY = os.getenv("GLM_API_KEY")
-BASE_URL = os.getenv("GLM_BASE_URL", "https://open.bigmodel.cn/api/paas/v4")
-MODEL = os.getenv("GLM_MODEL", "glm-4-flash")
+API_KEY = os.getenv("LLM_API_KEY")
+BASE_URL = os.getenv("LLM_BASE_URL", "https://api.deepseek.com")
+MODEL = os.getenv("LLM_MODEL", "deepseek-chat")
 
 INPUT_TEXT = "我叫张小明，坐标杭州，会 Python、Docker，最近在学 RAG。"
 
@@ -100,7 +100,7 @@ def step3() -> None:
 
 def main() -> None:
     if not API_KEY:
-        raise SystemExit("未读到 GLM_API_KEY：请复制 .env.example 为 .env 并填入 Key")
+        raise SystemExit("未读到 LLM_API_KEY：请复制 .env.example 为 .env 并填入 Key")
 
     steps = {"step1": step1, "step2": step2, "step3": step3}
     if len(sys.argv) != 2 or sys.argv[1] not in steps:

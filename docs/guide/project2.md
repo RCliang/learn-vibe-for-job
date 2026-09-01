@@ -71,7 +71,7 @@ FastAPI（server.py）──── 静态托管 frontend/（前后端同机部�
 Agent 内核（agent_core.py：工具 + Loop + ChatMemory + input_filter）
    │  session_id → 独立记忆
    ▼
-GLM API
+DeepSeek API
 ```
 
 关键改动只有三处（从 Ch4 的 `mini_agent.py` 出发）：

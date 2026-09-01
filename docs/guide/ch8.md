@@ -28,7 +28,7 @@ outline: [2, 3]
 
 | 你做过的 | JD 里的词 |
 | --- | --- |
-| GLM API 调用、JSON mode、Pydantic、few-shot、温度调参 | Prompt Engineering、结构化输出、大模型 API 应用 |
+| LLM API 调用、JSON mode、Pydantic、few-shot、温度调参 | Prompt Engineering、结构化输出、大模型 API 应用 |
 | 切分/向量化/Chroma 检索/引用回答/拒答 | RAG、Embedding、知识库建设、幻觉处理 |
 | 测试集 + LLM as judge + 参数对比 | LLM 应用效果评估（Ragas 同理） |
 | 手写 Agent Loop、4 工具、链式调用 | Function Calling、Agent 开发 |
@@ -52,7 +52,7 @@ flowchart LR
     U[浏览器] -->|fetch POST /api/chat| F[FastAPI server.py]
     F -->|注入过滤| A[Agent 内核 agent_core.py]
     A -->|tool_calls| T[get_order / list_orders / ...]
-    A -->|messages| G[GLM API]
+    A -->|messages| G[DeepSeek API]
     F -.静态托管.-> U
 ```
 ````
@@ -65,14 +65,14 @@ flowchart LR
 | 后端 | FastAPI | 异步、自动文档、Pydantic 校验、生态默认 | — |
 | Agent 框架 | 手写 Loop | 逻辑透明、好调试、理解原理 | 多 Agent 编排复杂时上 LangGraph |
 | 记忆 | 滑动窗口+摘要 | 零依赖、按轮截断防孤儿消息 | 无持久化（生产换 Redis） |
-| 模型 | GLM（OpenAI 兼容） | 国内可用、切换模型只改 base_url | — |
+| 模型 | DeepSeek（OpenAI 兼容） | 国内可用、切换模型只改 base_url | — |
 
 ## 3. 简历项目描述：STAR 模板
 
 STAR：**S**ituation 情境 → **T**ask 任务 → **A**ction 行动 → **R**esult 结果（量化）。每条经历都是一句话 STAR。改写模板（**数字换成你真实跑出来的**）：
 
 > **企业知识库问答机器人（RAG）** · 独立开发 · 公网可访问
-> 针对企业私有知识问答场景（S），开发基于 RAG 的问答应用（T）：文档滑窗切分（300/50）、GLM embedding 向量化、Chroma 语义检索 top-3、带引用生成；手写 10 条测试问答集 + LLM as judge 评估，据此对比选出 chunk 与 top-k 参数（A）；测试集平均 4.6/5 分，库外问题正确拒答，Docker + 阿里云 ECS 上线（R）。
+> 针对企业私有知识问答场景（S），开发基于 RAG 的问答应用（T）：文档滑窗切分（300/50）、向量模型向量化（bge-m3）、Chroma 语义检索 top-3、带引用生成；手写 10 条测试问答集 + LLM as judge 评估，据此对比选出 chunk 与 top-k 参数（A）；测试集平均 4.6/5 分，库外问题正确拒答，Docker + 阿里云 ECS 上线（R）。
 
 > **垂直领域 Agent 助手（AI 客服）** · 独立开发 · 公网可访问
 > 面向电商客服场景（S），开发前后端分离的 Agent 应用（T）：FastAPI 后端 + 原生 JS 前端；手写 Agent Loop（工具决策与执行分离），实现订单查询/链式工具调用/多轮记忆（滑动窗口+摘要压缩）；实现 Prompt Injection 三层防御（输入过滤/指令数据隔离/工具最小权限）（A）；支持 4 工具与多会话隔离，docker compose 一键部署上线（R）。

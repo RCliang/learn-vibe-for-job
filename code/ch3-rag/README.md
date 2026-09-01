@@ -25,7 +25,7 @@ cd code/ch3-rag
 python -m venv .venv
 .venv\Scripts\activate              # Git Bash: source .venv/Scripts/activate
 pip install -r requirements.txt
-# 复制 .env.example 为 .env，填入 GLM_API_KEY
+# 复制 .env.example 为 .env，填入 LLM_API_KEY
 
 python embedding_lab.py             # Day 8：相似度实验
 python build_kb.py                  # Day 9：建库（默认 chunk=300/overlap=50）

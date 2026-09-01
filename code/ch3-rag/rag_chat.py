@@ -15,10 +15,13 @@ from openai import OpenAI
 
 load_dotenv()
 
-API_KEY = os.getenv("GLM_API_KEY")
-BASE_URL = os.getenv("GLM_BASE_URL", "https://open.bigmodel.cn/api/paas/v4")
-MODEL = os.getenv("GLM_MODEL", "glm-4-flash")
-EMBED_MODEL = os.getenv("GLM_EMBED_MODEL", "embedding-3")
+API_KEY = os.getenv("LLM_API_KEY")
+BASE_URL = os.getenv("LLM_BASE_URL", "https://api.deepseek.com")
+MODEL = os.getenv("LLM_MODEL", "deepseek-chat")
+# 向量化走硅基流动（DeepSeek 不提供 embedding API），与对话模型是两套凭证
+EMBED_API_KEY = os.getenv("EMBED_API_KEY")
+EMBED_BASE_URL = os.getenv("EMBED_BASE_URL", "https://api.siliconflow.cn/v1")
+EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-m3")
 
 DB_DIR = Path(__file__).resolve().parent / "chroma_db"
 COLLECTION_NAME = "company_kb"
@@ -38,8 +41,8 @@ def get_collection():
 
 def retrieve(query: str, k: int = 3) -> tuple[list[str], list[dict]]:
     """检索：问题向量化 → Chroma 找最相似的 k 块。返回 (文档块, 元数据)。"""
-    openai_client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
-    response = openai_client.embeddings.create(model=EMBED_MODEL, input=[query])
+    embed_client = OpenAI(api_key=EMBED_API_KEY, base_url=EMBED_BASE_URL)
+    response = embed_client.embeddings.create(model=EMBED_MODEL, input=[query])
     query_embedding = response.data[0].embedding
 
     result = get_collection().query(
@@ -75,7 +78,7 @@ def generate_answer(query: str, k: int = 3) -> tuple[str, list[dict]]:
 
 def main() -> None:
     if not API_KEY:
-        raise SystemExit("未读到 GLM_API_KEY：请复制 .env.example 为 .env 并填入 Key")
+        raise SystemExit("未读到 LLM_API_KEY：请复制 .env.example 为 .env 并填入 Key")
 
     parser = argparse.ArgumentParser(description="企业知识库问答（命令行版）")
     parser.add_argument("--k", type=int, default=3, help="检索返回的块数 top-k")

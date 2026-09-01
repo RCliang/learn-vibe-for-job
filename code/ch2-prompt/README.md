@@ -19,7 +19,7 @@ cd code/ch2-prompt
 python -m venv .venv
 .venv\Scripts\activate              # Git Bash: source .venv/Scripts/activate
 pip install -r requirements.txt
-# 复制 .env.example 为 .env，填入 GLM_API_KEY
+# 复制 .env.example 为 .env，填入 LLM_API_KEY
 
 python temperature_lab.py                 # Day 5 实验
 python json_parsing_demo.py step1         # Day 6：逐步运行 step1/2/3

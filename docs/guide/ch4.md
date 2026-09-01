@@ -43,7 +43,7 @@ AI 客服查订单、数据分析 Agent 画图表、编程 Agent 改文件——
               → 再请求一次，模型基于结果生成最终回答
 ```
 
-工具定义长这样（GLM 通过 OpenAI 兼容接口支持，[官方工具调用文档](https://docs.bigmodel.cn/cn/guide/capabilities/function-calling)）：
+工具定义长这样（DeepSeek 通过 OpenAI 兼容接口支持，[官方工具调用文档](https://api-docs.deepseek.com/zh-cn/guides/function_calling)）：
 
 ```python
 tools = [{

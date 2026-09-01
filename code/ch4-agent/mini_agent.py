@@ -19,9 +19,9 @@ from openai import OpenAI
 
 load_dotenv()
 
-API_KEY = os.getenv("GLM_API_KEY")
-BASE_URL = os.getenv("GLM_BASE_URL", "https://open.bigmodel.cn/api/paas/v4")
-MODEL = os.getenv("GLM_MODEL", "glm-4-flash")
+API_KEY = os.getenv("LLM_API_KEY")
+BASE_URL = os.getenv("LLM_BASE_URL", "https://api.deepseek.com")
+MODEL = os.getenv("LLM_MODEL", "deepseek-chat")
 
 ORDERS_FILE = Path(__file__).resolve().parents[2] / "data" / "project2-orders.json"
 MAX_STEPS = 5  # Agent Loop 的保险丝：最多允许模型连续做 5 轮工具调用
@@ -203,7 +203,7 @@ SUMMARY_PROMPT = """把客服对话历史压缩成要点摘要，供后续对话
 
 
 def make_summarizer(client: OpenAI):
-    """把「摘要怎么生成」接到 GLM 上；ChatMemory 只认回调，不认 OpenAI（依赖注入）。"""
+    """把「摘要怎么生成」接到 LLM 上；ChatMemory 只认回调，不认 OpenAI（依赖注入）。"""
 
     def summarize(old_summary: str, dropped_text: str) -> str:
         response = client.chat.completions.create(
@@ -267,7 +267,7 @@ def run_agent(client: OpenAI, memory: ChatMemory, user_text: str) -> str:
 
 def main() -> None:
     if not API_KEY:
-        raise SystemExit("未读到 GLM_API_KEY：请复制 .env.example 为 .env 并填入 Key")
+        raise SystemExit("未读到 LLM_API_KEY：请复制 .env.example 为 .env 并填入 Key")
 
     parser = argparse.ArgumentParser(description="mini Agent 客服")
     parser.add_argument("--turns", type=int, default=4, help="记忆窗口保留的轮数")

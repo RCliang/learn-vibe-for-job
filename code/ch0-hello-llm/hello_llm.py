@@ -3,7 +3,7 @@
 运行前（详见同目录 README.md）：
 1. 创建并激活虚拟环境
 2. pip install -r requirements.txt
-3. 复制 .env.example 为 .env，填入你的智谱 API Key
+3. 复制 .env.example 为 .env，填入你的 DeepSeek API Key
 """
 
 import os
@@ -14,18 +14,18 @@ from openai import OpenAI
 # 从 .env 文件加载环境变量：Key 不写进代码、不进 Git
 load_dotenv()
 
-API_KEY = os.getenv("GLM_API_KEY")
-BASE_URL = os.getenv("GLM_BASE_URL", "https://open.bigmodel.cn/api/paas/v4")
-MODEL = os.getenv("GLM_MODEL", "glm-4-flash")
+API_KEY = os.getenv("LLM_API_KEY")
+BASE_URL = os.getenv("LLM_BASE_URL", "https://api.deepseek.com")
+MODEL = os.getenv("LLM_MODEL", "deepseek-chat")
 
 
 def main() -> None:
     if not API_KEY:
         raise SystemExit(
-            "未读到 GLM_API_KEY：请复制 .env.example 为 .env，填入你的智谱 API Key"
+            "未读到 LLM_API_KEY：请复制 .env.example 为 .env，填入你的 DeepSeek API Key"
         )
 
-    # OpenAI SDK + base_url 指向智谱：以后换模型只改 .env，不用改代码
+    # OpenAI SDK + base_url 指向 DeepSeek：以后换模型只改 .env，不用改代码
     client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
 
     messages = [
