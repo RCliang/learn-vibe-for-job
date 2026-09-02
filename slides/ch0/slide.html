@@ -6,24 +6,37 @@
 <title>Ch0 环境与第一行代码 · 课程幻灯片</title>
 <style>
   :root {
-    --bg: #fafafa;
-    --ink: #1f2937;
-    --muted: #6b7280;
-    --accent: #3eaf7c;
-    --accent-deep: #2f8f64;
-    --accent-wash: #ecfdf5;
-    --line: #e5e7eb;
-    --code-bg: #f6f8fa;
-    --warn-bg: #fff7ed;
-    --warn-line: #fdba74;
-    --warn-ink: #c2410c;
-    --danger: #dc2626;
+    --paper: #f1f0ea;
+    --ink: #1d2a25;
+    --muted: #68706b;
+    --pine: #1f5c46;
+    --pine-deep: #174a39;
+    --leaf: #35a97a;
+    --wash: #e4efe8;
+    --wash-line: #c4dccd;
+    --card: #ffffff;
+    --line: #e2e0d4;
+    --sand: #dedcce;
+    --term: #16241e;
+    --term-text: #d9e6de;
+    --warn-bg: #fbf1df;
+    --warn-line: #e8cfa0;
+    --warn-ink: #8f5a16;
+    --warn-text: #6e4a17;
+    --mono: "SF Mono", "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+    --slab: 5px 5px 0 0 var(--sand);
+    /* 兼容旧变量引用 */
+    --bg: var(--paper);
+    --accent: var(--pine);
+    --accent-deep: var(--pine-deep);
+    --accent-wash: var(--wash);
+    --code-bg: #ecebe1;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { height: 100%; overflow: hidden; }
   body {
-    background: #e8eaed;
-    font-family: system-ui, -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: #d8d6cd;
+    font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif;
     color: var(--ink);
   }
 
@@ -31,8 +44,8 @@
     position: absolute; left: 50%; top: 50%;
     width: 1280px; height: 720px;
     transform-origin: center center;
-    background: var(--bg);
-    box-shadow: 0 10px 40px rgba(0,0,0,.18);
+    background: var(--paper);
+    box-shadow: 0 24px 60px rgba(29,42,37,.28), 0 0 0 1px rgba(29,42,37,.05);
     overflow: hidden;
   }
 
@@ -42,14 +55,17 @@
     padding: 52px 72px 70px;
     flex-direction: column;
   }
-  .slide.active { display: flex; }
+  .slide.active { display: flex; animation: rise .3s cubic-bezier(.2,.7,.3,1); }
+  @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .slide.active { animation: none; } }
 
   .kicker {
-    font-size: 15px; font-weight: 700; letter-spacing: .18em;
-    color: var(--accent-deep); text-transform: uppercase; margin-bottom: 10px;
+    font-family: var(--mono);
+    font-size: 13px; font-weight: 700; letter-spacing: .22em;
+    color: var(--pine); text-transform: uppercase; margin-bottom: 10px;
   }
-  h1 { font-size: 34px; line-height: 1.25; margin-bottom: 22px; }
-  h1 .sub { display:block; font-size: 17px; font-weight: 400; color: var(--muted); margin-top: 6px; }
+  h1 { font-size: 34px; line-height: 1.25; margin-bottom: 22px; font-weight: 700; letter-spacing: -0.01em; }
+  h1 .sub { display:block; font-size: 17px; font-weight: 400; color: var(--muted); margin-top: 6px; letter-spacing: 0; }
   .grow { flex: 1; min-height: 0; }
 
   p.lead { font-size: 21px; line-height: 1.6; }
@@ -59,98 +75,165 @@
   }
   ul.pts li::before {
     content: ""; position: absolute; left: 2px; top: 12px;
-    width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+    width: 8px; height: 8px; border-radius: 2px; background: var(--pine);
   }
-  ul.pts li b { color: #111827; }
+  ul.pts li b { color: var(--pine-deep); }
   .muted { color: var(--muted); }
-  .accent { color: var(--accent-deep); }
+  .accent { color: var(--pine); }
 
   .cols { display: flex; gap: 28px; }
+  .grow.cols { align-items: center; }
   .col { flex: 1; min-width: 0; }
 
   .card {
-    background: #fff; border: 1px solid var(--line); border-radius: 14px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: var(--slab);
     padding: 18px 22px; margin-bottom: 14px;
   }
-  .card h3 { font-size: 18px; margin-bottom: 8px; color: #111827; }
+  .card h3 { font-size: 18px; margin-bottom: 8px; color: var(--ink); }
   .card p, .card li { font-size: 16.5px; line-height: 1.55; }
 
   .warn {
-    background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 14px;
+    background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 12px;
+    box-shadow: 5px 5px 0 0 rgba(143,90,22,.14);
     padding: 16px 22px;
   }
   .warn .warn-title { font-weight: 700; color: var(--warn-ink); font-size: 17px; margin-bottom: 6px; }
-  .warn p, .warn li { font-size: 16.5px; line-height: 1.55; color: #7c2d12; }
+  .warn p, .warn li { font-size: 16.5px; line-height: 1.55; color: var(--warn-text); }
 
   .code {
-    background: var(--code-bg); border: 1px solid var(--line); border-radius: 10px;
-    padding: 13px 18px; font-family: "SF Mono", "Cascadia Code", Consolas, "JetBrains Mono", monospace;
-    font-size: 16.5px; line-height: 1.6; color: #24292e; white-space: pre; overflow: hidden;
+    background: var(--term); border: 1px solid #0e1b15; border-radius: 10px;
+    box-shadow: 5px 5px 0 0 rgba(29,42,37,.16);
+    padding: 13px 18px; font-family: var(--mono);
+    font-size: 16.5px; line-height: 1.6; color: var(--term-text); white-space: pre; overflow: hidden;
     margin: 10px 0;
   }
-  .code .c { color: #6a737d; }
-  .code .k { color: #cf222e; }
-  .code .s { color: #0a3069; }
+  .code .c { color: #6e8b7f; }
+  .code .k { color: #e8a271; }
+  .code .s { color: #9fd3b4; }
 
-  table.tbl { border-collapse: collapse; width: 100%; background: #fff; }
+  table.tbl { border-collapse: collapse; width: 100%; background: var(--card); }
   table.tbl th, table.tbl td {
     border: 1px solid var(--line); padding: 9px 16px; font-size: 17px; text-align: left;
   }
-  table.tbl th { background: #f3f4f6; font-weight: 700; }
+  table.tbl th { background: #ebeae0; font-weight: 700; }
   table.tbl td code, .incode {
-    font-family: "SF Mono", "Cascadia Code", Consolas, monospace;
+    font-family: var(--mono);
     font-size: 15.5px; background: var(--code-bg); padding: 2px 7px; border-radius: 5px;
   }
 
   .chips { display: flex; flex-wrap: wrap; gap: 10px; }
   .chip {
-    background: var(--accent-wash); color: var(--accent-deep); border: 1px solid #bbe7d0;
-    border-radius: 999px; padding: 6px 18px; font-size: 16.5px; font-weight: 600;
+    background: var(--card); color: var(--pine); border: 1px solid var(--line);
+    box-shadow: 3px 3px 0 0 var(--sand);
+    border-radius: 999px; padding: 6px 18px;
+    font-family: var(--mono); font-size: 15px; font-weight: 600;
   }
-  .sc { border-radius: 8px; padding: 2px 10px; font-weight: 700; color: #fff; font-family: Consolas, monospace; }
-  .sc.g200 { background: #16a34a; } .sc.o401 { background: #ea580c; }
-  .sc.o404 { background: #d97706; } .sc.a429 { background: #ca8a04; } .sc.r500 { background: #dc2626; }
+  .sc {
+    border-radius: 8px; padding: 2px 10px; font-weight: 700; color: #fff;
+    font-family: var(--mono); box-shadow: 3px 3px 0 0 rgba(29,42,37,.16);
+  }
+  .sc.g200 { background: #1e8a5c; } .sc.o401 { background: #c4691b; }
+  .sc.o404 { background: #c07e17; } .sc.a429 { background: #a08a1d; } .sc.r500 { background: #c13f2e; }
 
-  /* 分隔页 */
-  .divider { background: linear-gradient(135deg, #f4fbf7 0%, #e6f7ee 60%, #dcf3e7 100%); justify-content: center; }
+  /* 分隔页：巨型挤出小节号 */
+  .divider { background: #e9e8df; justify-content: center; }
   .divider .day-tag {
-    display: inline-block; background: var(--accent); color: #fff; border-radius: 999px;
-    padding: 7px 26px; font-size: 18px; font-weight: 700; letter-spacing: .12em; margin-bottom: 30px;
-    align-self: flex-start;
+    display: block; background: none; color: var(--pine);
+    font-family: var(--mono); font-size: 148px; font-weight: 700; line-height: 1;
+    letter-spacing: 0; padding: 0; margin-bottom: 18px; align-self: flex-start;
+    text-shadow: 7px 7px 0 rgba(31,92,70,.18), 14px 14px 0 rgba(31,92,70,.07);
   }
-  .divider h1 { font-size: 54px; margin-bottom: 26px; }
-  .divider p.desc { font-size: 21px; color: #375e4c; line-height: 1.7; }
+  .divider h1 { font-size: 50px; margin-bottom: 22px; }
+  .divider p.desc { font-size: 20px; color: #46564e; line-height: 1.7; }
 
   /* 封面 */
-  .cover { background: linear-gradient(160deg, #ffffff 0%, #f2faf6 70%, #e8f6ef 100%); justify-content: center; }
-  .cover .camp { font-size: 19px; font-weight: 700; letter-spacing: .2em; color: var(--accent-deep); margin-bottom: 26px; }
-  .cover h1 { font-size: 62px; line-height: 1.2; margin-bottom: 18px; }
+  .cover { background: var(--paper); justify-content: center; }
+  .cover .camp {
+    display: inline-block; align-self: flex-start;
+    font-family: var(--mono); font-size: 15px; font-weight: 700; letter-spacing: .22em;
+    color: var(--pine); background: var(--card); border: 1px solid var(--line);
+    border-radius: 8px; box-shadow: 4px 4px 0 0 var(--sand);
+    padding: 7px 18px; margin-bottom: 30px;
+  }
+  .cover h1 { font-size: 62px; line-height: 1.2; margin-bottom: 18px; letter-spacing: -0.015em; }
   .cover .sub { font-size: 25px; color: var(--muted); margin-bottom: 40px; }
-  .cover .hint { position: absolute; bottom: 78px; left: 72px; font-size: 15px; color: #9ca3af; }
+  .cover .hint {
+    position: absolute; bottom: 78px; left: 72px;
+    font-family: var(--mono); font-size: 14px; color: #a3a196;
+  }
+
+  /* 封面右侧：叠层窗口装置（编辑器 / 终端 / 系统三层） */
+  .layer-stack { position: absolute; right: 96px; top: 50%; transform: translateY(-52%); width: 300px; height: 210px; }
+  .layer-stack i { position: absolute; display: block; border-radius: 14px; border: 1px solid rgba(29,42,37,.08); }
+  .layer-stack i:nth-child(1) { width: 236px; height: 148px; left: 0; top: 58px; background: #dfe9e2; transform: rotate(-5deg); box-shadow: 6px 6px 0 rgba(29,42,37,.06); }
+  .layer-stack i:nth-child(2) { width: 244px; height: 154px; left: 28px; top: 30px; background: #cdddd2; transform: rotate(-2deg); box-shadow: 7px 7px 0 rgba(29,42,37,.07); }
+  .layer-stack i:nth-child(3) { width: 248px; height: 160px; left: 56px; top: 0; background: var(--term); border-color: #0e1b15; box-shadow: 9px 9px 0 0 var(--sand); }
+  .layer-stack .prompt {
+    position: absolute; left: 84px; top: 30px;
+    font-family: var(--mono); font-size: 30px; font-weight: 700; color: #9fd3b4;
+  }
+  .layer-stack .prompt::after {
+    content: ""; display: inline-block; width: 13px; height: 30px; margin-left: 8px;
+    background: #9fd3b4; vertical-align: -4px; animation: blink 1.1s steps(2, jump-none) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .layer-stack .prompt::after { animation: none; } }
 
   .checklist { list-style: none; }
   .checklist li { font-size: 19px; line-height: 1.55; margin-bottom: 11px; padding-left: 34px; position: relative; }
   .checklist li::before {
     content: "✓"; position: absolute; left: 0; top: 0; width: 24px; height: 24px;
-    background: var(--accent-wash); color: var(--accent-deep); border: 1px solid #bbe7d0;
-    border-radius: 6px; font-size: 15px; font-weight: 800; text-align: center; line-height: 23px;
+    background: var(--pine); color: #fff; border: none;
+    box-shadow: 3px 3px 0 0 var(--sand);
+    border-radius: 7px; font-size: 15px; font-weight: 800; text-align: center; line-height: 24px;
   }
 
   .flow { display: flex; flex-wrap: wrap; gap: 8px 0; align-items: center; margin: 14px 0; }
   .flow .fbox {
-    background: #fff; border: 1.5px solid var(--accent); border-radius: 10px;
+    background: var(--card); border: 1.5px solid var(--pine); border-radius: 10px;
+    box-shadow: 4px 4px 0 0 var(--sand);
     padding: 9px 14px; font-size: 15.5px; line-height: 1.35; text-align: center;
   }
   .flow .fbox small { display: block; color: var(--muted); font-size: 12.5px; }
-  .flow .arr { color: var(--accent); font-size: 20px; font-weight: 700; padding: 0 8px; }
+  .flow .arr { color: var(--pine); font-size: 20px; font-weight: 700; padding: 0 8px; }
+
+  /* 请求/响应 传信示意 */
+  .msgflow { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+  .msgflow .mf-node {
+    background: var(--card); border: 1.5px solid var(--pine); border-radius: 10px;
+    box-shadow: 4px 4px 0 0 var(--sand);
+    padding: 8px 14px; font-size: 15px; font-weight: 700; line-height: 1.35; text-align: center; white-space: nowrap;
+  }
+  .msgflow .mf-node small { display: block; font-size: 12px; font-weight: 400; color: var(--muted); font-family: var(--mono); }
+  .mf-mid { flex: 1; display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+  .mf-leg { display: flex; align-items: center; }
+  .mf-leg .shaft { flex: 1; height: 0; border-top: 2px solid var(--pine); }
+  .mf-leg .lbl {
+    margin: 0 6px; padding: 2px 10px; border-radius: 999px; white-space: nowrap;
+    background: var(--wash); border: 1px solid var(--wash-line); color: var(--pine-deep);
+    font-size: 13.5px; font-weight: 600;
+  }
+  .mf-leg.back .shaft { border-top-style: dashed; border-top-color: #a09e90; }
+  .mf-leg.back .lbl { background: #efefe7; border-color: var(--line); color: #565e58; }
+  .mf-head { width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; flex: none; }
+  .mf-head.r { border-left: 8px solid var(--pine); }
+  .mf-head.l { border-right: 8px solid #a09e90; }
 
   /* 全局 footer：进度条 + 页码 */
-  #bar { position: absolute; left: 0; bottom: 0; height: 5px; background: var(--accent); width: 0; transition: width .15s; z-index: 30; }
-  #pager {
-    position: absolute; right: 26px; bottom: 16px; font-size: 14px; color: #9ca3af;
-    font-family: Consolas, monospace; z-index: 30;
+  #bar {
+    position: absolute; left: 0; bottom: 0; height: 7px; background: var(--leaf);
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,.22);
+    width: 0; transition: width .2s; z-index: 30;
   }
-  #brand { position: absolute; left: 26px; bottom: 16px; font-size: 13px; color: #c0c4cc; letter-spacing: .08em; z-index: 30; }
+  #pager {
+    position: absolute; right: 26px; bottom: 16px; font-size: 13px; color: #a3a196;
+    font-family: var(--mono); z-index: 30;
+  }
+  #brand {
+    position: absolute; left: 26px; bottom: 16px; font-size: 12px; color: #b0aea1;
+    font-family: var(--mono); letter-spacing: .12em; z-index: 30;
+  }
 </style>
 </head>
 <body>
@@ -160,10 +243,11 @@
   <section class="slide cover active">
     <div class="camp">零基础 Agent 开发营 · WEEK 1</div>
     <h1>Ch0 环境与第一行代码</h1>
-    <div class="sub">Day 1-2 · 跨出第一步，跑通人生第一个 LLM API 调用</div>
+    <div class="sub">跨出第一步，跑通人生第一个 LLM API 调用</div>
     <div class="chips">
       <span class="chip">Python</span><span class="chip">API 调用</span><span class="chip">Git</span>
     </div>
+    <div class="layer-stack" aria-hidden="true"><i></i><i></i><i></i><span class="prompt">&gt;_</span></div>
     <div class="hint">→ / 空格 翻页 · F 全屏 · 点击画面也可翻页</div>
   </section>
 
@@ -173,14 +257,14 @@
     <h1>本章路线<span class="sub">学完你能：搭好环境 · 看懂一次 HTTP 请求 · 管住包 · 推上 GitHub · 跑通第一个 LLM 调用</span></h1>
     <div class="grow cols">
       <div class="col">
-        <div class="card" style="height:100%">
-          <h3 class="accent">Day 1 · 装好武器</h3>
+        <div class="card">
+          <h3 class="accent">01–02 · 装好武器</h3>
           <p>装好 <b>VSCode、Python、Claude Code</b> 三样工具，接入你的 AI 结对程序员（模型由 DeepSeek 提供）</p>
         </div>
       </div>
       <div class="col">
-        <div class="card" style="height:100%">
-          <h3 class="accent">Day 2 · 看懂门道</h3>
+        <div class="card">
+          <h3 class="accent">03–04 · 看懂门道</h3>
           <p><b>上午</b>：HTTP 与 API 基础<br><b>下午</b>：Python 三件套 import / pip / venv<br><b>收尾</b>：Git + 第一个 LLM API 调用</p>
         </div>
       </div>
@@ -190,16 +274,16 @@
     </div>
   </section>
 
-  <!-- 3 分隔 Day1 上午 -->
+  <!-- 3 分隔 01 装环境 -->
   <section class="slide divider">
-    <span class="day-tag">DAY 1 · 上午</span>
+    <span class="day-tag">01</span>
     <h1>装好三样东西</h1>
     <p class="desc">VSCode · Python · 终端<br>装环境不烧脑，跟着做就行——但有一个坑，80% 的人第一天都会踩。</p>
   </section>
 
   <!-- 4 VSCode + 终端 -->
   <section class="slide">
-    <div class="kicker">Day 1 上午 · 装环境</div>
+    <div class="kicker">01 · 装环境</div>
     <h1>VSCode 与终端</h1>
     <div class="grow cols">
       <div class="col">
@@ -231,7 +315,7 @@
 
   <!-- 5 Python -->
   <section class="slide">
-    <div class="kicker">Day 1 上午 · 装环境</div>
+    <div class="kicker">01 · 装环境</div>
     <h1>安装 Python：Windows 最大的坑在第一步</h1>
     <div class="grow">
       <ul class="pts">
@@ -246,27 +330,27 @@
     </div>
   </section>
 
-  <!-- 6 分隔 Day1 下午 -->
+  <!-- 6 分隔 02 接入 AI 结对 -->
   <section class="slide divider">
-    <span class="day-tag">DAY 1 · 下午</span>
+    <span class="day-tag">02</span>
     <h1>接入你的 AI 结对程序员</h1>
     <p class="desc">VSCode 写代码 + Claude Code 当结对程序员<br>模型能力由 DeepSeek API 提供——国内可用、不需要海外账号</p>
   </section>
 
   <!-- 7 工具链 -->
   <section class="slide">
-    <div class="kicker">Day 1 下午 · 工具链</div>
+    <div class="kicker">02 · 工具链</div>
     <h1>为什么是这套组合？</h1>
     <div class="grow cols">
       <div class="col" style="flex:1.1">
         <ul class="pts">
           <li><b>VSCode</b>：写代码的编辑器</li>
-          <li><b>Claude Code</b>：跑在终端里的 AI 编程助手（JD 里辨识度最高）</li>
+          <li><b>Claude Code</b>：跑在终端里的 AI 编程助手<span class="muted">（同类可选 Codex、DeepSeek Harness，课程统一以 Claude Code 为例）</span></li>
           <li><b>DeepSeek API</b>：提供模型能力，按量计费，<b>充值 10 元足够整个课程</b></li>
         </ul>
       </div>
       <div class="col">
-        <div class="card" style="height:100%">
+        <div class="card">
           <h3>DeepSeek 的四个理由</h3>
           <p>📱 手机号注册即用，全程零翻墙<br>
           💰 按量付费，不用订阅<br>
@@ -279,7 +363,7 @@
 
   <!-- 8 API Key -->
   <section class="slide">
-    <div class="kicker">Day 1 下午 · 工具链</div>
+    <div class="kicker">02 · 工具链</div>
     <h1>开通 DeepSeek API Key</h1>
     <div class="grow">
       <ul class="pts">
@@ -296,10 +380,10 @@
 
   <!-- 9 安装 Claude Code -->
   <section class="slide">
-    <div class="kicker">Day 1 下午 · 工具链</div>
+    <div class="kicker">02 · 工具链</div>
     <h1>安装 Claude Code</h1>
     <div class="grow">
-      <p class="lead" style="margin-bottom:8px">前置：先装 <b>Node.js 18+ LTS</b>（nodejs.org）和 <b>Git</b>（git-scm.com），均一路下一步</p>
+      <p class="lead" style="margin-bottom:8px">前置：先装 <b>Node.js 18+ LTS</b>（<span class="incode">nodejs.org/zh-cn/download</span>）和 <b>Git</b>（<span class="incode">git-scm.com/install/windows</span>），均一路下一步</p>
       <div class="code">npm install -g @anthropic-ai/claude-code
 claude --version   <span class="c"># 能输出版本号即成功</span></div>
       <ul class="pts" style="margin-top:10px">
@@ -311,18 +395,22 @@ claude --version   <span class="c"># 能输出版本号即成功</span></div>
 
   <!-- 10 配置 -->
   <section class="slide">
-    <div class="kicker">Day 1 下午 · 工具链</div>
+    <div class="kicker">02 · 工具链</div>
     <h1>让 Claude Code 用上 DeepSeek</h1>
     <div class="grow cols">
       <div class="col" style="flex:1.15">
         <p style="font-size:16.5px;margin-bottom:4px">编辑 <span class="incode">C:\Users\你\.claude\settings.json</span>（不存在就新建）：</p>
-        <div class="code" style="font-size:15px">{
+        <div class="code" style="font-size:14px">{
   "env": {
-    "ANTHROPIC_AUTH_TOKEN": "你的 DeepSeek Key",
-    "ANTHROPIC_BASE_URL":
-      "https://api.deepseek.com/anthropic",
-    "ANTHROPIC_MODEL": "deepseek-chat",
-    "ANTHROPIC_SMALL_FAST_MODEL": "deepseek-chat"
+    "ANTHROPIC_AUTH_TOKEN": "你的DeepSeek api-token",
+    "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "deepseek-v4-pro[1m]",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "deepseek-v4-flash",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "deepseek-v4-pro[1m]",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "deepseek-v4-pro[1m]",
+    "API_TIMEOUT_MS": "3000000",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "deepseek-v4-flash"
   }
 }</div>
       </div>
@@ -341,7 +429,7 @@ claude --version   <span class="c"># 能输出版本号即成功</span></div>
 
   <!-- 11 验证 -->
   <section class="slide">
-    <div class="kicker">Day 1 下午 · 工具链</div>
+    <div class="kicker">02 · 工具链</div>
     <h1>第一次对话验证</h1>
     <div class="grow">
       <div class="code">mkdir hello-claude &amp;&amp; cd hello-claude
@@ -354,27 +442,27 @@ claude          <span class="c"># 启动，进入对话界面</span></div>
     </div>
   </section>
 
-  <!-- 12 分隔 Day2 上午 -->
+  <!-- 12 分隔 03 HTTP 与 API -->
   <section class="slide divider">
-    <span class="day-tag">DAY 2 · 上午</span>
+    <span class="day-tag">03</span>
     <h1>HTTP 与 API 基础</h1>
     <p class="desc">后面写的每一个 AI 应用，核心动作都是「发一次 HTTP 请求调用 LLM API」。<br>看懂它，后面所有章节的报错你都能自己读一半。</p>
   </section>
 
   <!-- 13 餐厅类比 -->
   <section class="slide">
-    <div class="kicker">Day 2 上午 · HTTP 与 API</div>
+    <div class="kicker">03 · HTTP 与 API</div>
     <h1>把网站想象成一家餐厅</h1>
     <div class="grow cols" style="align-items:stretch">
-      <div class="col"><div class="card" style="height:100%;text-align:center">
+      <div class="col"><div class="card" style="text-align:center">
         <h3 style="font-size:34px">🪑</h3><h3>前端</h3>
         <p>大堂和菜单——你看到的界面<br><span class="muted">网页、按钮、聊天窗口</span></p>
       </div></div>
-      <div class="col"><div class="card" style="height:100%;text-align:center">
+      <div class="col"><div class="card" style="text-align:center">
         <h3 style="font-size:34px">👨‍🍳</h3><h3>后端</h3>
         <p>后厨——真正做菜的地方<br><span class="muted">服务器上的程序，算出结果</span></p>
       </div></div>
-      <div class="col"><div class="card" style="height:100%;text-align:center;border-color:var(--accent)">
+      <div class="col"><div class="card" style="text-align:center;border-color:var(--pine)">
         <h3 style="font-size:34px">🤵</h3><h3 class="accent">API</h3>
         <p>服务员——递需求、端菜回来<br><span class="muted">点单 + 上菜 = 两次数据传递</span></p>
       </div></div>
@@ -384,7 +472,7 @@ claude          <span class="c"># 启动，进入对话界面</span></div>
 
   <!-- 14 请求解剖 + 状态码 -->
   <section class="slide">
-    <div class="kicker">Day 2 上午 · HTTP 与 API</div>
+    <div class="kicker">03 · HTTP 与 API</div>
     <h1>一次 HTTP 请求长什么样<span class="sub">必须认识的 5 个状态码——后面天天见</span></h1>
     <div class="grow cols">
       <div class="col">
@@ -410,11 +498,23 @@ claude          <span class="c"># 启动，进入对话界面</span></div>
         <p class="muted" style="font-size:15.5px;margin-top:10px">选做：F12 → Network 面板，亲眼看一次真实请求</p>
       </div>
     </div>
+    <div class="msgflow">
+      <div class="mf-node">💻 你（客户端）<small>你的 Python 脚本</small></div>
+      <div class="mf-mid">
+        <div class="mf-leg">
+          <i class="shaft"></i><span class="lbl">① 请求：POST · 请求头（带 Key）· JSON 请求体</span><i class="shaft"></i><i class="mf-head r"></i>
+        </div>
+        <div class="mf-leg back">
+          <i class="mf-head l"></i><i class="shaft"></i><span class="lbl">② 响应：状态码 200 · JSON 结果</span><i class="shaft"></i>
+        </div>
+      </div>
+      <div class="mf-node">☁️ 服务器（DeepSeek）<small>api.deepseek.com</small></div>
+    </div>
   </section>
 
   <!-- 15 JSON -->
   <section class="slide">
-    <div class="kicker">Day 2 上午 · HTTP 与 API</div>
+    <div class="kicker">03 · HTTP 与 API</div>
     <h1>JSON：数据的世界语</h1>
     <div class="grow cols">
       <div class="col" style="flex:1.15">
@@ -426,7 +526,7 @@ claude          <span class="c"># 启动，进入对话界面</span></div>
 }</div>
       </div>
       <div class="col">
-        <div class="card" style="height:100%">
+        <div class="card">
           <h3>语法只有三条</h3>
           <p>① 键值对，字符串用<b>双引号</b><br>② 数字、布尔不加引号<br>③ 数组用方括号 <span class="incode">[]</span><br><br>
           <span class="muted">API 传递数据几乎都用 JSON——你发的是它，收回的也是它</span></p>
@@ -435,29 +535,29 @@ claude          <span class="c"># 启动，进入对话界面</span></div>
     </div>
   </section>
 
-  <!-- 16 分隔 Day2 下午 -->
+  <!-- 16 分隔 04 Python 三件套 + Git -->
   <section class="slide divider">
-    <span class="day-tag">DAY 2 · 下午</span>
+    <span class="day-tag">04</span>
     <h1>Python 三件套 + Git</h1>
     <p class="desc">教学法的分工：语法定义让 AI 写、你负责读懂；<br>但 import / pip / venv 是环境问题——每天都会撞见，必须自己拿手。</p>
   </section>
 
   <!-- 17 三件套 -->
   <section class="slide">
-    <div class="kicker">Day 2 下午 · Python 最小集</div>
+    <div class="kicker">04 · Python 最小集</div>
     <h1>import / pip / venv</h1>
     <div class="grow cols">
-      <div class="col"><div class="card" style="height:100%">
+      <div class="col"><div class="card">
         <h3 class="accent">import · 拿积木</h3>
         <p>三层来源：<br>① <b>标准库</b>（os/json）不用装<br>② <b>第三方包</b>（openai）要先装<br>③ <b>你自己的文件</b>要在当前目录</p>
         <p style="margin-top:8px"><span class="incode">ModuleNotFoundError</span> 排错两步：先问是第三方包吗？→ 装它；是自己文件吗？→ 查路径和大小写</p>
       </div></div>
-      <div class="col"><div class="card" style="height:100%">
+      <div class="col"><div class="card">
         <h3 class="accent">pip · 装积木</h3>
         <p><span class="incode">pip install openai</span><br><span class="incode">pip list</span> 看装了什么</p>
         <p style="margin-top:8px"><span class="incode">requirements.txt</span> = 项目购物清单，一条命令装齐<br>下载慢 → 加清华镜像 <span class="incode">-i https://pypi.tuna...</span></p>
       </div></div>
-      <div class="col"><div class="card" style="height:100%">
+      <div class="col"><div class="card">
         <h3 class="accent">venv · 独立盒子</h3>
         <p>每个项目一个独立干净的 Python 环境，互不干扰</p>
         <p style="margin-top:8px"><span class="incode">python -m venv .venv</span><br>激活 <span class="incode">.venv\Scripts\activate</span><br>看到 <span class="incode">(.venv)</span> 前缀 = 进盒了</p>
@@ -467,7 +567,7 @@ claude          <span class="c"># 启动，进入对话界面</span></div>
 
   <!-- 18 Git -->
   <section class="slide">
-    <div class="kicker">Day 2 收尾 · Git</div>
+    <div class="kicker">04 · Git</div>
     <h1>Git：今天只用会 4 条命令</h1>
     <div class="grow cols">
       <div class="col" style="flex:1.2">
@@ -478,7 +578,7 @@ git push                    <span class="c"># 推送到 GitHub</span></div>
         <p class="muted" style="font-size:16px;margin-top:6px">首次推送：GitHub 建空仓库 → <span class="incode">git remote add origin …</span> → <span class="incode">git push -u origin main</span></p>
       </div>
       <div class="col">
-        <div class="warn" style="height:100%">
+        <div class="warn">
           <div class="warn-title">⚠️ 提交前必看</div>
           <p>项目根目录放 <span class="incode" style="background:#ffedd5">.gitignore</span>，写上 <span class="incode" style="background:#ffedd5">.env</span><br><br>
           GitHub 是你未来<b>简历的项目展示地</b>——别把 API Key 公开上去</p>
@@ -489,7 +589,7 @@ git push                    <span class="c"># 推送到 GitHub</span></div>
 
   <!-- 19 交付物 -->
   <section class="slide">
-    <div class="kicker">Day 2 · 交付物</div>
+    <div class="kicker">04 · 交付物</div>
     <h1>跑通第一个 LLM API 调用<span class="sub">ch0-hello-llm 目录：python hello_llm.py —— 全天知识，全在这 20 行代码里</span></h1>
     <div class="grow">
       <div class="code" style="font-size:15.5px"><span class="c"># 建虚拟环境 → 按清单装依赖 → 复制 .env.example 为 .env 填 Key → 运行</span>

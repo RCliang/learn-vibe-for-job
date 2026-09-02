@@ -94,8 +94,8 @@ Key 等同于付费凭证：**不发群里、不贴截图、不写进代码提�
 
 Claude Code 是一个跑在终端里的 AI 编程助手（TUI，命令行界面）。Windows 安装需要先有 **Node.js 18+** 和 **Git**：
 
-1. **Node.js**：打开 [https://nodejs.org](https://nodejs.org)，下载 LTS 版安装（一路下一步）
-2. **Git**：打开 [https://git-scm.com/download/win](https://git-scm.com/download/win) 下载安装（一路下一步，选 VSCode 当默认编辑器更好）
+1. **Node.js**：打开 [https://nodejs.org/zh-cn/download](https://nodejs.org/zh-cn/download)，下载 LTS 版安装（一路下一步）
+2. **Git**：打开 [https://git-scm.com/install/windows](https://git-scm.com/install/windows) 下载安装（一路下一步，选 VSCode 当默认编辑器更好）
 3. **重新打开终端**，安装 Claude Code：
 
 ```bash
@@ -112,17 +112,21 @@ Claude Code 原生只认 Anthropic 的接口格式，而 DeepSeek 官方提供�
 ```json
 {
   "env": {
-    "ANTHROPIC_AUTH_TOKEN": "把这里换成你的 DeepSeek API Key",
+    "ANTHROPIC_AUTH_TOKEN": "你的DeepSeek api-token",
     "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
-    "ANTHROPIC_MODEL": "deepseek-chat",
-    "ANTHROPIC_SMALL_FAST_MODEL": "deepseek-chat",
-    "API_TIMEOUT_MS": "3000000"
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "deepseek-v4-pro[1m]",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "deepseek-v4-flash",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "deepseek-v4-pro[1m]",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "deepseek-v4-pro[1m]",
+    "API_TIMEOUT_MS": "3000000",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "deepseek-v4-flash"
   }
 }
 ```
 
 ::: details 抢到了 GLM Coding Plan？也可以用它
-如果你订阅了智谱 GLM Coding Plan，把上面三个值换成智谱的即可：`ANTHROPIC_BASE_URL` 改为 `https://open.bigmodel.cn/api/anthropic`、Token 用智谱 Key、模型名按[智谱官方文档](https://docs.bigmodel.cn/cn/guide/develop/claude)填写。课程主线按 DeepSeek 讲，用 GLM 不影响任何练习——这正是「配置与代码解耦」的好处。
+如果你订阅了智谱 GLM Coding Plan，把端点、Token 和模型名换成智谱的即可：`ANTHROPIC_BASE_URL` 改为 `https://open.bigmodel.cn/api/anthropic`、Token 用智谱 Key、模型名按[智谱官方文档](https://docs.bigmodel.cn/cn/guide/develop/claude)填写。课程主线按 DeepSeek 讲，用 GLM 不影响任何练习——这正是「配置与代码解耦」的好处。
 :::
 
 ::: warning ⚠️ 这段配置是全课程最可能「过期」的地方
@@ -143,7 +147,7 @@ claude          # 启动，进入对话界面
 如果命令行实在不适应，可以用 **ZCode** 桌面版（GUI）：官网下载安装后，配置一个 DeepSeek 或其他模型的 API Key 即可使用，无需改配置文件。功能上同样是「AI 结对编程」，后续课程内容两种工具通用。
 
 ::: tip 本课程以 Claude Code 为主线讲解
-因为它是目前 JD 和技术社区里辨识度最高的 AI 编程工具，面试聊起来有天然话题。ZCode 用户可以照做所有练习，只是操作入口不同。
+终端里的 AI 编程助手还有 Codex、DeepSeek Harness 等同类可选，课程统一以 Claude Code 为例。ZCode 用户可以照做所有练习，只是操作入口不同。
 :::
 
 ---
