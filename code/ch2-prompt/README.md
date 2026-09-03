@@ -2,6 +2,8 @@
 
 章节：[Ch2 Prompt 工程实战（Day 5-7）](https://rcliang.github.io/learn-vibe-for-job/guide/ch2)
 
+交付物 `resume_optimizer.py` 的输出形态：**终端打印五板块结构化报告**（总分/优点/问题清单/STAR 改写/关键词），示例与验收口径见课程第 6 节「输出要求」。
+
 ## 目录结构
 
 | 文件 | 对应课程 | 说明 |
