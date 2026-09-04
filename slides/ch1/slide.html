@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch1 Vibe Coding 工作流 · 课程幻灯片</title>
+<style>
+  :root {
+    --paper: #f1f0ea;
+    --ink: #1d2a25;
+    --muted: #68706b;
+    --pine: #1f5c46;
+    --pine-deep: #174a39;
+    --leaf: #35a97a;
+    --wash: #e4efe8;
+    --wash-line: #c4dccd;
+    --card: #ffffff;
+    --line: #e2e0d4;
+    --sand: #dedcce;
+    --term: #16241e;
+    --term-text: #d9e6de;
+    --warn-bg: #fbf1df;
+    --warn-line: #e8cfa0;
+    --warn-ink: #8f5a16;
+    --warn-text: #6e4a17;
+    --bad-bg: #fbeaea;
+    --bad-line: #e0b8b2;
+    --bad-ink: #9d3a2b;
+    --bad-text: #7d3327;
+    --mono: "SF Mono", "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+    --slab: 5px 5px 0 0 var(--sand);
+    --code-bg: #ecebe1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: #d8d6cd;
+    font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif;
+    color: var(--ink);
+  }
+
+  #stage {
+    position: absolute; left: 50%; top: 50%;
+    width: 1280px; height: 720px;
+    transform-origin: center center;
+    background: var(--paper);
+    box-shadow: 0 24px 60px rgba(29,42,37,.28), 0 0 0 1px rgba(29,42,37,.05);
+    overflow: hidden;
+  }
+
+  .slide {
+    display: none;
+    position: absolute; inset: 0;
+    padding: 52px 72px 70px;
+    flex-direction: column;
+  }
+  .slide.active { display: flex; animation: rise .3s cubic-bezier(.2,.7,.3,1); }
+  @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .slide.active { animation: none; } }
+
+  .kicker {
+    font-family: var(--mono);
+    font-size: 13px; font-weight: 700; letter-spacing: .22em;
+    color: var(--pine); text-transform: uppercase; margin-bottom: 10px;
+  }
+  h1 { font-size: 34px; line-height: 1.25; margin-bottom: 22px; font-weight: 700; letter-spacing: -0.01em; }
+  h1 .sub { display:block; font-size: 17px; font-weight: 400; color: var(--muted); margin-top: 6px; letter-spacing: 0; }
+  .grow { flex: 1; min-height: 0; }
+
+  p.lead { font-size: 21px; line-height: 1.6; }
+  ul.pts { list-style: none; }
+  ul.pts li {
+    font-size: 20px; line-height: 1.55; padding-left: 26px; position: relative; margin-bottom: 12px;
+  }
+  ul.pts li::before {
+    content: ""; position: absolute; left: 2px; top: 12px;
+    width: 8px; height: 8px; border-radius: 2px; background: var(--pine);
+  }
+  ul.pts li b { color: var(--pine-deep); }
+  .muted { color: var(--muted); }
+  .accent { color: var(--pine); }
+
+  .cols { display: flex; gap: 28px; }
+  .grow.cols { align-items: center; }
+  .col { flex: 1; min-width: 0; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: var(--slab);
+    padding: 18px 22px; margin-bottom: 14px;
+  }
+  .card h3 { font-size: 18px; margin-bottom: 8px; color: var(--ink); }
+  .card p, .card li { font-size: 16.5px; line-height: 1.55; }
+
+  .warn {
+    background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 12px;
+    box-shadow: 5px 5px 0 0 rgba(143,90,22,.14);
+    padding: 16px 22px;
+  }
+  .warn .warn-title { font-weight: 700; color: var(--warn-ink); font-size: 17px; margin-bottom: 6px; }
+  .warn p, .warn li { font-size: 16.5px; line-height: 1.55; color: var(--warn-text); }
+
+  .bad {
+    background: var(--bad-bg); border: 1px solid var(--bad-line); border-radius: 12px;
+    box-shadow: 5px 5px 0 0 rgba(157,58,43,.13);
+    padding: 16px 20px;
+  }
+  .bad h3 { font-size: 17px; color: var(--bad-ink); margin-bottom: 8px; }
+  .bad p, .bad li { font-size: 16.5px; line-height: 1.55; color: var(--bad-text); }
+  .good { border-color: var(--pine); border-width: 1.5px; box-shadow: 5px 5px 0 0 var(--wash-line); }
+  .good h3 { color: var(--pine-deep); }
+
+  /* 铁律：左侧粗竖条 */
+  .law {
+    border-left: 7px solid var(--pine); background: var(--wash);
+    border-radius: 0 12px 12px 0; padding: 20px 26px;
+    font-size: 23px; line-height: 1.55; font-weight: 700; color: var(--pine-deep);
+    box-shadow: 5px 5px 0 0 var(--wash-line);
+  }
+  .law .tag {
+    display: inline-block; font-family: var(--mono); font-size: 12.5px; letter-spacing: .2em;
+    background: var(--pine); color: #fff; border-radius: 6px; padding: 3px 10px;
+    margin-bottom: 10px; vertical-align: 3px;
+  }
+
+  /* 终端代码块 / 提示词纸块 */
+  .code {
+    background: var(--term); border: 1px solid #0e1b15; border-radius: 10px;
+    box-shadow: 5px 5px 0 0 rgba(29,42,37,.16);
+    padding: 13px 18px; font-family: var(--mono);
+    font-size: 16.5px; line-height: 1.6; color: var(--term-text); white-space: pre; overflow: hidden;
+    margin: 10px 0;
+  }
+  .code .c { color: #6e8b7f; }
+  .code .k { color: #e8a271; }
+  .code .s { color: #9fd3b4; }
+  .code .hl { color: #ffb3a0; font-weight: 700; }
+  .code .dim { color: #5f7a6d; }
+  .code.paper {
+    background: #f8f7f0; border-color: var(--line); color: #3b453e;
+    box-shadow: 5px 5px 0 0 var(--sand);
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 16px; line-height: 1.7; white-space: pre-wrap;
+  }
+  .code.paper .c { color: #94a099; }
+  .code.paper b { color: var(--pine-deep); }
+
+  table.tbl { border-collapse: collapse; width: 100%; background: var(--card); }
+  table.tbl th, table.tbl td {
+    border: 1px solid var(--line); padding: 9px 16px; font-size: 17px; text-align: left;
+  }
+  table.tbl th { background: #ebeae0; font-weight: 700; }
+  table.tbl td code, .incode {
+    font-family: var(--mono);
+    font-size: 15.5px; background: var(--code-bg); padding: 2px 7px; border-radius: 5px;
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip {
+    background: var(--card); color: var(--pine); border: 1px solid var(--line);
+    box-shadow: 3px 3px 0 0 var(--sand);
+    border-radius: 999px; padding: 6px 18px;
+    font-family: var(--mono); font-size: 15px; font-weight: 600;
+  }
+  .sc {
+    border-radius: 8px; padding: 2px 10px; font-weight: 700; color: #fff;
+    font-family: var(--mono); box-shadow: 3px 3px 0 0 rgba(29,42,37,.16);
+  }
+  .sc.o401 { background: #c4691b; }
+
+  /* 分隔页：巨型挤出小节号 */
+  .divider { background: #e9e8df; justify-content: center; }
+  .divider .day-tag {
+    display: block; background: none; color: var(--pine);
+    font-family: var(--mono); font-size: 148px; font-weight: 700; line-height: 1;
+    letter-spacing: 0; padding: 0; margin-bottom: 18px; align-self: flex-start;
+    text-shadow: 7px 7px 0 rgba(31,92,70,.18), 14px 14px 0 rgba(31,92,70,.07);
+  }
+  .divider h1 { font-size: 50px; margin-bottom: 22px; }
+  .divider p.desc { font-size: 20px; color: #46564e; line-height: 1.7; }
+
+  /* 封面 */
+  .cover { background: var(--paper); justify-content: center; }
+  .cover .camp {
+    display: inline-block; align-self: flex-start;
+    font-family: var(--mono); font-size: 15px; font-weight: 700; letter-spacing: .22em;
+    color: var(--pine); background: var(--card); border: 1px solid var(--line);
+    border-radius: 8px; box-shadow: 4px 4px 0 0 var(--sand);
+    padding: 7px 18px; margin-bottom: 30px;
+  }
+  .cover h1 { font-size: 62px; line-height: 1.2; margin-bottom: 18px; letter-spacing: -0.015em; }
+  .cover .sub { font-size: 25px; color: var(--muted); margin-bottom: 40px; }
+  .cover .hint {
+    position: absolute; bottom: 78px; left: 72px;
+    font-family: var(--mono); font-size: 14px; color: #a3a196;
+  }
+
+  /* 封面右侧：五步循环装置 */
+  .cover-loop { position: absolute; right: 118px; top: 50%; transform: translateY(-54%); width: 280px; height: 280px; }
+  .cover-loop .ring {
+    position: absolute; inset: 34px; border: 2px dashed var(--wash-line); border-radius: 50%;
+  }
+  .cover-loop .hub {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: 132px; height: 132px; border-radius: 50%;
+    background: var(--term); border: 1px solid #0e1b15;
+    box-shadow: 8px 8px 0 0 var(--sand);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  }
+  .cover-loop .hub .you { font-size: 27px; font-weight: 800; color: #fff; letter-spacing: .04em; }
+  .cover-loop .hub .ai { font-family: var(--mono); font-size: 13px; color: #9fd3b4; }
+  .cover-loop .hub .ai::after {
+    content: ""; display: inline-block; width: 8px; height: 13px; margin-left: 5px;
+    background: #9fd3b4; vertical-align: -2px; animation: blink 1.1s steps(2, jump-none) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .cover-loop .hub .ai::after { animation: none; } }
+  .cover-loop .node {
+    position: absolute; left: 50%; top: 50%; width: 62px; height: 62px; margin: -31px 0 0 -31px;
+    background: var(--card); border: 1.5px solid var(--pine); border-radius: 12px;
+    box-shadow: 4px 4px 0 0 var(--sand);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+    font-size: 15px; font-weight: 700; color: var(--pine-deep);
+  }
+  .cover-loop .node small { font-family: var(--mono); font-size: 10.5px; color: var(--muted); font-weight: 600; }
+  .cover-loop .n1 { transform: rotate(0deg) translateY(-112px) rotate(0deg); }
+  .cover-loop .n2 { transform: rotate(72deg) translateY(-112px) rotate(-72deg); }
+  .cover-loop .n3 { transform: rotate(144deg) translateY(-112px) rotate(-144deg); }
+  .cover-loop .n4 { transform: rotate(216deg) translateY(-112px) rotate(-216deg); }
+  .cover-loop .n5 { transform: rotate(288deg) translateY(-112px) rotate(-288deg); }
+
+  .checklist { list-style: none; }
+  .checklist li { font-size: 19px; line-height: 1.55; margin-bottom: 11px; padding-left: 34px; position: relative; }
+  .checklist li::before {
+    content: "✓"; position: absolute; left: 0; top: 0; width: 24px; height: 24px;
+    background: var(--pine); color: #fff; border: none;
+    box-shadow: 3px 3px 0 0 var(--sand);
+    border-radius: 7px; font-size: 15px; font-weight: 800; text-align: center; line-height: 24px;
+  }
+
+  /* 五步循环流程 */
+  .loopflow { margin: 6px 0 0; }
+  .lf-row { display: flex; align-items: stretch; }
+  .lf-row .fbox {
+    flex: 1; background: var(--card); border: 1.5px solid var(--pine); border-radius: 10px;
+    box-shadow: 4px 4px 0 0 var(--sand);
+    padding: 12px 8px; font-size: 17px; font-weight: 700; line-height: 1.3; text-align: center;
+    color: var(--pine-deep);
+  }
+  .lf-row .fbox small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; margin-top: 4px; }
+  .lf-row .fbox.key { background: var(--wash); border-color: var(--pine); }
+  .lf-row .fbox.done { background: var(--pine); color: #fff; border-color: var(--pine-deep); }
+  .lf-row .fbox.done small { color: #c9e2d5; }
+  .lf-row .arr { color: var(--pine); font-size: 20px; font-weight: 700; padding: 0 7px; align-self: center; }
+  .lf-back {
+    margin: 0 4px; padding: 12px 18px;
+    border: 2px dashed #cd9a90; border-top: none; border-radius: 0 0 14px 14px;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 16.5px; font-weight: 600; color: #8f4436;
+  }
+  .lf-back .ret { font-size: 21px; }
+
+  /* 三问法编号 */
+  .qnum {
+    display: flex; align-items: flex-start; gap: 14px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: var(--slab); padding: 16px 18px; margin-bottom: 14px;
+  }
+  .qnum .n {
+    flex: none; width: 34px; height: 34px; border-radius: 9px; background: var(--pine); color: #fff;
+    box-shadow: 3px 3px 0 0 var(--sand);
+    font-family: var(--mono); font-size: 17px; font-weight: 700; text-align: center; line-height: 34px;
+  }
+  .qnum h3 { font-size: 18px; margin-bottom: 5px; }
+  .qnum p { font-size: 16px; line-height: 1.5; color: #46564e; }
+
+  /* 从下往上读 */
+  .readup { display: flex; flex-direction: column; align-items: center; gap: 6px; padding-top: 6px; }
+  .readup .head { width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 12px solid var(--pine); }
+  .readup .shaft { width: 0; flex: 1; border-left: 2.5px dashed var(--pine); }
+  .readup .lbl {
+    writing-mode: vertical-rl; font-family: var(--mono); font-size: 13px; font-weight: 700;
+    letter-spacing: .18em; color: var(--pine); white-space: nowrap;
+  }
+
+  /* 全局 footer：进度条 + 页码 */
+  #bar {
+    position: absolute; left: 0; bottom: 0; height: 7px; background: var(--leaf);
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,.22);
+    width: 0; transition: width .2s; z-index: 30;
+  }
+  #pager {
+    position: absolute; right: 26px; bottom: 16px; font-size: 13px; color: #a3a196;
+    font-family: var(--mono); z-index: 30;
+  }
+  #brand {
+    position: absolute; left: 26px; bottom: 16px; font-size: 12px; color: #b0aea1;
+    font-family: var(--mono); letter-spacing: .12em; z-index: 30;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- 1 封面 -->
+  <section class="slide cover active">
+    <div class="camp">零基础 Agent 开发营 · WEEK 1</div>
+    <h1>Ch1 Vibe Coding 工作流</h1>
+    <div class="sub">AI 写代码，你当验收的甲方——前提是每一行你都看得懂</div>
+    <div class="chips">
+      <span class="chip">AI 辅助开发</span><span class="chip">读懂代码</span><span class="chip">调试排错</span>
+    </div>
+    <div class="cover-loop" aria-hidden="true">
+      <span class="ring"></span>
+      <span class="node n1">提<small>STEP 1</small></span>
+      <span class="node n2">生<small>STEP 2</small></span>
+      <span class="node n3">读<small>STEP 3</small></span>
+      <span class="node n4">改<small>STEP 4</small></span>
+      <span class="node n5">验<small>STEP 5</small></span>
+      <span class="hub"><span class="you">驾驶员</span><span class="ai">AI 副驾</span></span>
+    </div>
+    <div class="hint">→ / 空格 翻页 · F 全屏 · 点击画面也可翻页</div>
+  </section>
+
+  <!-- 2 本章路线 -->
+  <section class="slide">
+    <div class="kicker">Roadmap</div>
+    <h1>本章路线<span class="sub">学完你能：给 AI 写有条理的指令 · 读懂并修改 AI 的代码 · 从下往上读 traceback · 交付一个每周真在用的周报生成器</span></h1>
+    <div class="grow cols">
+      <div class="col">
+        <div class="card">
+          <h3 class="accent">01 · 换脑子</h3>
+          <p>心智转变 + 五步工作流<br>
+          读懂代码：三问法 + AI 出题考核<br>
+          <span class="muted">几乎不写代码，但决定后面写得多快</span></p>
+        </div>
+        <div class="card">
+          <h3 class="accent">02 · 指令四要素</h3>
+          <p>让 AI 一次做对<br>
+          <span class="muted">任务 / 上下文 / 约束 / 验收</span></p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <h3 class="accent">03 · 实战周报生成器</h3>
+          <p>完整走一遍五步循环<br>
+          <span class="muted">交付物：weekly_report.py，push 上 GitHub</span></p>
+        </div>
+        <div class="card">
+          <h3 class="accent">04 · 调试基本功</h3>
+          <p>traceback 解剖 + 3 段预置 bug 修复<br>
+          <span class="muted">从下往上读报错的肌肉记忆</span></p>
+        </div>
+      </div>
+    </div>
+    <div class="warn" style="margin-top:6px">
+      <p>JD 写的是「能使用 <b>AI 辅助开发</b>」——辅助的是<b>你</b>。面试官会指着代码问「这行为什么这么写」，本章就是让你答得上来。</p>
+    </div>
+  </section>
+
+  <!-- 3 分隔 01 -->
+  <section class="slide divider">
+    <span class="day-tag">01</span>
+    <h1>心智转变与五步工作流</h1>
+    <p class="desc">AI 是副驾，你是驾驶员。<br>这一部分不写代码，只换脑子——换不过来，后面写得越快，翻得越惨。</p>
+  </section>
+
+  <!-- 4 心智转变 -->
+  <section class="slide">
+    <div class="kicker">01 · 心智转变</div>
+    <h1>AI 是副驾，你是驾驶员</h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col">
+        <div class="bad">
+          <h3>❌ Vibe Coding 的陷阱</h3>
+          <p>让 AI <b>全权代写</b>，自己只负责说「好」。<br><br>
+          结果：项目跑起来了，但你说不清代码在干嘛；面试一问就露底；入职第一天要在别人的代码上改功能，你改不动。</p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card good" style="height:100%">
+          <h3>✅ 本课程要的姿态</h3>
+          <p>AI 负责<b>打字</b>，你负责<b>判断</b>。<br><br>
+          你提需求、你读代码、你决定改哪里、你验收结果——重活交出去，方向盘握在自己手里。</p>
+        </div>
+      </div>
+    </div>
+    <div class="law" style="margin-top:16px">
+      <span class="tag">铁律</span><br>
+      AI 生成的每一行代码，你都要能说清它在干嘛。<br>说不清的，要么问懂，要么删掉重来。
+    </div>
+  </section>
+
+  <!-- 5 五步工作流 -->
+  <section class="slide">
+    <div class="kicker">01 · 五步工作流</div>
+    <h1>工作流是一个循环，不是「许愿一次拿成品」</h1>
+    <div class="grow" style="display:flex;flex-direction:column;justify-content:center">
+      <div class="loopflow">
+        <div class="lf-row">
+          <span class="fbox">① 提需求<small>四要素说清楚</small></span><span class="arr">→</span>
+          <span class="fbox">② AI 生成<small>拿到代码</small></span><span class="arr">→</span>
+          <span class="fbox key">③ 读懂<small>能解释每行</small></span><span class="arr">→</span>
+          <span class="fbox key">④ 修改<small>能动手改</small></span><span class="arr">→</span>
+          <span class="fbox">⑤ 运行验证<small>对照验收标准</small></span><span class="arr">→</span>
+          <span class="fbox done">交付<small>满意了才算完</small></span>
+        </div>
+        <div class="lf-back">
+          <span class="ret">↩</span>
+          <span>报错 / 不满意 → 修 bug、再提需求，<b>回到第 ① 步</b>。一个需求来回三五轮，是常态，不是你不行。</span>
+        </div>
+      </div>
+      <div class="card" style="margin-top:22px">
+        <p>「<b class="accent">读懂</b>」和「<b class="accent">修改</b>」是两个独立环节：<b>读懂 = 能解释，修改 = 能动手改</b>。看懂了不代表改得动。本章就是把这五步各自练一遍。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 三问法 -->
+  <section class="slide">
+    <div class="kicker">01 · 读懂代码</div>
+    <h1>每次拿到 AI 的代码，先问三个问题</h1>
+    <div class="grow">
+      <div class="qnum">
+        <span class="n">1</span>
+        <div>
+          <h3>这个文件<span class="accent">整体</span>在干什么？</h3>
+          <p>必须能用一句话说清。例：「把流水账文本发给大模型，把结果存成 md 文件」</p>
+        </div>
+      </div>
+      <div class="qnum">
+        <span class="n">2</span>
+        <div>
+          <h3>每个<span class="accent">函数 / 代码块</span>在干什么？</h3>
+          <p>输入是什么、输出是什么、谁调用它——三件事说全，这个函数就算读懂了</p>
+        </div>
+      </div>
+      <div class="qnum">
+        <span class="n">3</span>
+        <div>
+          <h3>我<span class="accent">改哪里</span>会改变什么？</h3>
+          <p>找到那个「拧一下就有效果」的旋钮：比如 prompt 文本、模型名、输出文件名</p>
+        </div>
+      </div>
+      <div class="warn" style="margin-top:4px">
+        <p>三问答不上来的部分，就是你要追问 AI 的部分：<b>「解释第 X 行到第 Y 行在做什么，为什么要这样写」</b></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 AI 出题考核 -->
+  <section class="slide">
+    <div class="kicker">01 · 读懂代码</div>
+    <h1>AI 出题考核：验证你是真读懂了<span class="sub">「我大概看懂了」是最容易骗自己的一句话——用考核闭环堵住它</span></h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col" style="flex:1.25">
+        <p style="font-size:15.5px;margin-bottom:2px" class="muted">AI 生成代码后，把这段指令发给它：</p>
+        <div class="code paper" style="font-size:14.5px">你刚为我生成了这段代码。现在请你扮演严格的代码面试官，
+针对这段代码出 3 道阅读理解题，考察我是否真的读懂了：
+第 1 题问「这段代码整体在做什么」；
+第 2 题问某个具体行为（如某个参数、某行的作用）；
+第 3 题问「如果我改动某个地方，会发生什么」。
+一次只出一道，等我回答后你先批改，再出下一道。
+最后告诉我：3 题里答对了几题，哪部分理解有偏差。</div>
+      </div>
+      <div class="col">
+        <div class="card good">
+          <h3>及格线：3 题答对 2 题</h3>
+          <p>答错的题让 AI 讲解后，<b>重新出一道同类题</b>再答一遍，答对才继续往下走。</p>
+        </div>
+        <div class="card">
+          <h3>为什么这招有效</h3>
+          <p>向 AI 提问是<b>输入</b>，被考核是<b>输出</b>——只有输出才能暴露真实的理解缺口。<br><br>
+          <span class="muted">这个习惯保持到课程结束，你读代码的能力会以每周可见的速度增长。</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 分隔 02 -->
+  <section class="slide divider">
+    <span class="day-tag">02</span>
+    <h1>指令四要素</h1>
+    <p class="desc">同一个需求，指令质量决定你是一轮拿到能用的代码，<br>还是跟 AI 来回拉扯十轮，最后自己重写。</p>
+  </section>
+
+  <!-- 9 差 vs 好 -->
+  <section class="slide">
+    <div class="kicker">02 · 指令四要素</div>
+    <h1>差指令 vs 好指令</h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col" style="flex:.85">
+        <div class="bad" style="height:100%">
+          <h3>❌ 差指令（AI 只能瞎猜）</h3>
+          <p style="font-size:20px;font-weight:700;margin:8px 0 12px">「帮我写个周报工具」</p>
+          <p>AI 不知道：<br>
+          · 用什么<b>语言</b>？<br>
+          · 输入<b>从哪来</b>？<br>
+          · 调<b>哪个模型</b>？<br>
+          · 输出<b>成什么样</b>？<br><br>
+          于是它自由发挥，你拿到的东西和你的环境对不上。</p>
+        </div>
+      </div>
+      <div class="col" style="flex:1.15">
+        <div class="card good" style="height:100%">
+          <h3>✅ 好指令（四要素齐全）</h3>
+          <p><b>【任务】</b>写一个 Python 脚本 <span class="incode">weekly_report.py</span>，把我的流水账整理成结构化周报</p>
+          <p style="margin-top:7px"><b>【上下文】</b>流水账写在脚本顶部的 <span class="incode">RAW_TEXT</span> 变量里；用 openai SDK 调 DeepSeek，Key 和 base_url 从 <span class="incode">.env</span> 读；模型用 <span class="incode">deepseek-chat</span></p>
+          <p style="margin-top:7px"><b>【约束】</b>单文件、不超过 80 行；prompt 里要求按「本周完成 / 进行中 / 下周计划 / 需要支持」四节输出 Markdown</p>
+          <p style="margin-top:7px"><b>【验收】</b>运行 <span class="incode">python weekly_report.py</span> 后当前目录生成 <span class="incode">weekly_report.md</span>，四节齐全、每条动词开头，我能直接提交给领导</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 四要素速查 -->
+  <section class="slide">
+    <div class="kicker">02 · 指令四要素</div>
+    <h1>四要素速查表<span class="sub">缺一个，AI 就多猜一次；猜错一次，你就多返工一轮</span></h1>
+    <div class="grow">
+      <table class="tbl">
+        <tr><th style="width:130px">要素</th><th style="width:340px">回答的问题</th><th>缺了会怎样</th></tr>
+        <tr><td><b>任务</b></td><td>做什么、产出是什么文件</td><td>AI 自由发挥，返工</td></tr>
+        <tr><td><b>上下文</b></td><td>输入从哪来、用什么库、环境如何</td><td>生成的代码和你的环境对不上</td></tr>
+        <tr><td><b>约束</b></td><td>语言 / 框架 / 格式 / 长度边界</td><td>用了你还没学的东西，看不懂</td></tr>
+        <tr><td><b>验收标准</b></td><td>怎么证明做好了</td><td>你自己都不知道算不算完成</td></tr>
+      </table>
+      <div class="card" style="margin-top:18px">
+        <h3 class="accent">🔗 与 Ch2 的关系</h3>
+        <p>把【任务】换成任意业务、【约束】里加上「输出 JSON 格式」，就是 <b>Ch2 的 Prompt Engineering</b>。本章只需要在<b>给编程助手提需求</b>时把它用熟。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 分隔 03 -->
+  <section class="slide divider">
+    <span class="day-tag">03</span>
+    <h1>实战：周报生成器</h1>
+    <p class="desc">完整走一遍五步循环，产出一个你<b>每周一早上真的会用</b>的工具。<br>练的不是这个脚本，是那套循环。</p>
+  </section>
+
+  <!-- 12 Step 0 建项目 -->
+  <section class="slide">
+    <div class="kicker">03 · 实战 · STEP 0</div>
+    <h1>Step 0：建项目（2 分钟，Ch0 技能复热）</h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col" style="flex:1.2">
+        <div class="code" style="font-size:15.5px">mkdir weekly-report
+cd weekly-report
+python -m venv .venv
+.venv\Scripts\activate
+pip install openai python-dotenv
+<span class="c"># 复制 Ch0 的 .env 过来（或照 .env.example 重写）</span></div>
+        <p class="muted" style="font-size:16px;margin-top:8px">命令行前缀出现 <span class="incode">(.venv)</span>，说明你在自己的独立环境里了</p>
+      </div>
+      <div class="col">
+        <div class="card">
+          <h3>这一步在验什么</h3>
+          <p>建 venv → 激活 → 装包，这套动作你 Ch0 已经练过。<b>能不能不看教程独立做完</b>，就是 Ch0 有没有真过关。</p>
+        </div>
+        <div class="warn">
+          <div class="warn-title">⚠️ 卡住了？</div>
+          <p>卡超过 10 分钟，别硬扛——回 Ch0 的排错指引，或者把<b>完整报错</b>贴给 AI。这个动作本身就是本章要练的。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 Step 1-2 -->
+  <section class="slide">
+    <div class="kicker">03 · 实战 · STEP 1–2</div>
+    <h1>Step 1 提需求 · Step 2 生成 + 读懂考核</h1>
+    <div class="grow">
+      <div class="cols">
+        <div class="col"><div class="card" style="height:100%">
+          <h3 class="accent">Step 1 · 提需求</h3>
+          <p>把上一页那条「好指令」<b>用你自己的话重写一遍</b>，再发给 Claude Code。<br><br>
+          <span class="muted">重写不是为了换个说法，是为了逼你把四个要素逐个想清楚——照抄等于没练。</span></p>
+        </div></div>
+        <div class="col"><div class="card good" style="height:100%">
+          <h3>Step 2 · 生成 + 考核</h3>
+          <p>拿到代码<b>先跑通</b>，再执行「AI 出题考核」。<br><br>
+          <b>3 题答对 2 题才继续往下走</b>——不及格就让 AI 讲解，重新出同类题。</p>
+        </div></div>
+      </div>
+      <div class="loopflow" style="margin-top:18px">
+        <div class="lf-row">
+          <span class="fbox">重写指令<small>四要素齐全</small></span><span class="arr">→</span>
+          <span class="fbox">AI 生成<small>weekly_report.py</small></span><span class="arr">→</span>
+          <span class="fbox">先跑通<small>python weekly_report.py</small></span><span class="arr">→</span>
+          <span class="fbox key">出题考核<small>3 题对 2 题</small></span><span class="arr">→</span>
+          <span class="fbox done">进 Step 3<small>开始多轮修改</small></span>
+        </div>
+      </div>
+      <div class="warn" style="margin-top:14px">
+        <p><b>直接抄参考实现 = 跳过本章全部训练。</b>仓库里的 <span class="incode" style="background:#ffedd5">weekly_report.py</span> 是兜底，不是起点。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 Step 3 多轮修改 -->
+  <section class="slide">
+    <div class="kicker">03 · 实战 · STEP 3</div>
+    <h1>Step 3：多轮修改（真正开始 vibe）<span class="sub">真实需求从来一轮做不完——依次提这三个，体验「修改」环节</span></h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col"><div class="card" style="height:100%">
+        <h3 class="accent">① 改输出</h3>
+        <p>「周报每节最多 5 条，多余的合并；语气正式但不僵硬」<br><br>
+        <span class="muted">练的是：把审美要求说成可执行的约束</span></p>
+      </div></div>
+      <div class="col"><div class="card" style="height:100%">
+        <h3 class="accent">② 改健壮性</h3>
+        <p>「如果 API 调用失败，给出人类能看懂的提示，告诉我去查 <span class="incode">.env</span>」<br><br>
+        <span class="muted">想想 Ch0 的 401——报错要说人话</span></p>
+      </div></div>
+      <div class="col"><div class="card" style="height:100%">
+        <h3 class="accent">③ 加功能</h3>
+        <p>「在周报末尾追加一节『本周关键词』，让模型从流水账里提炼 3 个词」<br><br>
+        <span class="muted">练的是：在已有代码上长出新功能</span></p>
+      </div></div>
+    </div>
+    <div class="law" style="margin-top:16px;font-size:20px">
+      每轮修改后都要<b>重跑验证</b>——这就是「验收标准」的日常用法。改完不跑，等于没改。
+    </div>
+  </section>
+
+  <!-- 15 参考实现 + 交付 -->
+  <section class="slide">
+    <div class="kicker">03 · 实战 · 交付</div>
+    <h1>参考实现长什么样<span class="sub">code/ch1-vibe-workflow/weekly_report.py —— 先自己生成，卡壳超过 20 分钟再对照</span></h1>
+    <div class="grow">
+      <div class="loopflow">
+        <div class="lf-row">
+          <span class="fbox">.env<small>load_dotenv 读 Key</small></span><span class="arr">→</span>
+          <span class="fbox">RAW_TEXT<small>你的流水账</small></span><span class="arr">→</span>
+          <span class="fbox key">PROMPT_TEMPLATE<small>四节 + 每节 5 条 + 关键词</small></span><span class="arr">→</span>
+          <span class="fbox">调 DeepSeek<small>generate_weekly_report()</small></span><span class="arr">→</span>
+          <span class="fbox done">weekly_report.md<small>main() 写文件</small></span>
+        </div>
+      </div>
+      <div class="cols" style="margin-top:18px;align-items:stretch">
+        <div class="col"><div class="card" style="height:100%">
+          <h3>对照时看什么</h3>
+          <p>① 它把 prompt 单独抽成了变量（那个「旋钮」）<br>
+          ② <span class="incode">main()</span> 里先判断 Key 有没有读到，再 try 住 API 调用<br>
+          ③ 报错提示写成了人话，还告诉你排查三步</p>
+        </div></div>
+        <div class="col"><div class="card good" style="height:100%">
+          <h3>交付清单</h3>
+          <p>✅ <span class="incode">python weekly_report.py</span> 能生成 md<br>
+          ✅ 通过 AI 出题考核（3 对 2）<br>
+          ✅ 确认 <span class="incode">.gitignore</span> 里有 <span class="incode">.env</span><br>
+          ✅ <span class="incode">add → commit → push</span> 到你的 GitHub</p>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 分隔 04 -->
+  <section class="slide divider">
+    <span class="day-tag">04</span>
+    <h1>调试基本功：报错不可怕</h1>
+    <p class="desc">报错不是失败，是 Python 在<b>精确地告诉你哪里出了问题</b>。<br>这一部分只练一件事：从下往上读 traceback 的肌肉记忆。</p>
+  </section>
+
+  <!-- 17 traceback 解剖 -->
+  <section class="slide">
+    <div class="kicker">04 · 调试基本功</div>
+    <h1>traceback 解剖<span class="sub">读法只有一句：从最后一行开始往上读</span></h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col" style="flex:0 0 40px">
+        <div class="readup" style="height:100%">
+          <span class="head"></span><span class="shaft"></span><span class="lbl">从下往上</span>
+        </div>
+      </div>
+      <div class="col" style="flex:1.35">
+        <div class="code" style="font-size:13.5px;line-height:1.55">Traceback (most recent call last):   <span class="c">← 固定开头，不用管</span>
+  File "weekly_report.py", line 25, in &lt;module&gt;
+    main()                            <span class="dim">┐</span>
+  File "weekly_report.py", line 21, in main  <span class="dim">│</span> 调用路径：谁调用了谁
+    report = generate_weekly_report(RAW_TEXT) <span class="dim">┘</span> <span class="c">（先跳过）</span>
+  File "weekly_report.py", line 12, in generate_weekly_report <span class="k">← 出错的位置</span>
+    return response.choices[0].message.content             <span class="k">← 出错的那一行</span>
+<span class="hl">NameError: name 'response' is not defined</span>  <span class="c">← ★ 错误类型 + 原因</span></div>
+      </div>
+      <div class="col">
+        <div class="card good">
+          <h3>三步读法</h3>
+          <p><b>① 最后一行</b> → 什么错<br>
+          <b>② 带行号的行</b> → 在哪错<br>
+          <b>③ 再往上</b> → 怎么走到这的</p>
+        </div>
+        <div class="card">
+          <h3>够用的结论</h3>
+          <p>零基础 <b>90% 的报错</b>，只看<b>最后一行 + 出错行</b>就能定位。中间那串调用路径，等你熟练了再看。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 贴报错姿势 -->
+  <section class="slide">
+    <div class="kicker">04 · 调试基本功</div>
+    <h1>贴报错给 AI 的正确姿势<span class="sub">AI 修 bug 的效果，取决于你给了它多少信息</span></h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col" style="flex:1.2">
+        <div class="code paper" style="font-size:14.5px">我运行 weekly_report.py 报了下面的错
+（完整复制，包括最后的错误类型行）：
+<b>【粘贴完整 traceback】</b>
+
+我期望：运行后生成 weekly_report.md
+实际：直接报错退出了
+已经试过：检查过第 12 行附近，没看出问题
+
+请先告诉我原因是什么，再告诉我具体改哪几行。</div>
+      </div>
+      <div class="col">
+        <div class="warn">
+          <div class="warn-title">🚫 三条红线</div>
+          <p><b>① traceback 要完整</b>——文字比截图好<br>
+          <b>② 期望 vs 实际都说清</b><br>
+          <b>③ 先要解释，再要改法</b>——不然下次你还是不会</p>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <h3>对话越聊越乱？</h3>
+          <p>AI 记错前文、上下文被历史污染 → 敲 <span class="incode">/clear</span> 清空重开，把关键信息重新贴一遍。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 19 预置 bug 实战 -->
+  <section class="slide">
+    <div class="kicker">04 · 调试基本功 · 必做</div>
+    <h1>3 段预置 bug 修复实战<span class="sub">code/ch1-vibe-workflow/bugs/ —— 每段都走这六步，不许直接问 AI 答案</span></h1>
+    <div class="grow">
+      <div class="loopflow">
+        <div class="lf-row">
+          <span class="fbox">① 运行<small>让它报错</small></span><span class="arr">→</span>
+          <span class="fbox key">② 从下往上读<small>说出错误类型</small></span><span class="arr">→</span>
+          <span class="fbox key">③ 说出猜测<small>先自己想</small></span><span class="arr">→</span>
+          <span class="fbox">④ 贴给 AI<small>验证猜测</small></span><span class="arr">→</span>
+          <span class="fbox">⑤ 修复<small>动手改</small></span><span class="arr">→</span>
+          <span class="fbox done">⑥ 再运行<small>验证通过</small></span>
+        </div>
+      </div>
+      <table class="tbl" style="margin-top:18px">
+        <tr><th style="width:250px">文件</th><th style="width:230px">你会遇到的报错</th><th>训练点</th></tr>
+        <tr><td><code>bug1_name_error.py</code></td><td><code>NameError</code></td><td>变量名拼写：traceback 最后一行直指答案</td></tr>
+        <tr><td><code>bug2_indent_error.py</code></td><td><code>IndentationError</code></td><td>Python 用缩进表示层级，多一层少一层都不行</td></tr>
+        <tr><td><code>bug3_api_401.py</code></td><td><span class="sc o401">401</span> 鉴权失败</td><td><b>不是代码错，是环境错</b>：Key 没读到 / 写错 → 回忆 Ch0 的 <code>.env</code></td></tr>
+      </table>
+      <div class="cols" style="margin-top:16px;align-items:stretch">
+        <div class="col"><div class="card" style="height:100%;margin-bottom:0">
+          <p><b class="accent">bug3 特别重要</b>：它教会你「报错不一定是代码问题」。修法提示——从 <span class="incode">.env</span> 正确读取 Key，答案就藏在 Ch0 的 <span class="incode">hello_llm.py</span> 里。</p>
+        </div></div>
+        <div class="col"><div class="card" style="height:100%;margin-bottom:0">
+          <p>📓 <b class="accent">给自己建一本错题本</b>：每修完一个报错记一行 <span class="incode">报错类型 → 原因 → 解法</span>。四周后它就是你的私人排错手册，也是面试讲「踩坑经验」的素材。</p>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 20 自测 + 预告 -->
+  <section class="slide">
+    <div class="kicker">通关自测</div>
+    <h1>进入 Ch2 前，确认你能<span class="sub">六条全过，说明你已经从「让 AI 代写」升级到「用 AI 辅助开发」了</span></h1>
+    <div class="grow cols">
+      <div class="col">
+        <ul class="checklist">
+          <li>说全五步工作流，并能解释「读懂」和「修改」为什么是两个环节</li>
+          <li>不看模板，独立写出包含四要素的指令</li>
+          <li>周报生成器是自己（和 AI）写出来的，且<b>通过了出题考核（3 对 2）</b></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul class="checklist">
+          <li>3 段预置 bug 全部修复，能说清 bug3 的 401 <b>为什么不是代码错误</b></li>
+          <li>拿到一段 traceback，<b>30 秒内</b>说出错误类型和出错行</li>
+          <li>周报生成器已 push 到 GitHub（<span class="incode">.env</span> 没被推上去）</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card" style="margin-top:4px">
+      <p>⏭️ 下一章 <b>Ch2 Prompt Engineering</b>：把「指令四要素」搬到业务上，让模型稳定输出你要的 JSON——从此告别「AI 每次答的格式都不一样」。</p>
+    </div>
+  </section>
+
+  <div id="bar"></div>
+  <div id="pager"></div>
+  <div id="brand">零基础 Agent 开发营 · CH1</div>
+</div>
+
+<script>
+  const stage = document.getElementById('stage');
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const bar = document.getElementById('bar');
+  const pager = document.getElementById('pager');
+  let cur = 0;
+
+  function show(n) {
+    cur = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, i) => s.classList.toggle('active', i === cur));
+    bar.style.width = ((cur + 1) / slides.length * 100) + '%';
+    pager.textContent = (cur + 1) + ' / ' + slides.length;
+    history.replaceState(null, '', '#' + (cur + 1));
+  }
+  function next() { show(cur + 1); }
+  function prev() { show(cur - 1); }
+
+  document.addEventListener('keydown', (e) => {
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); next(); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') { show(0); }
+    else if (e.key === 'End') { show(slides.length - 1); }
+    else if (e.key === 'f' || e.key === 'F') {
+      document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('a')) return;
+    next();
+  });
+
+  function fit() {
+    const s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    stage.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
+  }
+  window.addEventListener('resize', fit);
+
+  const h = parseInt(location.hash.slice(1), 10);
+  show(isNaN(h) ? 0 : h - 1);
+  fit();
+</script>
+</body>
+</html>
