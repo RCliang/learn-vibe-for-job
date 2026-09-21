@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <title>Ch1 Vibe Coding 工作流 · 视频素材</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+  @font-face { font-family:'PingFang SC'; src:local('PingFang SC'); }
+  @font-face { font-family:'Hiragino Sans GB'; src:local('Hiragino Sans GB'); }
+  @font-face { font-family:'Microsoft YaHei'; src:local('Microsoft YaHei'); }
+  @font-face { font-family:'Cascadia Code'; src:local('Cascadia Code'); }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:1920px; height:1080px; overflow:hidden; background:#d8d6cd; }
+  body { font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",sans-serif; color:#1d2a25; }
+  .mono, code { font-family:"SF Mono","Cascadia Code","JetBrains Mono",Consolas,monospace; }
+  #root { position:relative; width:1920px; height:1080px; overflow:hidden; }
+  .clip { position:absolute; inset:0; }
+  .bg { position:absolute; inset:0; background:#f1f0ea; }
+  .bg.deep { background:#e9e8df; }
+  .pad { position:absolute; inset:0; padding:130px 160px 150px; display:flex; flex-direction:column; }
+
+  .kicker { font-size:30px; font-weight:700; letter-spacing:.24em; color:#1f5c46; margin-bottom:34px; }
+  h1.head { font-size:88px; font-weight:700; letter-spacing:-.01em; line-height:1.18; margin-bottom:56px; }
+  h1.head .thin { font-weight:400; color:#68706b; }
+  .foot { margin-top:auto; font-size:34px; color:#68706b; }
+  .foot b { color:#174a39; }
+
+  .card { display:block; background:#fff; border:2px solid #e2e0d4; border-radius:22px;
+          box-shadow:9px 9px 0 0 #dedcce; padding:36px 44px; }
+  .card h3 { font-size:40px; margin-bottom:14px; color:#1d2a25; }
+  .card p { font-size:33px; line-height:1.55; color:#424b46; }
+  .card.pine { background:#1f5c46; border-color:#174a39; box-shadow:9px 9px 0 0 rgba(29,42,37,.18); }
+  .card.pine h3, .card.pine p { color:#eef6f1; }
+  .card.warn { background:#fbf1df; border-color:#e8cfa0; box-shadow:9px 9px 0 0 rgba(143,90,22,.16); }
+  .card.warn h3 { color:#8f5a16; } .card.warn p { color:#6e4a17; }
+
+  .term { display:block; background:#16241e; border:2px solid #0e1b15; border-radius:20px;
+          box-shadow:9px 9px 0 0 rgba(29,42,37,.2); padding:36px 44px;
+          font-size:32px; line-height:1.7; color:#d9e6de; white-space:pre; }
+  .term .c { color:#6e8b7f; } .term .hl { color:#9fd3b4; font-weight:700; }
+  .term .err { color:#e88b7a; font-weight:700; }
+
+  .row { display:flex; gap:36px; }
+  .row > * { flex:1; min-width:0; }
+
+  .chip { display:inline-block; background:#fff; border:2px solid #e2e0d4; box-shadow:5px 5px 0 0 #dedcce;
+          border-radius:999px; padding:12px 34px; font-size:32px; font-weight:600; color:#1f5c46; }
+  .chiprow { display:flex; flex-wrap:wrap; gap:22px; }
+
+  .flow { display:flex; align-items:center; gap:14px; }
+  .fstep { display:block; background:#fff; border:2px solid #1f5c46; border-radius:16px;
+           box-shadow:6px 6px 0 0 #dedcce; padding:16px 28px; font-size:34px; font-weight:700; color:#174a39; }
+  .farr { display:block; color:#1f5c46; font-size:38px; font-weight:700; }
+
+  .qrow { display:flex; align-items:center; gap:20px; margin-bottom:22px; }
+  .qbadge { display:block; width:72px; height:72px; border-radius:18px; background:#1f5c46; color:#fff;
+            box-shadow:5px 5px 0 0 #dedcce; font-size:34px; font-weight:700; text-align:center; line-height:72px; flex:none; }
+  .qtext { font-size:36px; line-height:1.4; color:#1d2a25; }
+  .qtext small { display:block; font-size:28px; color:#5d655f; margin-top:6px; }
+
+  .num-giant { font-size:340px; font-weight:700; line-height:1; color:#1f5c46;
+               text-shadow:14px 14px 0 rgba(31,92,70,.18), 28px 28px 0 rgba(31,92,70,.07); }
+  .div-title { font-size:96px; font-weight:700; letter-spacing:-.01em; margin:26px 0 40px; }
+  .div-desc { font-size:42px; color:#46564e; line-height:1.6; }
+
+  .stack { position:absolute; right:170px; top:50%; margin-top:-260px; width:470px; height:330px; }
+  .stack i { position:absolute; display:block; border-radius:24px; border:2px solid rgba(29,42,37,.08); }
+  .stack i:nth-child(1) { width:360px; height:232px; left:0; top:96px; background:#dfe9e2; }
+  .stack i:nth-child(2) { width:374px; height:242px; left:44px; top:48px; background:#cdddd2; }
+  .stack i:nth-child(3) { width:380px; height:250px; left:90px; top:0; background:#16241e; border-color:#0e1b15; box-shadow:12px 12px 0 0 #dedcce; }
+  .stack .prompt { position:absolute; left:132px; top:44px; font-size:46px; font-weight:700; color:#9fd3b4; }
+
+  #brandbar { position:absolute; left:64px; bottom:44px; font-size:24px; color:#6f6d66; letter-spacing:.14em; }
+  #progress { position:absolute; left:0; bottom:0; width:1920px; height:12px; background:#dedcce; }
+  #progress-fill { display:block; width:100%; height:100%; background:#35a97a; transform-origin:left center; }
+</style>
+  </head>
+  <body>
+    <div data-hf-id="hf-ftr7" id="root" data-composition-id="ch1-vibe-workflow" data-start="0" data-width="1920" data-height="1080" data-duration="1202">
+    <section data-hf-id="hf-n678" id="p01" class="clip" data-start="0" data-duration="48.8" data-track-index="1">
+      <div data-hf-id="hf-m7dd" class="bg"></div>
+      <div data-hf-id="hf-tjp3" class="pad">
+  <div data-hf-id="hf-uvin" class="kicker mono an an-k">AI 摸鱼的梁师傅 · CH1</div>
+  <h1 data-hf-id="hf-100t" class="head an an-h">Vibe Coding 工作流<span data-hf-id="hf-cthd" class="thin">　让 AI 替你写代码</span></h1>
+  <div data-hf-id="hf-pocw" class="chiprow an an-c">
+    <span data-hf-id="hf-15n2" class="chip mono">提需求</span><span data-hf-id="hf-3ru9" class="chip mono">读懂</span>
+    <span data-hf-id="hf-9hxt" class="chip mono">修改</span><span data-hf-id="hf-kh4j" class="chip mono">运行验证</span>
+  </div>
+  <div data-hf-id="hf-5hzv" class="foot an an-f">这一章的规矩：<b data-hf-id="hf-f9ms">AI 负责打字，你负责判断</b>　·　交付一个真的每周一早上会用的周报生成器</div>
+  <div data-hf-id="hf-d1zs" class="stack"><i data-hf-id="hf-wt6k"></i><i data-hf-id="hf-zeb8"></i><i data-hf-id="hf-y7e5"></i><span data-hf-id="hf-xwht" class="prompt mono an an-s">&gt;_</span></div>
+
+      </div>
+    </section>
+    <section data-hf-id="hf-fd2q" id="p02" class="clip" data-start="48.8" data-duration="43.8" data-track-index="1">
+      <div data-hf-id="hf-ws3p" class="bg"></div>
+      <div data-hf-id="hf-9xbr" class="pad">
+  <div data-hf-id="hf-3y60" class="kicker mono an an-k">本章路线</div>
+  <h1 data-hf-id="hf-zebr" class="head an an-h">四个部分，一条主线</h1>
+  <div data-hf-id="hf-yvyu" class="row an an-c">
+    <div data-hf-id="hf-vn2y" class="card"><h3 data-hf-id="hf-f65q" class="mono">01</h3><p data-hf-id="hf-l87n">心智转变<br data-hf-id="hf-x5px">五步工作流</p></div>
+    <div data-hf-id="hf-i08u" class="card"><h3 data-hf-id="hf-fkgr" class="mono">02</h3><p data-hf-id="hf-7iv6">指令四要素<br data-hf-id="hf-rsrt">一次做对</p></div>
+    <div data-hf-id="hf-iejv" class="card"><h3 data-hf-id="hf-fyrs" class="mono">03</h3><p data-hf-id="hf-dtwf">实战<br data-hf-id="hf-szow">周报生成器</p></div>
+    <div data-hf-id="hf-isuw" class="card"><h3 data-hf-id="hf-d6ml" class="mono">04</h3><p data-hf-id="hf-sme7">调试基本功<br data-hf-id="hf-sldv">traceback + 3 bugs</p></div>
+  </div>
+  <div data-hf-id="hf-1upa" class="foot an an-f">前两部分几乎不写代码，但<b data-hf-id="hf-k2t7">别跳</b>——它决定你是一轮拿到能用的代码，还是跟 AI 拉扯十轮</div>
+
+      </div>
+    </section>
+    <section data-hf-id="hf-30sc" id="p03" class="clip divider" data-start="92.6" data-duration="19.8" data-track-index="1">
+      <div data-hf-id="hf-2chl" class="bg deep"></div>
+      <div data-hf-id="hf-9j0q" class="pad">
+  <div data-hf-id="hf-omvp" class="num-giant mono an an-n">01</div>
+  <div data-hf-id="hf-b3nf" class="div-title an an-h">心智转变与五步工作流</div>
+  <div data-hf-id="hf-lzcg" class="div-desc an an-f">Vibe Coding 最大的坑不在技术，在心态——<br data-hf-id="hf-qluq">「AI 能写」不等于「我不用懂」</div>
+
+      </div>
+    </section>
+    <section data-hf-id="hf-zi0k" id="p04" class="clip" data-start="112.4" data-duration="52.8" data-track-index="1">
+      <div data-hf-id="hf-xz0s" class="bg"></div>
+      <div data-hf-id="hf-94pp" class="pad">
+  <div data-hf-id="hf-oso0" class="kicker mono an an-k">PART 01 · 心智转变</div>
+  <h1 data-hf-id="hf-o38g" class="head an an-h">AI 是副驾，你是驾驶员</h1>
+  <div data-hf-id="hf-i916" class="row an an-c">
+    <div data-hf-id="hf-sk9q" class="card warn"><h3 data-hf-id="hf-0cg1">陷阱：全权代写，你只说「好」</h3><p data-hf-id="hf-ivap">项目跑起来了，表现和期待天差地别，<br data-hf-id="hf-q7jp">而且 review 不动、不知道哪块代码管哪块功能</p></div>
+    <div data-hf-id="hf-j32k" class="card pine"><h3 data-hf-id="hf-agjo">铁律（全课程适用）</h3><p data-hf-id="hf-xtlm">AI 生成的代码，你要能说清它在干嘛。<br data-hf-id="hf-regs">说不清的：要么问懂，要么删掉重来</p></div>
+  </div>
+
+      </div>
+    </section>
+    <section data-hf-id="hf-k6am" id="p05" class="clip" data-start="165.2" data-duration="44.8" data-track-index="1">
+      <div data-hf-id="hf-xkpr" class="bg"></div>
+      <div data-hf-id="hf-bwuw" class="pad">
+  <div data-hf-id="hf-zfj6" class="kicker mono an an-k">PART 01 · 五步工作流</div>
+  <h1 data-hf-id="hf-z5jl" class="head an an-h">是个循环，不是流水线</h1>
+  <div data-hf-id="hf-f8im" class="flow an an-c" style="margin-bottom:44px">
+    <span data-hf-id="hf-l1bn" class="fstep">提需求</span><span data-hf-id="hf-2hdg" class="farr">→</span>
+    <span data-hf-id="hf-4234" class="fstep">AI 生成</span><span data-hf-id="hf-gwwc" class="farr">→</span>
+    <span data-hf-id="hf-crdy" class="fstep">读懂</span><span data-hf-id="hf-fpz9" class="farr">→</span>
+    <span data-hf-id="hf-gmo2" class="fstep">修改</span><span data-hf-id="hf-g4aa" class="farr">→</span>
+    <span data-hf-id="hf-zd0w" class="fstep">运行验证</span><span data-hf-id="hf-i3tf" class="farr">→</span>
+    <span data-hf-id="hf-kt5b" class="fstep">交付</span>
+  </div>
+  <div data-hf-id="hf-sm2c" class="chiprow an an-c" style="margin-bottom:40px">
+    <span data-hf-id="hf-ubla" class="chip">报错 / 不满意 → 回到「提需求」</span>
+  </div>
+  <div data-hf-id="hf-r7s7" class="foot an an-f">「读懂」和「修改」是两种能力——<b data-hf-id="hf-fst6">看懂了 ≠ 改得动</b>；循环转三五轮是常态，别因此觉得自己不行</div>
+
+      </div>
+    </section>
+    <section data-hf-id="hf-m06f" id="p06" class="clip" data-start="210" data-duration="61.8" data-track-index="1">
+      <div data-hf-id="hf-yrmu" class="bg"></div>
+      <div data-hf-id="hf-bijv" class="pad">
+  <div data-hf-id="hf-9fp8" class="kicker mono an an-k">PART 01 · 读懂代码</div>
+  <h1 data-hf-id="hf-ejex" class="head an an-h">三问法</h1>
+  <div data-hf-id="hf-hagu" style="margin-bottom:44px" class="an an-c">
+    <div data-hf-id="hf-6q4r" class="qrow"><span data-hf-id="hf-br7z" class="qbadge mono">1</span><div data-hf-id="hf-jpm1" class="qtext">这个文件<small data-hf-id="hf-e0e1">整体</small>在干什么？<small data-hf-id="hf-3b1y">标准：一句话说清</small></div></div>
+    <div data-hf-id="hf-gsa3" class="qrow"><span data-hf-id="hf-bcwy" class="qbadge mono">2</span><div data-hf-id="hf-27os" class="qtext">每个<small data-hf-id="hf-jez5">函数</small>在干什么？<small data-hf-id="hf-h3j4">输入是什么 · 输出是什么 · 谁调用它</small></div></div>
+    <div data-hf-id="hf-gdz2" class="qrow"><span data-hf-id="hf-aylx" class="qbadge mono">3</span><div data-hf-id="hf-5yvf" class="qtext">我<small data-hf-id="hf-4t8h">改哪里</small>会改变什么？<small data-hf-id="hf-6ykw">找「拧一下就有效果」的旋钮：prompt、模型名、输出文件名</small></div></div>
+  </div>
+  <div data-hf-id="hf-fh3s" class="term an an-t" style="font-size:30px">问法模板：<span data-hf-id="hf-b55u" class="hl">「解释第 X 行到第 Y 行在做什么，为什么要这样写」</span>  <span data-hf-id="hf-1v2l" class="c">#「为什么」比「是什么」值钱</span></div>
+
+      </div>
+    </section>
+    <section data-hf-id="hf-evnj" id="p07" class="clip" data-start="271.8" data-duration="76.8" data-track-index="1">
+      <div data-hf-id="hf-ydbt" class="bg"></div>
+      <div data-hf-id="hf-b48u" class="pad">
+  <div data-hf-id="hf-w5yo" class="kicker mono an an-k">PART 01 · AI 出题考核</div>
+  <h1 data-hf-id="hf-awfy" class="head an an-h">让 AI 出题，考你自己</h1>
+  <div data-hf-id="hf-t3ty" class="row an an-c" style="margin-bottom:40px">
+    <div data-hf-id="hf-byql" class="card"><h3 data-hf-id="hf-oawj">怎么考</h3><p data-hf-id="hf-k19y">让 AI 当严格面试官，出三道阅读理解：<br data-hf-id="hf-r05r">整体在做什么 / 某个行为 / 改某处会怎样<br data-hf-id="hf-p0mm">一次一道，先批改再出下一道</p></div>
+    <div data-hf-id="hf-goro" class="card pine"><h3 data-hf-id="hf-qc53" class="mono">及格线 · 三道对两道</h3><p data-hf-id="hf-r4fr">答错的让它讲解，<br data-hf-id="hf-ombl">再出一道同类题重答</p></div>
+  </div>
+  <div data-hf-id="hf-cpd2" class="foot an an-f">提问是<b data-hf-id="hf-67z9">输入</b>，被考核是<b data-hf-id="hf-ebzc">输出</b>——只有输出才能暴露真实的理解缺口 · 做完考核，弹幕扣个 1</div>
+
+      </div>
+    </section>
+    <section data-hf-id="hf-rs77" id="p08" class="clip divider" data-start="348.6" data-duration="24.8" data-track-index="1">
+      <div data-hf-id="hf-6xe5" class="bg deep"></div>
+      <div data-hf-id="hf-apxt" class="pad">
+  <div data-hf-id="hf-ptss" class="num-giant mono an an-n">02</div>
+  <div data-hf-id="hf-i16u" class="div-title an an-h">指令四要素</div>
+  <div data-hf-id="hf-8rvh" class="div-desc an an-f">跟 AI 协作，写指令的能力比写代码的能力更稀缺——<br data-hf-id="hf-qsyj">同一个需求，指令质量决定一轮拿到，还是拉扯十轮</div>
+
+      </div>
+    </section>
+    <section data-hf-id="hf-9ryi" id="p09" class="clip" data-start="373.4" data-duration="94.8" data-track-index="1">
+      <div data-hf-id="hf-zk8w" class="bg"></div>
+      <div data-hf-id="hf-di30" class="pad">
+  <div data-hf-id="hf-i0hy" class="kicker mono an an-k">PART 02 · 差指令 vs 好指令</div>
+  <h1 data-hf-id="hf-603r" class="head an an-h">四个要素，一次说清</h1>
+  <div data-hf-id="hf-inc7" class="row an an-c">
+    <div data-hf-id="hf-72ss" class="term" style="font-size:30px"><span data-hf-id="hf-cw60" class="c">$</span> 帮我写个周报工具
+
+<span data-hf-id="hf-qeti" class="c"># AI 只能瞎猜：</span>
+<span data-hf-id="hf-68gb" class="err">?</span> 什么语言
+<span data-hf-id="hf-a5yj" class="err">?</span> 输入从哪来
+<span data-hf-id="hf-9rni" class="err">?</span> 调哪个模型
+<span data-hf-id="hf-9dch" class="err">?</span> 输出成什么样</div>
+    <div data-hf-id="hf-cd1m" class="card"><h3 data-hf-id="hf-u3bo">四要素齐全</h3><p data-hf-id="hf-x1p9"><b data-hf-id="hf-htlo" class="mono" style="color:#1f5c46">【任务】</b>做什么、产出什么文件<br data-hf-id="hf-r79k"><b data-hf-id="hf-72na" class="mono" style="color:#1f5c46">【上下文】</b>输入、SDK、.env、模型名<br data-hf-id="hf-q0ch"><b data-hf-id="hf-kqud" class="mono" style="color:#1f5c46">【约束】</b>单文件、不超过 80 行、四节 Markdown<br data-hf-id="hf-qeni"><b data-hf-id="hf-d71a" class="mono" style="color:#1f5c46">【验收】</b>生成 weekly_report.md，四节齐全、动词开头</p></div>
+  </div>
+  <div data-hf-id="hf-7gho" class="foot an an-f">把<b data-hf-id="hf-agec">【验收】</b>写清楚，AI 自己都会往这个标准上凑</div>
+
+      </div>
+    </section>
+    <section data-hf-id="hf-h4wg" id="p10" class="clip" data-start="468.2" data-duration="66.8" data-track-index="1">
+      <div data-hf-id="hf-z5xv" class="bg"></div>
+      <div data-hf-id="hf-d3rz" class="pad">
+  <div data-hf-id="hf-f1ui" class="kicker mono an an-k">PART 02 · 速查表</div>
+  <h1 data-hf-id="hf-fmaa" class="head an an-h">每个要素都在回答一个问题</h1>
+  <div data-hf-id="hf-mvre" class="an an-c">
+    <div data-hf-id="hf-fzo1" class="qrow"><span data-hf-id="hf-poy5" class="qbadge mono">任</span><div data-hf-id="hf-uxhd" class="qtext">做什么、产出什么文件<small data-hf-id="hf-0w24">缺了：AI 自由发挥，你返工</small></div></div>
+    <div data-hf-id="hf-fld0" class="qrow"><span data-hf-id="hf-3crp" class="qbadge mono">境</span><div data-hf-id="hf-tysd" class="qtext">输入从哪来、用什么库、环境如何<small data-hf-id="hf-renn">缺了：代码跟你的环境对不上——新手最常撞的墙</small></div></div>
+    <div data-hf-id="hf-f71z" class="qrow"><span data-hf-id="hf-p7i0" class="qbadge mono">界</span><div data-hf-id="hf-o3k1" class="qtext">语言、框架、格式、长度边界<small data-hf-id="hf-d94f">缺了：它会用你还没学的东西，你看不懂</small></div></div>
+    <div data-hf-id="hf-esqy" class="qrow"><span data-hf-id="hf-mriu" class="qbadge mono">收</span><div data-hf-id="hf-knvm" class="qtext">怎么证明做好了<small data-hf-id="hf-hqra">缺了最惨：你自己都不知道算不算完成</small></div></div>
+  </div>
+  <div data-hf-id="hf-99fc" class="foot an an-f">把【任务】换成任意业务、【约束】加上「输出 JSON」——就是 Ch2 的 Prompt Engineering</div>
+
+      </div>
+    </section>
+    <section data-hf-id="hf-q8do" id="p11" class="clip divider" data-start="535" data-duration="25.8" data-track-index="1">
+      <div data-hf-id="hf-84b8" class="bg deep"></div>
+      <div data-hf-id="hf-lah1" class="pad">
+  <div data-hf-id="hf-pfhr" class="num-giant mono an an-n">03</div>
+  <div data-hf-id="hf-rmpl" class="div-title an an-h">实战：周报生成器</div>
+  <div data-hf-id="hf-5oxh" class="div-desc an an-f">完整走一遍五步循环，产出一个你每周一早上真的会用的工具——<br data-hf-id="hf-p7qf">练的不是脚本本身，是那套循环</div>
+
+      </div>
+    </section>
+    <section data-hf-id="hf-xdew" id="p12" class="clip" data-start="560.8" data-duration="54.8" data-track-index="1">
+      <div data-hf-id="hf-tzyi" class="bg"></div>
+      <div data-hf-id="hf-los2" class="pad">
+  <div data-hf-id="hf-mh2h" class="kicker mono an an-k">PART 03 · STEP 0</div>
+  <h1 data-hf-id="hf-b6yz" class="head an an-h">建项目（Ch0 技能复热）</h1>
+  <div data-hf-id="hf-inc8" class="term an an-t" style="font-size:30px">mkdir weekly-report <span data-hf-id="hf-neo8" class="c">&amp;&amp;</span> cd weekly-report
+python -m venv .venv
+.venv\Scripts\activate
+pip install openai python-dotenv
+cp ../ch0-hello-llm/.env .
+
+<span data-hf-id="hf-zljx" class="hl">(.venv)</span> 出现在行首 <span data-hf-id="hf-t2tq" class="c"># 你人在独立环境里了</span></div>
+  <div data-hf-id="hf-defb" class="foot an an-f">这一步在偷偷验一件事：<b data-hf-id="hf-58kr">建 venv、激活、装包，能不能不看教程独立做完</b>——卡住超十分钟，回 Ch0 排错指引</div>
+
+      </div>
+    </section>
+    <section data-hf-id="hf-6by7" id="p13" class="clip" data-start="615.6" data-duration="55.8" data-track-index="1">
+      <div data-hf-id="hf-tlnh" class="bg"></div>
+      <div data-hf-id="hf-m333" class="pad">
+  <div data-hf-id="hf-m6vr" class="kicker mono an an-k">PART 03 · STEP 1–2</div>
+  <h1 data-hf-id="hf-r0w6" class="head an an-h">提需求 → 生成 + 考核</h1>
+  <div data-hf-id="hf-7kjm" class="flow an an-c" style="margin-bottom:44px">
+    <span data-hf-id="hf-7ojb" class="fstep">用自己的话重写四要素</span><span data-hf-id="hf-ii4g" class="farr">→</span>
+    <span data-hf-id="hf-sm7c" class="fstep">AI 生成</span><span data-hf-id="hf-hb7d" class="farr">→</span>
+    <span data-hf-id="hf-r0wm" class="fstep">先跑通</span><span data-hf-id="hf-hpie" class="farr">→</span>
+    <span data-hf-id="hf-9tfp" class="fstep">出题考核 · 三对两</span>
+  </div>
+  <div data-hf-id="hf-pivu" class="foot an an-f">重写是为了逼你把四个要素逐个想清楚，<b data-hf-id="hf-agjl">照抄等于没练</b> · 仓库里的参考实现是兜底，不是起点——直接抄等于跳过本章全部训练</div>
+
+      </div>
+    </section>
+    <section data-hf-id="hf-ugtv" id="p14" class="clip" data-start="671.4" data-duration="72.8" data-track-index="1">
+      <div data-hf-id="hf-umgf" class="bg"></div>
+      <div data-hf-id="hf-mhe4" class="pad">
+  <div data-hf-id="hf-nnzk" class="kicker mono an an-k">PART 03 · STEP 3</div>
+  <h1 data-hf-id="hf-v697" class="head an an-h">多轮修改：这才开始 vibe</h1>
+  <div data-hf-id="hf-znl6" class="row an an-c" style="margin-bottom:40px">
+    <div data-hf-id="hf-crcn" class="card"><h3 data-hf-id="hf-18ia">改输出</h3><p data-hf-id="hf-5yy5">每节最多 5 条，多余的合并；<br data-hf-id="hf-pm1g">语气正式但不僵硬</p></div>
+    <div data-hf-id="hf-d5no" class="card"><h3 data-hf-id="hf-6a3x">改健壮性</h3><p data-hf-id="hf-nhfq">API 失败要说人话：<br data-hf-id="hf-of4d">「请检查 .env 里的 Key」</p></div>
+    <div data-hf-id="hf-kse1" class="card"><h3 data-hf-id="hf-q7jw">加功能</h3><p data-hf-id="hf-duel">末尾追加「本周关键词」，<br data-hf-id="hf-otfe">从流水账提炼 3 个词</p></div>
+  </div>
+  <div data-hf-id="hf-19u6" class="foot an an-f"><b data-hf-id="hf-xvnu">每轮改完都要重跑验证</b>——改完不跑，等于没改，这就是「验收标准」的日常用法</div>
+
+      </div>
+    </section>
+    <section data-hf-id="hf-e6n4" id="p15" class="clip" data-start="744.2" data-duration="79.8" data-track-index="1">
+      <div data-hf-id="hf-v0rg" class="bg"></div>
+      <div data-hf-id="hf-mvp5" class="pad">
+  <div data-hf-id="hf-mdr2" class="kicker mono an an-k">PART 03 · 参考实现</div>
+  <h1 data-hf-id="hf-oh00" class="head an an-h">卡壳 20 分钟，再打开对照</h1>
+  <div data-hf-id="hf-j1n8" class="row an an-c">
+    <div data-hf-id="hf-9wyv" class="term" style="font-size:29px"><span data-hf-id="hf-5llw" class="hl">load_dotenv</span>()   <span data-hf-id="hf-sh9a" class="c"># 从 .env 读 Key</span>
+<span data-hf-id="hf-j2pp" class="hl">RAW_TEXT</span>       <span data-hf-id="hf-m5og" class="c"># 你的流水账</span>
+<span data-hf-id="hf-v9vm" class="hl">PROMPT_TEMPLATE</span> <span data-hf-id="hf-igo1" class="c"># 旋钮在这</span>
+client.chat.completions.create(...)
+<span data-hf-id="hf-49do" class="hl">main</span>()          <span data-hf-id="hf-ydbq" class="c"># 先验 Key，try 包 API</span></div>
+    <div data-hf-id="hf-l6p2" class="card"><h3 data-hf-id="hf-ua9y">交付清单</h3><p data-hf-id="hf-wuyy">① 脚本能生成 weekly_report.md<br data-hf-id="hf-tzer">② 通过出题考核（三对两）<br data-hf-id="hf-udps">③ .gitignore 里有 .env<br data-hf-id="hf-7f5s">④ add · commit · push 上 GitHub</p></div>
+  </div>
+  <div data-hf-id="hf-xjfl" class="foot an an-f">对照重点看三处：prompt 单独成变量 · 先判断 Key 再 try · 报错写成人话　·　跑通的弹幕刷个 🎉</div>
+
+      </div>
+    </section>
+    <section data-hf-id="hf-gh8y" id="p16" class="clip divider" data-start="824" data-duration="30.8" data-track-index="1">
+      <div data-hf-id="hf-7q07" class="bg deep"></div>
+      <div data-hf-id="hf-na06" class="pad">
+  <div data-hf-id="hf-qmeu" class="num-giant mono an an-n">04</div>
+  <div data-hf-id="hf-9tys" class="div-title an an-h">调试基本功</div>
+  <div data-hf-id="hf-9psx" class="div-desc an an-f">报错不是失败，是 Python 在精确地告诉你哪里出了问题——<br data-hf-id="hf-70ur">连文件名、行号、原因都替你打印好了；只练一件事：从下往上读</div>
+
+      </div>
+    </section>
+    <section data-hf-id="hf-goob" id="p17" class="clip" data-start="854.8" data-duration="81.8" data-track-index="1">
+      <div data-hf-id="hf-ttud" class="bg"></div>
+      <div data-hf-id="hf-nob7" class="pad">
+  <div data-hf-id="hf-na4r" class="kicker mono an an-k">PART 04 · TRACEBACK 解剖</div>
+  <h1 data-hf-id="hf-3upl" class="head an an-h">从下往上读</h1>
+  <div data-hf-id="hf-jfy9" class="row an an-c">
+    <div data-hf-id="hf-6bc3" class="term" style="font-size:30px">Traceback (most recent call last):
+  File "utils.py", line 3
+    from report import *
+  File "weekly_report.py", line 12
+    print(response.text)
+<span data-hf-id="hf-tzfd" class="err">NameError: name 'response' is not defined</span>
+
+<span data-hf-id="hf-qt40" class="c"># ↑ 最后一行：什么错（先看这）</span>
+<span data-hf-id="hf-hcvo" class="c"># ↑ 带行号的：在哪错</span>
+<span data-hf-id="hf-07cw" class="c"># ↑ 再往上：怎么走到这的</span></div>
+    <div data-hf-id="hf-fhul" class="card pine"><h3 data-hf-id="hf-pc5i">三步读法</h3><p data-hf-id="hf-fq83">① 最后一行 → 什么错<br data-hf-id="hf-2kkm">② 带行号那行 → 在哪错<br data-hf-id="hf-269l">③ 再往上 → 调用路径</p><p data-hf-id="hf-fhf4" style="margin-top:18px">零基础阶段，<b data-hf-id="hf-hbvy">90% 的报错只看这两处就能定位</b></p></div>
+  </div>
+
+      </div>
+    </section>
+    <section data-hf-id="hf-qav3" id="p18" class="clip" data-start="936.6" data-duration="70.8" data-track-index="1">
+      <div data-hf-id="hf-u85e" class="bg"></div>
+      <div data-hf-id="hf-o2m8" class="pad">
+  <div data-hf-id="hf-znvh" class="kicker mono an an-k">PART 04 · 贴报错给 AI</div>
+  <h1 data-hf-id="hf-ahyg" class="head an an-h">正确姿势：四段 + 一句</h1>
+  <div data-hf-id="hf-8k7g" class="card an an-c" style="margin-bottom:40px"><h3 data-hf-id="hf-84r9" class="mono">模板</h3><p data-hf-id="hf-bbcl">① 完整 traceback（复制文字，<b data-hf-id="hf-tnju">别截图</b>）　② 我期望什么　③ 实际发生了什么　④ 我已经试过什么<br data-hf-id="hf-1ryk"><b data-hf-id="hf-yvpy">最后加一句：请先告诉我原因，再告诉我具体改哪几行</b></p></div>
+  <div data-hf-id="hf-iwu4" class="foot an an-f">只贴报错不说期望，AI 只能猜；只要改法不要解释，下次同样的错你还是不会 · 对话越聊越乱？<b data-hf-id="hf-5sa2">敲 /clear 重开</b>，比在乱局里纠缠快得多</div>
+
+      </div>
+    </section>
+    <section data-hf-id="hf-qa27" id="p19" class="clip" data-start="1007.4" data-duration="99.8" data-track-index="1">
+      <div data-hf-id="hf-w7oj" class="bg"></div>
+      <div data-hf-id="hf-i40t" class="pad">
+  <div data-hf-id="hf-hbon" class="kicker mono an an-k">PART 04 · 修复实战</div>
+  <h1 data-hf-id="hf-0wbq" class="head an an-h">三段预置 bug，必修</h1>
+  <div data-hf-id="hf-isxm" class="flow an an-c" style="margin-bottom:40px">
+    <span data-hf-id="hf-5taf" class="fstep">运行</span><span data-hf-id="hf-dc53" class="farr">→</span>
+    <span data-hf-id="hf-67xf" class="fstep">从下往上读</span><span data-hf-id="hf-dqg4" class="farr">→</span>
+    <span data-hf-id="hf-5s6h" class="fstep" style="border-color:#c13f2e;color:#c13f2e">先猜</span><span data-hf-id="hf-u7sk" class="farr">→</span>
+    <span data-hf-id="hf-nez1" class="fstep">贴给 AI 验证</span><span data-hf-id="hf-tthj" class="farr">→</span>
+    <span data-hf-id="hf-e6zq" class="fstep">修复</span><span data-hf-id="hf-tf6i" class="farr">→</span>
+    <span data-hf-id="hf-7pv2" class="fstep">再运行</span>
+  </div>
+  <div data-hf-id="hf-7ix5" class="row an an-c" style="margin-bottom:36px">
+    <div data-hf-id="hf-kk96" class="card"><h3 data-hf-id="hf-vfgq" class="mono">bug1 · NameError</h3><p data-hf-id="hf-b3fl">变量名拼写，最后一行直指答案</p></div>
+    <div data-hf-id="hf-k5y5" class="card"><h3 data-hf-id="hf-r0yr" class="mono">bug2 · IndentationError</h3><p data-hf-id="hf-ekvu">缩进即层级，多一层少一层都不行</p></div>
+    <div data-hf-id="hf-ss5e" class="card warn"><h3 data-hf-id="hf-if9c" class="mono">bug3 · API 401</h3><p data-hf-id="hf-3c03">报错不一定是代码问题——是 Key 没读到，环境问题</p></div>
+  </div>
+  <div data-hf-id="hf-mnar" class="foot an an-f"><b data-hf-id="hf-41ud">先自己猜，再问 AI</b>——跳过猜测，练习就废了 · 每修完一个，往错题本记一行：报错 → 原因 → 解法</div>
+
+      </div>
+    </section>
+    <section data-hf-id="hf-u8rd" id="p20" class="clip" data-start="1107.2" data-duration="94.8" data-track-index="1">
+      <div data-hf-id="hf-wlzk" class="bg"></div>
+      <div data-hf-id="hf-iibu" class="pad">
+  <div data-hf-id="hf-cnvu" class="kicker mono an an-k">通关自测</div>
+  <h1 data-hf-id="hf-ngzb" class="head an an-h">从「让 AI 代写」<span data-hf-id="hf-jmwe" class="thin">→</span>「用 AI 辅助开发」</h1>
+  <div data-hf-id="hf-1632" class="an an-c">
+    <div data-hf-id="hf-eefx" class="qrow"><span data-hf-id="hf-eyol" class="qbadge mono">✓</span><div data-hf-id="hf-loi3" class="qtext">五步工作流能说全，「读懂」和「修改」为何拆开能解释</div></div>
+    <div data-hf-id="hf-kd1c" class="qrow"><span data-hf-id="hf-1jrd" class="qbadge mono">✓</span><div data-hf-id="hf-sab8" class="qtext">不看模板能独立写出四要素指令</div></div>
+    <div data-hf-id="hf-jyqb" class="qrow"><span data-hf-id="hf-2qog" class="qbadge mono">✓</span><div data-hf-id="hf-umwu" class="qtext">周报生成器和 AI 一起写出来，过了出题考核（三对两）</div></div>
+    <div data-hf-id="hf-i0sh" class="qrow"><span data-hf-id="hf-2cdf" class="qbadge mono">✓</span><div data-hf-id="hf-k48s" class="qtext">三段 bug 全修好，能说清 401 为什么不是代码错误</div></div>
+    <div data-hf-id="hf-if3i" class="qrow"><span data-hf-id="hf-0cua" class="qbadge mono">✓</span><div data-hf-id="hf-ks04" class="qtext">任意 traceback 三十秒内说出错误类型和出错行</div></div>
+    <div data-hf-id="hf-itej" class="qrow"><span data-hf-id="hf-zyj9" class="qbadge mono">✓</span><div data-hf-id="hf-tynl" class="qtext">周报生成器已 push GitHub，.env 没被推上去</div></div>
+  </div>
+  <div data-hf-id="hf-ifr1" class="foot an an-f">下一章 Ch2 · Prompt Engineering：四要素搬上业务，稳定输出 JSON · <b data-hf-id="hf-kk3z">一键三连，评论区贴你的四要素指令</b></div>
+
+      </div>
+    </section>
+      <div data-hf-id="hf-41n0" id="brandbar" class="mono">AI 摸鱼的梁师傅 · CH1 VIBE CODING 工作流</div>
+      <div data-hf-id="hf-o6ww" id="progress"><i data-hf-id="hf-zszq" id="progress-fill"></i></div>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const FROM = { k:{opacity:0,y:26}, h:{opacity:0,y:44}, n:{opacity:0,scale:.9},
+                     c:{opacity:0,y:54}, t:{opacity:0,y:40}, f:{opacity:0,y:30}, s:{opacity:0,x:40} };
+      function T(sel, at) {
+        if (!document.querySelector(sel)) return;
+        const key = sel.replace(/^.*.an-([a-z])$/, "$1");
+        const from = FROM[key];
+        const vars = { opacity:1, duration:key === "n" ? .7 : .55, ease:"power3.out", immediateRender:false };
+        if ("y" in from) vars.y = 0; if ("x" in from) vars.x = 0; if ("scale" in from) vars.scale = 1;
+        if (key === "c") vars.stagger = .12;
+        tl.fromTo(sel, from, vars, at);
+      }
+
+  T("#p01 .an-k", 0);
+  T("#p01 .an-h", 0.15);
+  T("#p01 .an-n", 0);
+  T("#p01 .an-c", 0.3);
+  T("#p01 .an-t", 0.3);
+  T("#p01 .an-f", 0.55);
+  T("#p01 .an-s", 0.5);
+
+  T("#p02 .an-k", 48.8);
+  T("#p02 .an-h", 48.949999999999996);
+  T("#p02 .an-n", 48.8);
+  T("#p02 .an-c", 49.099999999999994);
+  T("#p02 .an-t", 49.099999999999994);
+  T("#p02 .an-f", 49.349999999999994);
+  T("#p02 .an-s", 49.3);
+
+  T("#p03 .an-k", 92.6);
+  T("#p03 .an-h", 92.75);
+  T("#p03 .an-n", 92.6);
+  T("#p03 .an-c", 92.89999999999999);
+  T("#p03 .an-t", 92.89999999999999);
+  T("#p03 .an-f", 93.14999999999999);
+  T("#p03 .an-s", 93.1);
+
+  T("#p04 .an-k", 112.4);
+  T("#p04 .an-h", 112.55000000000001);
+  T("#p04 .an-n", 112.4);
+  T("#p04 .an-c", 112.7);
+  T("#p04 .an-t", 112.7);
+  T("#p04 .an-f", 112.95);
+  T("#p04 .an-s", 112.9);
+
+  T("#p05 .an-k", 165.2);
+  T("#p05 .an-h", 165.35);
+  T("#p05 .an-n", 165.2);
+  T("#p05 .an-c", 165.5);
+  T("#p05 .an-t", 165.5);
+  T("#p05 .an-f", 165.75);
+  T("#p05 .an-s", 165.7);
+
+  T("#p06 .an-k", 210);
+  T("#p06 .an-h", 210.15);
+  T("#p06 .an-n", 210);
+  T("#p06 .an-c", 210.3);
+  T("#p06 .an-t", 210.3);
+  T("#p06 .an-f", 210.55);
+  T("#p06 .an-s", 210.5);
+
+  T("#p07 .an-k", 271.8);
+  T("#p07 .an-h", 271.95);
+  T("#p07 .an-n", 271.8);
+  T("#p07 .an-c", 272.1);
+  T("#p07 .an-t", 272.1);
+  T("#p07 .an-f", 272.35);
+  T("#p07 .an-s", 272.3);
+
+  T("#p08 .an-k", 348.6);
+  T("#p08 .an-h", 348.75);
+  T("#p08 .an-n", 348.6);
+  T("#p08 .an-c", 348.90000000000003);
+  T("#p08 .an-t", 348.90000000000003);
+  T("#p08 .an-f", 349.15000000000003);
+  T("#p08 .an-s", 349.1);
+
+  T("#p09 .an-k", 373.4);
+  T("#p09 .an-h", 373.54999999999995);
+  T("#p09 .an-n", 373.4);
+  T("#p09 .an-c", 373.7);
+  T("#p09 .an-t", 373.7);
+  T("#p09 .an-f", 373.95);
+  T("#p09 .an-s", 373.9);
+
+  T("#p10 .an-k", 468.2);
+  T("#p10 .an-h", 468.34999999999997);
+  T("#p10 .an-n", 468.2);
+  T("#p10 .an-c", 468.5);
+  T("#p10 .an-t", 468.5);
+  T("#p10 .an-f", 468.75);
+  T("#p10 .an-s", 468.7);
+
+  T("#p11 .an-k", 535);
+  T("#p11 .an-h", 535.15);
+  T("#p11 .an-n", 535);
+  T("#p11 .an-c", 535.3);
+  T("#p11 .an-t", 535.3);
+  T("#p11 .an-f", 535.55);
+  T("#p11 .an-s", 535.5);
+
+  T("#p12 .an-k", 560.8);
+  T("#p12 .an-h", 560.9499999999999);
+  T("#p12 .an-n", 560.8);
+  T("#p12 .an-c", 561.0999999999999);
+  T("#p12 .an-t", 561.0999999999999);
+  T("#p12 .an-f", 561.3499999999999);
+  T("#p12 .an-s", 561.3);
+
+  T("#p13 .an-k", 615.6);
+  T("#p13 .an-h", 615.75);
+  T("#p13 .an-n", 615.6);
+  T("#p13 .an-c", 615.9);
+  T("#p13 .an-t", 615.9);
+  T("#p13 .an-f", 616.15);
+  T("#p13 .an-s", 616.1);
+
+  T("#p14 .an-k", 671.4);
+  T("#p14 .an-h", 671.55);
+  T("#p14 .an-n", 671.4);
+  T("#p14 .an-c", 671.6999999999999);
+  T("#p14 .an-t", 671.6999999999999);
+  T("#p14 .an-f", 671.9499999999999);
+  T("#p14 .an-s", 671.9);
+
+  T("#p15 .an-k", 744.2);
+  T("#p15 .an-h", 744.35);
+  T("#p15 .an-n", 744.2);
+  T("#p15 .an-c", 744.5);
+  T("#p15 .an-t", 744.5);
+  T("#p15 .an-f", 744.75);
+  T("#p15 .an-s", 744.7);
+
+  T("#p16 .an-k", 824);
+  T("#p16 .an-h", 824.15);
+  T("#p16 .an-n", 824);
+  T("#p16 .an-c", 824.3);
+  T("#p16 .an-t", 824.3);
+  T("#p16 .an-f", 824.55);
+  T("#p16 .an-s", 824.5);
+
+  T("#p17 .an-k", 854.8);
+  T("#p17 .an-h", 854.9499999999999);
+  T("#p17 .an-n", 854.8);
+  T("#p17 .an-c", 855.0999999999999);
+  T("#p17 .an-t", 855.0999999999999);
+  T("#p17 .an-f", 855.3499999999999);
+  T("#p17 .an-s", 855.3);
+
+  T("#p18 .an-k", 936.6);
+  T("#p18 .an-h", 936.75);
+  T("#p18 .an-n", 936.6);
+  T("#p18 .an-c", 936.9);
+  T("#p18 .an-t", 936.9);
+  T("#p18 .an-f", 937.15);
+  T("#p18 .an-s", 937.1);
+
+  T("#p19 .an-k", 1007.4);
+  T("#p19 .an-h", 1007.55);
+  T("#p19 .an-n", 1007.4);
+  T("#p19 .an-c", 1007.6999999999999);
+  T("#p19 .an-t", 1007.6999999999999);
+  T("#p19 .an-f", 1007.9499999999999);
+  T("#p19 .an-s", 1007.9);
+
+  T("#p20 .an-k", 1107.2);
+  T("#p20 .an-h", 1107.3500000000001);
+  T("#p20 .an-n", 1107.2);
+  T("#p20 .an-c", 1107.5);
+  T("#p20 .an-t", 1107.5);
+  T("#p20 .an-f", 1107.75);
+  T("#p20 .an-s", 1107.7);
+      tl.fromTo("#progress-fill", {scaleX:.012}, {scaleX:1, duration:1202, ease:"none", immediateRender:false}, 0);
+      window.__timelines["ch1-vibe-workflow"] = tl;
+    </script>
+  </body>
+</html>

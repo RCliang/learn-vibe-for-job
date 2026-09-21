@@ -137,7 +137,7 @@ data = json.loads(response.choices[0].message.content)      # content 就是纯 
 
 要点：结构描述写进 **system** 消息；开启后 `content` 是可直接解析的纯 JSON。
 
-**第 3 步：Pydantic 校验（就业级）**。JSON mode 只保证「是合法 JSON」，不保证**字段和类型符合你的约定**（比如把 `skills` 写成了字符串）。用 Pydantic 定义结构，一劳永逸：
+**第 3 步：Pydantic 校验（工程级）**。JSON mode 只保证「是合法 JSON」，不保证**字段和类型符合你的约定**（比如把 `skills` 写成了字符串）。用 Pydantic 定义结构，一劳永逸：
 
 ```python
 from pydantic import BaseModel

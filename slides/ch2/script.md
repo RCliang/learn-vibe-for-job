@@ -84,7 +84,7 @@ temperature 就是模型的性格旋钮，看屏幕这张表。**0 到 0.3**，�
 
 第二步，把口头约定改成白纸黑字。DeepSeek 支持在调用时声明输出格式，看屏幕代码，就两个重点：第一，目标结构写进 **system** 消息，别写在 user 里；第二，加上 response_format 那一行开启 JSON mode，之后拿到的 content 就是纯 JSON，直接 loads，稳了。
 
-## 第 15 页 · 第 3 步：Pydantic 校验（就业级）
+## 第 15 页 · 第 3 步：Pydantic 校验（工程级）
 
 但 JSON mode 只保证「是合法 JSON」，不保证**字段和类型**符合约定——你说 skills 要数组，它可能返回一整个字符串。记住这句话：**合法 JSON 不等于字段正确**，面试也爱问。
 

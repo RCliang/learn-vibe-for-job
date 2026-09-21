@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch2 Prompt 工程实战 · 课程幻灯片</title>
+<style>
+  :root {
+    --paper: #f1f0ea;
+    --ink: #1d2a25;
+    --muted: #68706b;
+    --pine: #1f5c46;
+    --pine-deep: #174a39;
+    --leaf: #35a97a;
+    --wash: #e4efe8;
+    --wash-line: #c4dccd;
+    --card: #ffffff;
+    --line: #e2e0d4;
+    --sand: #dedcce;
+    --term: #16241e;
+    --term-text: #d9e6de;
+    --warn-bg: #fbf1df;
+    --warn-line: #e8cfa0;
+    --warn-ink: #8f5a16;
+    --warn-text: #6e4a17;
+    --bad-bg: #fbeaea;
+    --bad-line: #e0b8b2;
+    --bad-ink: #9d3a2b;
+    --bad-text: #7d3327;
+    --mono: "SF Mono", "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+    --slab: 5px 5px 0 0 var(--sand);
+    --code-bg: #ecebe1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: #d8d6cd;
+    font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif;
+    color: var(--ink);
+  }
+
+  #stage {
+    position: absolute; left: 50%; top: 50%;
+    width: 1280px; height: 720px;
+    transform-origin: center center;
+    background: var(--paper);
+    box-shadow: 0 24px 60px rgba(29,42,37,.28), 0 0 0 1px rgba(29,42,37,.05);
+    overflow: hidden;
+  }
+
+  .slide {
+    display: none;
+    position: absolute; inset: 0;
+    padding: 52px 72px 70px;
+    flex-direction: column;
+  }
+  .slide.active { display: flex; animation: rise .3s cubic-bezier(.2,.7,.3,1); }
+  @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .slide.active { animation: none; } }
+
+  .kicker {
+    font-family: var(--mono);
+    font-size: 13px; font-weight: 700; letter-spacing: .22em;
+    color: var(--pine); text-transform: uppercase; margin-bottom: 10px;
+  }
+  h1 { font-size: 34px; line-height: 1.25; margin-bottom: 22px; font-weight: 700; letter-spacing: -0.01em; }
+  h1 .sub { display:block; font-size: 17px; font-weight: 400; color: var(--muted); margin-top: 6px; letter-spacing: 0; }
+  .grow { flex: 1; min-height: 0; }
+
+  p.lead { font-size: 21px; line-height: 1.6; }
+  ul.pts { list-style: none; }
+  ul.pts li {
+    font-size: 20px; line-height: 1.55; padding-left: 26px; position: relative; margin-bottom: 12px;
+  }
+  ul.pts li::before {
+    content: ""; position: absolute; left: 2px; top: 12px;
+    width: 8px; height: 8px; border-radius: 2px; background: var(--pine);
+  }
+  ul.pts li b { color: var(--pine-deep); }
+  .muted { color: var(--muted); }
+  .accent { color: var(--pine); }
+
+  .cols { display: flex; gap: 28px; }
+  .grow.cols { align-items: center; }
+  .col { flex: 1; min-width: 0; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: var(--slab);
+    padding: 18px 22px; margin-bottom: 14px;
+  }
+  .card h3 { font-size: 18px; margin-bottom: 8px; color: var(--ink); }
+  .card p, .card li { font-size: 16.5px; line-height: 1.55; }
+
+  .warn {
+    background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 12px;
+    box-shadow: 5px 5px 0 0 rgba(143,90,22,.14);
+    padding: 16px 22px;
+  }
+  .warn .warn-title { font-weight: 700; color: var(--warn-ink); font-size: 17px; margin-bottom: 6px; }
+  .warn p, .warn li { font-size: 16.5px; line-height: 1.55; color: var(--warn-text); }
+
+  .bad {
+    background: var(--bad-bg); border: 1px solid var(--bad-line); border-radius: 12px;
+    box-shadow: 5px 5px 0 0 rgba(157,58,43,.13);
+    padding: 16px 20px;
+  }
+  .bad h3 { font-size: 17px; color: var(--bad-ink); margin-bottom: 8px; }
+  .bad p, .bad li { font-size: 16.5px; line-height: 1.55; color: var(--bad-text); }
+  .good { border-color: var(--pine); border-width: 1.5px; box-shadow: 5px 5px 0 0 var(--wash-line); }
+  .good h3 { color: var(--pine-deep); }
+
+  /* 铁律：左侧粗竖条 */
+  .law {
+    border-left: 7px solid var(--pine); background: var(--wash);
+    border-radius: 0 12px 12px 0; padding: 20px 26px;
+    font-size: 23px; line-height: 1.55; font-weight: 700; color: var(--pine-deep);
+    box-shadow: 5px 5px 0 0 var(--wash-line);
+  }
+  .law .tag {
+    display: inline-block; font-family: var(--mono); font-size: 12.5px; letter-spacing: .2em;
+    background: var(--pine); color: #fff; border-radius: 6px; padding: 3px 10px;
+    margin-bottom: 10px; vertical-align: 3px;
+  }
+
+  /* 终端代码块 / 提示词纸块 */
+  .code {
+    background: var(--term); border: 1px solid #0e1b15; border-radius: 10px;
+    box-shadow: 5px 5px 0 0 rgba(29,42,37,.16);
+    padding: 13px 18px; font-family: var(--mono);
+    font-size: 16.5px; line-height: 1.6; color: var(--term-text); white-space: pre; overflow: hidden;
+    margin: 10px 0;
+  }
+  .code .c { color: #6e8b7f; }
+  .code .k { color: #e8a271; }
+  .code .s { color: #9fd3b4; }
+  .code .hl { color: #ffb3a0; font-weight: 700; }
+  .code .dim { color: #5f7a6d; }
+  .code.paper {
+    background: #f8f7f0; border-color: var(--line); color: #3b453e;
+    box-shadow: 5px 5px 0 0 var(--sand);
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 16px; line-height: 1.7; white-space: pre-wrap;
+  }
+  .code.paper .c { color: #94a099; }
+  .code.paper b { color: var(--pine-deep); }
+
+  table.tbl { border-collapse: collapse; width: 100%; background: var(--card); }
+  table.tbl th, table.tbl td {
+    border: 1px solid var(--line); padding: 9px 16px; font-size: 17px; text-align: left;
+  }
+  table.tbl th { background: #ebeae0; font-weight: 700; }
+  table.tbl td code, .incode {
+    font-family: var(--mono);
+    font-size: 15.5px; background: var(--code-bg); padding: 2px 7px; border-radius: 5px;
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip {
+    background: var(--card); color: var(--pine); border: 1px solid var(--line);
+    box-shadow: 3px 3px 0 0 var(--sand);
+    border-radius: 999px; padding: 6px 18px;
+    font-family: var(--mono); font-size: 15px; font-weight: 600;
+  }
+  .sc {
+    border-radius: 8px; padding: 2px 10px; font-weight: 700; color: #fff;
+    font-family: var(--mono); box-shadow: 3px 3px 0 0 rgba(29,42,37,.16);
+  }
+  .sc.o401 { background: #c4691b; }
+  .sc.o429 { background: #8a5a2a; }
+
+  /* 分隔页：巨型挤出小节号 */
+  .divider { background: #e9e8df; justify-content: center; }
+  .divider .day-tag {
+    display: block; background: none; color: var(--pine);
+    font-family: var(--mono); font-size: 148px; font-weight: 700; line-height: 1;
+    letter-spacing: 0; padding: 0; margin-bottom: 18px; align-self: flex-start;
+    text-shadow: 7px 7px 0 rgba(31,92,70,.18), 14px 14px 0 rgba(31,92,70,.07);
+  }
+  .divider h1 { font-size: 50px; margin-bottom: 22px; }
+  .divider p.desc { font-size: 20px; color: #46564e; line-height: 1.7; }
+
+  /* 封面 */
+  .cover { background: var(--paper); justify-content: center; }
+  .cover .camp {
+    display: inline-block; align-self: flex-start;
+    font-family: var(--mono); font-size: 15px; font-weight: 700; letter-spacing: .22em;
+    color: var(--pine); background: var(--card); border: 1px solid var(--line);
+    border-radius: 8px; box-shadow: 4px 4px 0 0 var(--sand);
+    padding: 7px 18px; margin-bottom: 30px;
+  }
+  .cover h1 { font-size: 62px; line-height: 1.2; margin-bottom: 18px; letter-spacing: -0.015em; }
+  .cover .sub { font-size: 25px; color: var(--muted); margin-bottom: 40px; }
+  .cover .hint {
+    position: absolute; bottom: 78px; left: 72px;
+    font-family: var(--mono); font-size: 14px; color: #a3a196;
+  }
+
+  /* 封面右侧：prompt → JSON 装置 */
+  .cover-flow { position: absolute; right: 92px; top: 50%; transform: translateY(-52%); width: 330px; display: flex; flex-direction: column; align-items: stretch; }
+  .cover-flow .cf-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: 5px 5px 0 0 var(--sand); padding: 13px 16px;
+  }
+  .cover-flow .cf-title {
+    font-family: var(--mono); font-size: 11.5px; font-weight: 700; letter-spacing: .18em;
+    color: var(--pine); margin-bottom: 9px;
+  }
+  .cover-flow .cf-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .cover-flow .cf-chip {
+    font-size: 14.5px; font-weight: 700; color: var(--pine-deep);
+    background: var(--wash); border: 1px solid var(--wash-line); border-radius: 7px; padding: 3px 12px;
+  }
+  .cover-flow .cf-arrow { text-align: center; font-size: 24px; font-weight: 800; color: var(--pine); line-height: 1.25; }
+  .cover-flow .cf-arrow small { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .16em; color: var(--muted); font-weight: 600; }
+  .cover-flow .cf-term {
+    background: var(--term); border: 1px solid #0e1b15; border-radius: 10px;
+    box-shadow: 6px 6px 0 0 var(--sand); padding: 13px 16px;
+    font-family: var(--mono); font-size: 14px; line-height: 1.65; color: var(--term-text); white-space: pre;
+  }
+  .cover-flow .cf-term .s { color: #9fd3b4; }
+  .cover-flow .cf-term .k { color: #e8a271; }
+  .cover-flow .cf-term .hl { color: #ffb3a0; font-weight: 700; }
+
+  .checklist { list-style: none; }
+  .checklist li { font-size: 19px; line-height: 1.55; margin-bottom: 11px; padding-left: 34px; position: relative; }
+  .checklist li::before {
+    content: "✓"; position: absolute; left: 0; top: 0; width: 24px; height: 24px;
+    background: var(--pine); color: #fff; border: none;
+    box-shadow: 3px 3px 0 0 var(--sand);
+    border-radius: 7px; font-size: 15px; font-weight: 800; text-align: center; line-height: 24px;
+  }
+
+  /* 流程条 */
+  .loopflow { margin: 6px 0 0; }
+  .lf-row { display: flex; align-items: stretch; }
+  .lf-row .fbox {
+    flex: 1; background: var(--card); border: 1.5px solid var(--pine); border-radius: 10px;
+    box-shadow: 4px 4px 0 0 var(--sand);
+    padding: 12px 8px; font-size: 17px; font-weight: 700; line-height: 1.3; text-align: center;
+    color: var(--pine-deep);
+  }
+  .lf-row .fbox small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; margin-top: 4px; }
+  .lf-row .fbox.key { background: var(--wash); border-color: var(--pine); }
+  .lf-row .fbox.done { background: var(--pine); color: #fff; border-color: var(--pine-deep); }
+  .lf-row .fbox.done small { color: #c9e2d5; }
+  .lf-row .arr { color: var(--pine); font-size: 20px; font-weight: 700; padding: 0 7px; align-self: center; }
+
+  /* 编号要点 */
+  .qnum {
+    display: flex; align-items: flex-start; gap: 14px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: var(--slab); padding: 16px 18px; margin-bottom: 14px;
+  }
+  .qnum .n {
+    flex: none; width: 34px; height: 34px; border-radius: 9px; background: var(--pine); color: #fff;
+    box-shadow: 3px 3px 0 0 var(--sand);
+    font-family: var(--mono); font-size: 17px; font-weight: 700; text-align: center; line-height: 34px;
+  }
+  .qnum h3 { font-size: 18px; margin-bottom: 5px; }
+  .qnum p { font-size: 16px; line-height: 1.5; color: #46564e; }
+
+  /* 全局 footer：进度条 + 页码 */
+  #bar {
+    position: absolute; left: 0; bottom: 0; height: 7px; background: var(--leaf);
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,.22);
+    width: 0; transition: width .2s; z-index: 30;
+  }
+  #pager {
+    position: absolute; right: 26px; bottom: 16px; font-size: 13px; color: #a3a196;
+    font-family: var(--mono); z-index: 30;
+  }
+  #brand {
+    position: absolute; left: 26px; bottom: 16px; font-size: 12px; color: #b0aea1;
+    font-family: var(--mono); letter-spacing: .12em; z-index: 30;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- 1 封面 -->
+  <section class="slide cover active">
+    <div class="camp">零基础 Agent 开发营 · WEEK 1 · DAY 5–7</div>
+    <h1>Ch2 Prompt 工程实战</h1>
+    <div class="sub">让模型每一次都交出你要的答案——格式稳定、字段可靠、成本可控</div>
+    <div class="chips">
+      <span class="chip">Prompt Engineering</span><span class="chip">JSON mode</span><span class="chip">Pydantic</span><span class="chip">简历优化器</span>
+    </div>
+    <div class="cover-flow" aria-hidden="true">
+      <div class="cf-card">
+        <div class="cf-title">SYSTEM PROMPT 四件套</div>
+        <div class="cf-chips">
+          <span class="cf-chip">角色</span><span class="cf-chip">任务</span><span class="cf-chip">规则边界</span><span class="cf-chip">输出格式</span>
+        </div>
+      </div>
+      <div class="cf-arrow">↓<small>JSON MODE + PYDANTIC</small></div>
+      <div class="cf-term">{
+  <span class="k">"overall_score"</span>: <span class="hl">58</span>,
+  <span class="k">"issues"</span>: [ <span class="s">…</span> ],
+  <span class="k">"star_rewrites"</span>: [ <span class="s">…</span> ]
+}</div>
+    </div>
+    <div class="hint">→ / 空格 翻页 · F 全屏 · 点击画面也可翻页</div>
+  </section>
+
+  <!-- 2 本章路线 -->
+  <section class="slide">
+    <div class="kicker">Roadmap</div>
+    <h1>本章路线<span class="sub">学完你能：写专业级 system prompt · 用 few-shot 稳住输出 · 知道温度怎么调 · 让模型输出程序能直接消费的 JSON · 算清 token 成本</span></h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col">
+        <div class="card">
+          <h3 class="accent">Day 5 · 给模型写指令</h3>
+          <p>messages 三种角色<br>
+          few-shot 给例子<br>
+          温度与参数<br>
+          token 成本意识<br>
+          <span class="muted">从这天起，每次调用花多少钱心里有数</span></p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <h3 class="accent">Day 6 · 结构化输出</h3>
+          <p>从脆弱到可靠三步走：<br>
+          prompt 约束 → JSON mode → Pydantic<br>
+          失败自纠重试<br>
+          <span class="muted">「聊天玩具」到「应用」的分水岭</span></p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <h3 class="accent">Day 7 · 周末实战</h3>
+          <p>简历优化器 v0 → v1 → v2<br>
+          结构先行：先设计输出模型<br>
+          <span class="muted">交付物：一个你求职当天就用得上的工具</span></p>
+        </div>
+      </div>
+    </div>
+    <div class="warn" style="margin-top:6px">
+      <p><b>Prompt Engineering 是 JD 里出现频率第一的技能词</b>，也是后面所有章节的地基：Ch3 RAG 的检索模板是 prompt，Ch4 Agent 的系统指令还是 prompt——<b>prompt 写不好，上层架构再漂亮也没用</b>。</p>
+    </div>
+  </section>
+
+  <!-- 3 分隔 01 -->
+  <section class="slide divider">
+    <span class="day-tag">01</span>
+    <h1>写给模型的指令</h1>
+    <p class="desc">上一章的四要素，搬到模型本身上。<br>家什不变，住处变了——验收方式还顺带升了个级。</p>
+  </section>
+
+  <!-- 4 四要素映射 -->
+  <section class="slide">
+    <div class="kicker">01 · 从四要素到 Prompt Engineering</div>
+    <h1>四要素搬家：从「给编程助手」到「给模型」</h1>
+    <div class="grow">
+      <table class="tbl">
+        <tr><th style="width:250px">给编程助手（Ch1）</th><th>给模型（Ch2）</th></tr>
+        <tr><td><b>任务</b></td><td>system prompt 里的角色与任务定义</td></tr>
+        <tr><td><b>上下文</b></td><td>user 消息里的输入材料</td></tr>
+        <tr><td><b>约束</b></td><td>输出格式、语气、规则</td></tr>
+        <tr><td><b>验收标准</b></td><td>few-shot 示例 ＋ 结构化校验（Pydantic）</td></tr>
+      </table>
+      <div class="cols" style="margin-top:18px;align-items:stretch">
+        <div class="col"><div class="card good" style="height:100%;margin-bottom:0">
+          <h3>⬆ 验收从「人肉看」升级成「机器卡」</h3>
+          <p>给编程助手，验收靠你自己读代码；给模型——<b>few-shot 示例</b>让它知道「长什么样算对」，<b>Pydantic 校验</b>让它「不对就过不了关」。</p>
+        </div></div>
+        <div class="col"><div class="card" style="height:100%;margin-bottom:0">
+          <h3>为什么这章是地基</h3>
+          <p>Ch3 RAG 的「检索结果拼接模板」是 prompt，Ch4 Agent 的「系统指令与工具描述」还是 prompt。这页不是本章限定知识，是天天要用的模板。</p>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 messages 三种角色 -->
+  <section class="slide">
+    <div class="kicker">01 · messages 的三种角色</div>
+    <h1>三个角色，各司其职</h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col" style="flex:1.25">
+        <div class="code" style="font-size:13.5px">messages = [
+  {"role": "<span class="k">system</span>", "content": "你是资深简历顾问，
+                 只给具体可执行的建议"},      <span class="c"># 全局设定</span>
+  {"role": "<span class="k">user</span>", "content": "我的简历是：……"},   <span class="c"># 本次输入</span>
+  {"role": "<span class="k">assistant</span>", "content": "好的，我先看
+                 工作经历部分……"},            <span class="c"># 历史回复</span>
+]</div>
+        <div class="warn" style="margin-top:14px">
+          <div class="warn-title">💡 多轮对话的真相</div>
+          <p>模型本身<b>没有记忆</b>。你看到的「连续对话」，是程序每次把历史消息<b>完整重发</b>。Ch4 讲记忆管理时它会变成必须亲手处理的问题。</p>
+        </div>
+      </div>
+      <div class="col">
+        <table class="tbl">
+          <tr><th>角色</th><th>作用</th><th>类比</th></tr>
+          <tr><td><code>system</code></td><td>定义「它是谁、守什么规矩」</td><td><b>员工手册</b></td></tr>
+          <tr><td><code>user</code></td><td>每次的具体输入</td><td><b>工单</b></td></tr>
+          <tr><td><code>assistant</code></td><td>模型之前的回复</td><td><b>聊天记录</b></td></tr>
+        </table>
+        <div class="card" style="margin-top:14px">
+          <h3>记法</h3>
+          <p>Ch0 你已经写过 <span class="incode">messages</span> 列表——现在你知道那两个键值对各是什么身份了。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 system 优先级 + 四件套 -->
+  <section class="slide">
+    <div class="kicker">01 · system prompt</div>
+    <h1>两个要点，一个公式</h1>
+    <div class="grow">
+      <div class="cols" style="align-items:stretch">
+        <div class="col"><div class="card" style="height:100%">
+          <h3 class="accent">① 多轮对话 = 往列表里追加消息</h3>
+          <p>「程序每次完整重发历史」的实现，就这么朴素——列表越来越长，token 越烧越多（第 10 页细算账）。</p>
+        </div></div>
+        <div class="col"><div class="card" style="height:100%">
+          <h3 class="accent">② system 的优先级高于 user</h3>
+          <p>角色、规则、输出格式都写进 <b>system</b>，别在 user 里重复：一费 token，二聊久了模型会漂。</p>
+        </div></div>
+      </div>
+      <div class="law" style="margin-top:16px;font-size:21px">
+        <span class="tag">公式 · 四件套</span><br>
+        角色（你是谁）＋ 任务（做什么）<br>
+        ＋ 规则/边界（必须怎样、绝不怎样）＋ 输出格式（以什么形式返回）
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 few-shot -->
+  <section class="slide">
+    <div class="kicker">01 · few-shot</div>
+    <h1>给例子，胜过给描述<span class="sub">格式难描述、风格难定义的时候，一对示例顶一堆形容词</span></h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col" style="flex:.85">
+        <div class="bad" style="height:100%">
+          <h3>❌ 描述式（模型不知道往哪使劲）</h3>
+          <p style="font-size:19px;font-weight:700;margin:8px 0 12px">「把简历句子改写得更好，要专业、有力、量化。」</p>
+          <p>每个词都对，但——<br>
+          · 「专业」长什么样？<br>
+          · 「有力」到什么程度？<br>
+          · 「量化」必须每句都有数字？<br><br>
+          模型只能按自己的默认审美发挥。</p>
+        </div>
+      </div>
+      <div class="col" style="flex:1.15">
+        <div class="code paper" style="font-size:15px">请按下面的风格改写简历句子。
+<b>输入：负责公司内部系统的开发维护工作</b>
+<b>输出：独立负责 3 个内部系统的开发与迭代，将工单处理时长从 2 天压缩至 4 小时</b>
+
+现在改写：用 Python 写接口，也用过一些 AI 相关的接口</div>
+        <div class="card good" style="margin-top:12px">
+          <p>想要什么，<b>例子自己会说话</b>：量化数字、动词开头、成果导向——全在示例里。<br>
+          <span class="muted">两个提醒：例子要覆盖你想控制的边界；例子本身也在烧 token，够用就好。</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 分隔 02 -->
+  <section class="slide divider">
+    <span class="day-tag">02</span>
+    <h1>温度、参数与 token 账本</h1>
+    <p class="desc">两个话题一个性质：都是旋钮。<br>拧之前先知道拧它改变什么，以及每一圈多少钱。</p>
+  </section>
+
+  <!-- 9 temperature -->
+  <section class="slide">
+    <div class="kicker">02 · temperature</div>
+    <h1>temperature：模型的性格旋钮</h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col" style="flex:1.25">
+        <table class="tbl">
+          <tr><th style="width:150px">temperature</th><th style="width:200px">效果</th><th>适用任务</th></tr>
+          <tr><td><code>0 – 0.3</code></td><td>刻板、稳定、可复现</td><td>结构化输出、分类、改写<br><b class="accent">▸ 本章简历优化器</b></td></tr>
+          <tr><td><code>0.4 – 0.7</code></td><td>平衡</td><td>周报、总结、通用问答</td></tr>
+          <tr><td><code>0.8 – 1.0</code></td><td>发散，有惊喜也有惊吓</td><td>头脑风暴、创意文案</td></tr>
+        </table>
+        <div class="card" style="margin-top:14px;margin-bottom:0">
+          <h3>另外两个参数，知道存在即可</h3>
+          <p><span class="incode">max_tokens</span> 输出长度上限——当<b>保险丝</b>用，防失控烧钱<br>
+          <span class="incode">top_p</span> 和 temperature 类似的另一档旋钮——一般不动</p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card good" style="height:100%;margin-bottom:0">
+          <h3>🧪 实验：亲眼看温度的差异</h3>
+          <p><span class="incode">code/ch2-prompt/temperature_lab.py</span><br><br>
+          同一个 prompt「用一个比喻解释什么是 temperature 参数」，在 <b>0.2 / 0.7 / 1.0</b> 下各跑一次，对比输出差异。<br><br>
+          <b>调参之前先看现象</b>——这是本章的实验精神。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 token 账本 -->
+  <section class="slide">
+    <div class="kicker">02 · token 账本</div>
+    <h1>每次调用多少钱<span class="sub">从今天起建立成本意识——它决定你敢不敢把 API 用进真实项目</span></h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col" style="flex:1.3">
+        <div class="qnum">
+          <span class="n">1</span>
+          <div>
+            <h3>token 是计费和计长度的单位</h3>
+            <p>直觉：1 个汉字 ≈ 1~2 token，1 个英文单词 ≈ 1 token</p>
+          </div>
+        </div>
+        <div class="qnum">
+          <span class="n">2</span>
+          <div>
+            <h3>上下文窗口 = 一次能「看到」的 token 上限</h3>
+            <p>聊天记录越长，每次重发的 token 越多——<b>越贵也越慢</b>。这就是 Ch1 说「对话太乱就 /clear」的底层原因</p>
+          </div>
+        </div>
+        <div class="qnum" style="margin-bottom:0">
+          <span class="n">3</span>
+          <div>
+            <h3>成本 =（输入 token ＋ 输出 token）× 单价</h3>
+            <p>DeepSeek 是主流模型里最便宜的一档，<b>本章全部练习 &lt; 1 元</b></p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="code" style="font-size:14.5px">response = client.chat.completions.create(...)
+<span class="c"># 每次调用后看一眼：</span>
+print(response.usage)
+<span class="c"># prompt_tokens      输入</span>
+<span class="c"># completion_tokens  输出</span>
+<span class="c"># total_tokens       总量</span></div>
+        <div class="card" style="margin-top:12px;margin-bottom:0">
+          <h3>养成习惯</h3>
+          <p><span class="incode">usage</span> 字段告诉你这次花了多少 token——跑几次简历优化器，你就能估出单价量级。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 分隔 03 -->
+  <section class="slide divider">
+    <span class="day-tag">03</span>
+    <h1>结构化输出</h1>
+    <p class="desc">模型天生吐的是文本，程序要的是数据。<br>三步演进：从脆弱到可靠——「聊天玩具」到「应用」的分水岭。</p>
+  </section>
+
+  <!-- 12 第1步 脆弱 -->
+  <section class="slide">
+    <div class="kicker">03 · 三步演进 · 第 1 步</div>
+    <h1>只靠 prompt 约束（脆弱）<span class="sub">prompt 里写「只输出 JSON」，然后 json.loads 一把梭</span></h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col" style="flex:1.25">
+        <div class="code" style="font-size:14px">content 拿到手，长这样：
+
+好的，以下是您需要的 JSON：
+```json
+{"name": "张小明", "city": "杭州", "skills": ["Python", "Docker"]}
+```
+已为您整理完毕，如需调整请随时告诉我。
+
+data = json.loads(content)
+<span class="hl">json.JSONDecodeError: Expecting value: line 1 column 1</span></div>
+      </div>
+      <div class="col">
+        <div class="bad" style="height:100%">
+          <h3>它不是「错」，只是不可靠</h3>
+          <p>· 套 <span class="incode" style="background:#ffe9e4">```json</span> 代码块<br>
+          · 前后加「好的/完毕」说明文字<br>
+          · 单引号、尾逗号、中途换风格……<br><br>
+          跑 5 次，总有一次不合规。工程要的是<b>「每次都行」</b>，不是「大概率行」。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 第2步 JSON mode -->
+  <section class="slide">
+    <div class="kicker">03 · 三步演进 · 第 2 步</div>
+    <h1>JSON mode（可靠）<span class="sub">一个参数，白纸黑字告诉模型：这次必须输出合法 JSON</span></h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col" style="flex:1.3">
+        <div class="code" style="font-size:13px">response = client.chat.completions.create(
+    model=MODEL,
+    messages=[
+        {"role": "system", "content": "你是信息抽取助手。按此结构返回："
+         <span class="s">'{"name": "…", "city": "…", "skills": ["…"]}'</span>},
+        {"role": "user", "content": "张小明，杭州，会 Python、Docker"},
+    ],
+    response_format={"type": "<span class="k">json_object</span>"},  <span class="c"># ← 开启 JSON mode</span>
+)
+data = json.loads(response.choices[0].message.content)  <span class="c"># 纯 JSON，直接解析</span></div>
+      </div>
+      <div class="col">
+        <div class="card good">
+          <h3>两个要点</h3>
+          <p>① 目标结构的骨架写在 <b>system</b> 消息里<br>
+          ② 开启后 <span class="incode">content</span> 是可直接解析的纯 JSON——<b>不用再剥壳</b></p>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <h3>但它只管「合法」</h3>
+          <p>把 <span class="incode">skills</span> 该有的数组写成一个字符串？JSON mode 照样放行——崩在下游。<b>字段级把关，看第 3 步。</b></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 第3步 Pydantic -->
+  <section class="slide">
+    <div class="kicker">03 · 三步演进 · 第 3 步</div>
+    <h1>Pydantic 校验（工程级）<span class="sub">合法 JSON ≠ 字段正确——用类型定义一劳永逸</span></h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col" style="flex:1.15">
+        <div class="code" style="font-size:14px">from pydantic import BaseModel
+
+class ContactInfo(BaseModel):
+    name:   str
+    city:   str
+    skills: <span class="k">list[str]</span>   <span class="c"># 返回成字符串？在这精确报错</span>
+
+info = ContactInfo.model_validate(data)
+<span class="c"># 字段名/类型不对 → ValidationError 指到具体字段</span>
+
+print(info.skills[0])   <span class="c"># 之后有代码补全，像普通对象一样用</span></div>
+      </div>
+      <div class="col">
+        <div class="loopflow" style="margin:0 0 12px">
+          <div class="lf-row">
+            <span class="fbox" style="font-size:14.5px;padding:10px 6px">校验失败<small>ValidationError</small></span><span class="arr">→</span>
+            <span class="fbox key" style="font-size:14.5px;padding:10px 6px">报错喂回模型<small>作为新消息发回</small></span><span class="arr">→</span>
+            <span class="fbox done" style="font-size:14.5px;padding:10px 6px">重试一次<small>自纠重试</small></span>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:12px">
+          <h3>失败了怎么办</h3>
+          <p>不要人工修补——<b>把报错原文发回模型让它自己改</b>。生产环境处理模型输出的通用模式。</p>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <h3>JD 常客</h3>
+          <p>FastAPI 的内置校验库，Ch4 项目 2 再遇。<span class="incode">pip install pydantic</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 分隔 04 -->
+  <section class="slide divider">
+    <span class="day-tag">04</span>
+    <h1>周末实战：简历优化器</h1>
+    <p class="desc">三天知识的总装车间——四件套、few-shot、低温、JSON mode、Pydantic、自纠重试，<br>一个不落全用上。这工具从今天起就是你的求职装备。</p>
+  </section>
+
+  <!-- 16 结构先行 -->
+  <section class="slide">
+    <div class="kicker">04 · 实战 · 设计先行</div>
+    <h1>结构先行：先设计输出模型，再写 prompt</h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col" style="flex:1.3">
+        <table class="tbl">
+          <tr><th style="width:210px">字段</th><th>含义</th></tr>
+          <tr><td><code>overall_score</code></td><td>总分 0–100</td></tr>
+          <tr><td><code>strengths</code></td><td>保留的优点，最多 3 条</td></tr>
+          <tr><td><code>issues</code></td><td>问题清单：维度（内容/表达/关键词/结构）＋ 问题 ＋ 建议</td></tr>
+          <tr><td><code>star_rewrites</code></td><td>STAR 改写示例：原句 → 改写 → 理由</td></tr>
+          <tr><td><code>keywords_to_add</code></td><td>建议补充的 JD 关键词</td></tr>
+        </table>
+      </div>
+      <div class="col">
+        <div class="card good">
+          <h3>⭐ STAR 法则提前剧透</h3>
+          <p><b>S</b>ituation 情境 · <b>T</b>ask 任务 · <b>A</b>ction 行动 · <b>R</b>esult 量化结果<br><br>
+          Ch8 求职冲刺的主力方法论——你简历里每一句经历，都要经得起 STAR 检验。</p>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <h3>为什么先设计结构</h3>
+          <p>先想清楚<b>要什么</b>，prompt 才有的放矢；改一个字段定义，比改一坨散装 prompt 稳得多。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 验收口径 -->
+  <section class="slide">
+    <div class="kicker">04 · 实战 · 输出要求</div>
+    <h1>验收口径：跑出来长这样才算<span class="sub">对使用者可见的是这份终端报告——中间的 JSON 只是技术手段</span></h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col" style="flex:1.4">
+        <div class="code" style="font-size:12.5px;line-height:1.5">==============================================
+  简历总分：58 / 100
+==============================================
+
+[保留的优点]
++ 有完整的 RAG 项目经历，切中岗位方向
+
+[问题清单]
+1. [内容] 负责公司内部系统的开发维护工作
+   -> 建议：拆出系统数量与量化结果
+2. [表达] 工作认真负责，学习能力强，经常主动加班
+   -> 建议：删主观评价词，换成事实证据
+3. [关键词] 技能栏缺少岗位高频词 -> 见底部关键词清单
+
+[STAR 改写示例]
+原句：负责整个项目的开发，用了大模型和向量数据库……
+改写：独立完成企业知识库问答系统——选型 GLM + Chroma，
+      10 条测试集平均 4.6/5，Docker 部署上线
+理由：原句职责堆砌无结果；改写补齐行动与量化结果
+
+[建议补充的 JD 关键词] RAG、Function Calling、FastAPI、Docker</div>
+      </div>
+      <div class="col">
+        <div class="card good">
+          <h3>「能跑」不算完成</h3>
+          <p>跑 <span class="incode">sample_resume.txt</span>：五板块齐全、每条 issue 带维度和建议、<b>通过 Pydantic 校验</b>——跑出来长这样才算。</p>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <h3>测试素材</h3>
+          <p><span class="incode">code/ch2-prompt/sample_resume.txt</span> 是一份「典型差简历」：口语化、无量化、职责堆砌。<b>先跑它，再跑你自己真实的简历。</b></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 开发路径 -->
+  <section class="slide">
+    <div class="kicker">04 · 实战 · 开发路径</div>
+    <h1>三级跳：v0 → v1 → v2<span class="sub">也是本章知识的完整复览</span></h1>
+    <div class="grow">
+      <div class="loopflow">
+        <div class="lf-row">
+          <span class="fbox">v0 · prompt 约束<small>体验脆弱：跑 5 次，总有一次解析失败？</small></span><span class="arr">→</span>
+          <span class="fbox key">v1 · JSON mode<small>结构写进 system——稳定了</small></span><span class="arr">→</span>
+          <span class="fbox done">v2 · Pydantic ＋ 自纠重试 ＋ 友好打印<small>对照验收口径交付</small></span>
+        </div>
+      </div>
+      <div class="cols" style="margin-top:18px;align-items:stretch">
+        <div class="col"><div class="card" style="height:100%;margin-bottom:0">
+          <h3 class="accent">迭代练习 ×2</h3>
+          <p>① temperature 0.7 → 0.2，对比建议稳定性<br>
+          ② 往 prompt 加一对 few-shot 改写示例，看 <span class="incode">star_rewrites</span> 质量变化</p>
+        </div></div>
+        <div class="col"><div class="card" style="height:100%;margin-bottom:0">
+          <h3 class="accent">完成后：AI 出题考核（Ch1 复用）</h3>
+          <p>让 AI 针对你的 Pydantic 模型出 3 道题——比如「把 <span class="incode">overall_score</span> 返回成 <span class="incode">"85 分"</span> 字符串会发生什么？」<b>3 对 2 通关。</b></p>
+        </div></div>
+      </div>
+      <div class="law" style="margin-top:16px;font-size:19px">
+        这套「结构 → prompt → 校验 → 自纠」的组合拳，就是 Ch3 RAG、Ch4 Agent 里处理模型输出的标准姿势。
+      </div>
+    </div>
+  </section>
+
+  <!-- 19 排错速查 -->
+  <section class="slide">
+    <div class="kicker">排错指引</div>
+    <h1>排错速查表<span class="sub">Day 7 写作业时反复用到——建议截屏存着</span></h1>
+    <div class="grow">
+      <table class="tbl">
+        <tr><th style="width:300px">现象</th><th style="width:330px">原因</th><th>解法</th></tr>
+        <tr><td><code>json.JSONDecodeError</code></td><td>没开 JSON mode / system 没写清结构</td><td>加 <code>response_format</code>；结构写进 system</td></tr>
+        <tr><td><code>ValidationError</code>（Pydantic）</td><td>字段类型 / 名称与定义不符</td><td>报错喂回模型重试；检查 system 结构描述</td></tr>
+        <tr><td>输出说一半就停</td><td><code>max_tokens</code> 太小</td><td>调大；或要求精简输出</td></tr>
+        <tr><td>建议「又空又水」</td><td>prompt 只有角色没有规则</td><td>补四件套的「规则/边界」，如「每条建议必须引用简历原文」</td></tr>
+        <tr><td><span class="sc o429">429</span> 限流</td><td>短时间调用太密</td><td><code>import time; time.sleep(2)</code> 后重试</td></tr>
+        <tr><td>few-shot 加了反而更贵</td><td>例子太长</td><td>精简到一行输入一行输出</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 20 自测 + 预告 -->
+  <section class="slide">
+    <div class="kicker">通关自测</div>
+    <h1>进入 Ch3 前，确认你能<span class="sub">六条全过，JD 上那个出现频率第一的技能词，你就能拿着实物对面试官讲了</span></h1>
+    <div class="grow cols">
+      <div class="col">
+        <ul class="checklist">
+          <li>默写 system prompt 四件套公式，说得出<b>为什么规则放 system 不放 user</b></li>
+          <li>给「简历改写」和「团队脑暴取名」各配一个 temperature 并说理由</li>
+          <li>讲清 JSON mode 和 Pydantic <b>各自</b>解决什么问题（合法 JSON ≠ 字段正确）</li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul class="checklist">
+          <li>把 <span class="incode">overall_score: int</span> 改成 <span class="incode">str</span> 跑一次，看过 ValidationError 再改回来</li>
+          <li>简历优化器跑出<b>五板块终端报告</b>、过 Pydantic 校验；看 <span class="incode">usage</span> 能估出本次 token</li>
+          <li>已 push 到 GitHub</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card" style="margin-top:4px">
+      <p>⏭️ 下一章 <b>Ch3 RAG 知识库</b>：让模型回答它训练数据里没有的问题，面试必考。检索结果的拼接模板，还是 prompt——本章功夫直接复用。</p>
+    </div>
+  </section>
+
+  <div id="bar"></div>
+  <div id="pager"></div>
+  <div id="brand">零基础 Agent 开发营 · CH2</div>
+</div>
+
+<script>
+  const stage = document.getElementById('stage');
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const bar = document.getElementById('bar');
+  const pager = document.getElementById('pager');
+  let cur = 0;
+
+  function show(n) {
+    cur = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, i) => s.classList.toggle('active', i === cur));
+    bar.style.width = ((cur + 1) / slides.length * 100) + '%';
+    pager.textContent = (cur + 1) + ' / ' + slides.length;
+    history.replaceState(null, '', '#' + (cur + 1));
+  }
+  function next() { show(cur + 1); }
+  function prev() { show(cur - 1); }
+
+  document.addEventListener('keydown', (e) => {
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); next(); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') { show(0); }
+    else if (e.key === 'End') { show(slides.length - 1); }
+    else if (e.key === 'f' || e.key === 'F') {
+      document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('a')) return;
+    next();
+  });
+
+  function fit() {
+    const s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    stage.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
+  }
+  window.addEventListener('resize', fit);
+
+  const h = parseInt(location.hash.slice(1), 10);
+  show(isNaN(h) ? 0 : h - 1);
+  fit();
+</script>
+</body>
+</html>

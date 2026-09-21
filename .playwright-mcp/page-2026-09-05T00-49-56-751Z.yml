@@ -1,0 +1,20 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]: 04 · Git
+    - heading "Git：今天只用会 4 条命令" [level=1] [ref=e5]
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - generic [ref=e8]: "git init # 开新存档 git add . # 选择要存的内容 git commit -m \"第一个LLM调用\" # 提交存档 git push # 推送到 GitHub"
+        - paragraph [ref=e9]: ① 在 GitHub 网页新建空仓库：右上角 + → New repository → 起名（如 hello-llm）→ 不勾任何初始化选项 → Create
+        - paragraph [ref=e10]: ②③ 回到终端，关联远程仓库并首次推送：
+        - generic [ref=e11]: "git remote add origin https://github.com/你/hello-llm.git git push -u origin main # 以后每次只敲 git push"
+      - generic [ref=e12]:
+        - generic [ref=e13]:
+          - heading "首推弹出登录窗口？" [level=3] [ref=e14]
+          - paragraph [ref=e15]: 正常现象——在浏览器里登录并授权一次 GitHub，凭据会被记住，以后 push 静默完成
+        - generic [ref=e16]:
+          - generic [ref=e17]: ⚠️ 提交前必看
+          - paragraph [ref=e18]: 项目根目录放 .gitignore，写上 .env GitHub 是你未来简历的项目展示地——别把 API Key 公开上去
+  - text: ✓ ✓ ✓ ✓ ✓ ✓
+  - generic [ref=e20]: 18 / 20
+  - generic [ref=e21]: 零基础 Agent 开发营 · CH0
