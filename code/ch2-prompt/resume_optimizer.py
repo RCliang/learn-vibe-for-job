@@ -76,7 +76,7 @@ def get_advice(client: OpenAI, resume_text: str) -> ResumeAdvice:
             model=MODEL,
             messages=messages,
             temperature=0.2,  # 结构化输出用低温度
-            response_format={"type": "json_object"},
+            response_format={"type": "json_object"}, # json mode
         )
         raw_text = response.choices[0].message.content
 
