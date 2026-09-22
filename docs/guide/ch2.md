@@ -116,6 +116,8 @@ print(response.usage)  # prompt_tokens / completion_tokens / total_tokens
 
 Ch0 讲过「JSON 是数据的世界语」。模型输出的是**文本**，而你的程序（后面的 RAG 引用、Agent 工具）需要**结构化数据**——这一节就是把文本变成数据，是从「聊天玩具」到「应用」的分水岭。
 
+顺带认个脸：除了「你解析模型的输出」，还有一条反方向的路——**Function Calling（工具调用）**：把可用函数预先登记给模型，模型需要时以 JSON 形式返回函数名和参数，程序执行后把结果回传。两条路共享同一块地基——**模型与程序之间的契约必须是结构化数据**。本章只建立这个概念，机制与实操在 Ch4 展开。
+
 ### 5.2 三步演进（跟着 [json_parsing_demo.py](https://github.com/RCliang/learn-vibe-for-job/tree/main/code/ch2-prompt) 逐步运行）
 
 **第 1 步：只靠 prompt 约束（脆弱）**。在 prompt 里写「只输出 JSON」，然后 `json.loads(text)`。常见翻车：模型给 JSON 套上 ```` ```json ```` 代码块、前后加说明文字——解析直接崩。它不是「错」，只是不可靠。
