@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch3 RAG 知识库 · 课程幻灯片</title>
+<style>
+  :root {
+    --paper: #f1f0ea;
+    --ink: #1d2a25;
+    --muted: #68706b;
+    --pine: #1f5c46;
+    --pine-deep: #174a39;
+    --leaf: #35a97a;
+    --wash: #e4efe8;
+    --wash-line: #c4dccd;
+    --card: #ffffff;
+    --line: #e2e0d4;
+    --sand: #dedcce;
+    --term: #16241e;
+    --term-text: #d9e6de;
+    --warn-bg: #fbf1df;
+    --warn-line: #e8cfa0;
+    --warn-ink: #8f5a16;
+    --warn-text: #6e4a17;
+    --bad-bg: #fbeaea;
+    --bad-line: #e0b8b2;
+    --bad-ink: #9d3a2b;
+    --bad-text: #7d3327;
+    --mono: "SF Mono", "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+    --slab: 5px 5px 0 0 var(--sand);
+    --code-bg: #ecebe1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: #d8d6cd;
+    font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif;
+    color: var(--ink);
+  }
+
+  #stage {
+    position: absolute; left: 50%; top: 50%;
+    width: 1280px; height: 720px;
+    transform-origin: center center;
+    background: var(--paper);
+    box-shadow: 0 24px 60px rgba(29,42,37,.28), 0 0 0 1px rgba(29,42,37,.05);
+    overflow: hidden;
+  }
+
+  .slide {
+    display: none;
+    position: absolute; inset: 0;
+    padding: 52px 72px 70px;
+    flex-direction: column;
+  }
+  .slide.active { display: flex; animation: rise .3s cubic-bezier(.2,.7,.3,1); }
+  @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .slide.active { animation: none; } }
+
+  .kicker {
+    font-family: var(--mono);
+    font-size: 13px; font-weight: 700; letter-spacing: .22em;
+    color: var(--pine); text-transform: uppercase; margin-bottom: 10px;
+  }
+  h1 { font-size: 34px; line-height: 1.25; margin-bottom: 22px; font-weight: 700; letter-spacing: -0.01em; }
+  h1 .sub { display:block; font-size: 17px; font-weight: 400; color: var(--muted); margin-top: 6px; letter-spacing: 0; }
+  .grow { flex: 1; min-height: 0; }
+
+  p.lead { font-size: 21px; line-height: 1.6; }
+  ul.pts { list-style: none; }
+  ul.pts li {
+    font-size: 20px; line-height: 1.55; padding-left: 26px; position: relative; margin-bottom: 12px;
+  }
+  ul.pts li::before {
+    content: ""; position: absolute; left: 2px; top: 12px;
+    width: 8px; height: 8px; border-radius: 2px; background: var(--pine);
+  }
+  ul.pts li b { color: var(--pine-deep); }
+  .muted { color: var(--muted); }
+  .accent { color: var(--pine); }
+
+  .cols { display: flex; gap: 28px; }
+  .grow.cols { align-items: center; }
+  .col { flex: 1; min-width: 0; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: var(--slab);
+    padding: 18px 22px; margin-bottom: 14px;
+  }
+  .card h3 { font-size: 18px; margin-bottom: 8px; color: var(--ink); }
+  .card p, .card li { font-size: 16.5px; line-height: 1.55; }
+
+  .warn {
+    background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 12px;
+    box-shadow: 5px 5px 0 0 rgba(143,90,22,.14);
+    padding: 16px 22px;
+  }
+  .warn .warn-title { font-weight: 700; color: var(--warn-ink); font-size: 17px; margin-bottom: 6px; }
+  .warn p, .warn li { font-size: 16.5px; line-height: 1.55; color: var(--warn-text); }
+
+  .bad {
+    background: var(--bad-bg); border: 1px solid var(--bad-line); border-radius: 12px;
+    box-shadow: 5px 5px 0 0 rgba(157,58,43,.13);
+    padding: 16px 20px;
+  }
+  .bad h3 { font-size: 17px; color: var(--bad-ink); margin-bottom: 8px; }
+  .bad p, .bad li { font-size: 16.5px; line-height: 1.55; color: var(--bad-text); }
+  .good { border-color: var(--pine); border-width: 1.5px; box-shadow: 5px 5px 0 0 var(--wash-line); }
+  .good h3 { color: var(--pine-deep); }
+
+  /* 铁律：左侧粗竖条 */
+  .law {
+    border-left: 7px solid var(--pine); background: var(--wash);
+    border-radius: 0 12px 12px 0; padding: 20px 26px;
+    font-size: 23px; line-height: 1.55; font-weight: 700; color: var(--pine-deep);
+    box-shadow: 5px 5px 0 0 var(--wash-line);
+  }
+  .law .tag {
+    display: inline-block; font-family: var(--mono); font-size: 12.5px; letter-spacing: .2em;
+    background: var(--pine); color: #fff; border-radius: 6px; padding: 3px 10px;
+    margin-bottom: 10px; vertical-align: 3px;
+  }
+
+  /* 终端代码块 / 提示词纸块 */
+  .code {
+    background: var(--term); border: 1px solid #0e1b15; border-radius: 10px;
+    box-shadow: 5px 5px 0 0 rgba(29,42,37,.16);
+    padding: 13px 18px; font-family: var(--mono);
+    font-size: 16.5px; line-height: 1.6; color: var(--term-text); white-space: pre; overflow: hidden;
+    margin: 10px 0;
+  }
+  .code .c { color: #6e8b7f; }
+  .code .k { color: #e8a271; }
+  .code .s { color: #9fd3b4; }
+  .code .hl { color: #ffb3a0; font-weight: 700; }
+  .code .dim { color: #5f7a6d; }
+  .code.paper {
+    background: #f8f7f0; border-color: var(--line); color: #3b453e;
+    box-shadow: 5px 5px 0 0 var(--sand);
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 16px; line-height: 1.7; white-space: pre-wrap;
+  }
+  .code.paper .c { color: #94a099; }
+  .code.paper b { color: var(--pine-deep); }
+
+  table.tbl { border-collapse: collapse; width: 100%; background: var(--card); }
+  table.tbl th, table.tbl td {
+    border: 1px solid var(--line); padding: 9px 16px; font-size: 17px; text-align: left;
+  }
+  table.tbl th { background: #ebeae0; font-weight: 700; }
+  table.tbl td code, .incode {
+    font-family: var(--mono);
+    font-size: 15.5px; background: var(--code-bg); padding: 2px 7px; border-radius: 5px;
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip {
+    background: var(--card); color: var(--pine); border: 1px solid var(--line);
+    box-shadow: 3px 3px 0 0 var(--sand);
+    border-radius: 999px; padding: 6px 18px;
+    font-family: var(--mono); font-size: 15px; font-weight: 600;
+  }
+
+  /* 分隔页：巨型挤出小节号 */
+  .divider { background: #e9e8df; justify-content: center; }
+  .divider .day-tag {
+    display: block; background: none; color: var(--pine);
+    font-family: var(--mono); font-size: 148px; font-weight: 700; line-height: 1;
+    letter-spacing: 0; padding: 0; margin-bottom: 18px; align-self: flex-start;
+    text-shadow: 7px 7px 0 rgba(31,92,70,.18), 14px 14px 0 rgba(31,92,70,.07);
+  }
+  .divider h1 { font-size: 50px; margin-bottom: 22px; }
+  .divider p.desc { font-size: 20px; color: #46564e; line-height: 1.7; }
+
+  /* 封面 */
+  .cover { background: var(--paper); justify-content: center; }
+  .cover .camp {
+    display: inline-block; align-self: flex-start;
+    font-family: var(--mono); font-size: 15px; font-weight: 700; letter-spacing: .22em;
+    color: var(--pine); background: var(--card); border: 1px solid var(--line);
+    border-radius: 8px; box-shadow: 4px 4px 0 0 var(--sand);
+    padding: 7px 18px; margin-bottom: 30px;
+  }
+  .cover h1 { font-size: 62px; line-height: 1.2; margin-bottom: 18px; letter-spacing: -0.015em; }
+  .cover .sub { font-size: 25px; color: var(--muted); margin-bottom: 40px; }
+  .cover .hint {
+    position: absolute; bottom: 78px; left: 72px;
+    font-family: var(--mono); font-size: 14px; color: #a3a196;
+  }
+
+  /* 封面右侧：RAG 两阶段装置 */
+  .cover-rag {
+    position: absolute; right: 96px; top: 50%; transform: translateY(-50%);
+    width: 300px; display: flex; flex-direction: column; gap: 14px;
+  }
+  .pipes {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: var(--slab); padding: 14px 16px;
+  }
+  .pipes .ph {
+    font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .18em;
+    color: var(--pine); margin-bottom: 9px;
+  }
+  .pipes .ph small { color: #a3a196; font-weight: 400; letter-spacing: 0; }
+  .pstep {
+    background: var(--wash); border: 1px solid var(--wash-line); border-radius: 8px;
+    padding: 6px 10px; text-align: center; font-size: 14.5px; font-weight: 600;
+    color: var(--pine-deep);
+  }
+  .pstep.hot { background: var(--term); border-color: #0e1b15; color: #9fd3b4; font-family: var(--mono); font-size: 13.5px; }
+  .parr { text-align: center; color: var(--pine); font-weight: 700; font-size: 14px; line-height: 1.3; }
+  .pipes.online .pstep { background: #fff; border-color: var(--wash-line); }
+
+  .checklist { list-style: none; }
+  .checklist li { font-size: 19px; line-height: 1.55; margin-bottom: 11px; padding-left: 34px; position: relative; }
+  .checklist li::before {
+    content: "✓"; position: absolute; left: 0; top: 0; width: 24px; height: 24px;
+    background: var(--pine); color: #fff; border: none;
+    box-shadow: 3px 3px 0 0 var(--sand);
+    border-radius: 7px; font-size: 15px; font-weight: 800; text-align: center; line-height: 24px;
+  }
+
+  /* 横向流程 */
+  .loopflow { margin: 6px 0 0; }
+  .lf-row { display: flex; align-items: stretch; }
+  .lf-row .fbox {
+    flex: 1; background: var(--card); border: 1.5px solid var(--pine); border-radius: 10px;
+    box-shadow: 4px 4px 0 0 var(--sand);
+    padding: 12px 8px; font-size: 17px; font-weight: 700; line-height: 1.3; text-align: center;
+    color: var(--pine-deep);
+  }
+  .lf-row .fbox small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; margin-top: 4px; }
+  .lf-row .fbox.key { background: var(--wash); border-color: var(--pine); }
+  .lf-row .fbox.done { background: var(--pine); color: #fff; border-color: var(--pine-deep); }
+  .lf-row .fbox.done small { color: #c9e2d5; }
+  .lf-row .arr { color: var(--pine); font-size: 20px; font-weight: 700; padding: 0 7px; align-self: center; }
+  .stage-label {
+    font-family: var(--mono); font-size: 13px; font-weight: 700; letter-spacing: .18em;
+    color: var(--pine); margin: 14px 0 8px;
+  }
+  .stage-label small { color: #a3a196; font-weight: 400; letter-spacing: 0; }
+
+  /* 编号卡 */
+  .qnum {
+    display: flex; align-items: flex-start; gap: 14px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: var(--slab); padding: 16px 18px; margin-bottom: 14px;
+  }
+  .qnum .n {
+    flex: none; width: 34px; height: 34px; border-radius: 9px; background: var(--pine); color: #fff;
+    box-shadow: 3px 3px 0 0 var(--sand);
+    font-family: var(--mono); font-size: 17px; font-weight: 700; text-align: center; line-height: 34px;
+  }
+  .qnum h3 { font-size: 18px; margin-bottom: 5px; }
+  .qnum p { font-size: 16px; line-height: 1.5; color: #46564e; }
+
+  /* 语义坐标示意图 */
+  .space {
+    position: relative; height: 100%; min-height: 300px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: var(--slab); overflow: hidden;
+  }
+  .space .dotp { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .space .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--pine); box-shadow: 0 0 0 5px rgba(53,169,122,.16); }
+  .space .dot.far { background: #c4691b; box-shadow: 0 0 0 5px rgba(196,105,27,.14); }
+  .space .dl {
+    font-size: 13.5px; background: #fff; border: 1px solid var(--line);
+    border-radius: 6px; padding: 2px 8px; white-space: nowrap; color: #3b453e;
+  }
+  .space .ln { position: absolute; border-top: 2.5px dashed #cd9a90; transform-origin: 0 0; }
+  .space .ln.near { border-top: 2.5px dashed var(--wash-line); }
+  .space .dist {
+    position: absolute; font-family: var(--mono); font-size: 12.5px; font-weight: 700;
+    background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 2px 9px;
+  }
+  .space .dist.near { color: var(--pine); }
+  .space .dist.far { color: #b0592f; }
+  .space .axis { position: absolute; right: 12px; bottom: 10px; font-family: var(--mono); font-size: 11.5px; color: #a3a196; }
+
+  /* 全局 footer：进度条 + 页码 */
+  #bar {
+    position: absolute; left: 0; bottom: 0; height: 7px; background: var(--leaf);
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,.22);
+    width: 0; transition: width .2s; z-index: 30;
+  }
+  #pager {
+    position: absolute; right: 26px; bottom: 16px; font-size: 13px; color: #a3a196;
+    font-family: var(--mono); z-index: 30;
+  }
+  #brand {
+    position: absolute; left: 26px; bottom: 16px; font-size: 12px; color: #b0aea1;
+    font-family: var(--mono); letter-spacing: .12em; z-index: 30;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- 1 封面 -->
+  <section class="slide cover active">
+    <div class="camp">零基础 Agent 开发营 · CH3</div>
+    <h1>Ch3 RAG 知识库</h1>
+    <div class="sub">让 AI 先翻你的资料，再回答问题</div>
+    <div class="chips">
+      <span class="chip">Embedding</span><span class="chip">向量检索</span><span class="chip">RAG</span><span class="chip">效果评估</span>
+    </div>
+    <div class="cover-rag" aria-hidden="true">
+      <div class="pipes">
+        <div class="ph">离线入库 <small>做一次</small></div>
+        <div class="pstep">文档</div><div class="parr">↓</div>
+        <div class="pstep">切分成小块</div><div class="parr">↓</div>
+        <div class="pstep">每块向量化</div><div class="parr">↓</div>
+        <div class="pstep">存入向量库</div>
+      </div>
+      <div class="pipes online">
+        <div class="ph">在线问答 <small>每次提问</small></div>
+        <div class="pstep">问题向量化</div><div class="parr">↓</div>
+        <div class="pstep">找最相似的 k 块</div><div class="parr">↓</div>
+        <div class="pstep">拼进 prompt</div><div class="parr">↓</div>
+        <div class="pstep hot">生成带引用的回答</div>
+      </div>
+    </div>
+    <div class="hint">→ / 空格 翻页 · F 全屏 · 点击画面也可翻页</div>
+  </section>
+
+  <!-- 2 本章路线 -->
+  <section class="slide">
+    <div class="kicker">Roadmap</div>
+    <h1>本章路线<span class="sub">学完你能：画对 RAG 流程图（面试必考）· 切分入库 · 串出带引用的问答引擎 · 用评估决定调参</span></h1>
+    <div class="grow cols">
+      <div class="col">
+        <div class="card">
+          <h3 class="accent">01 · 为什么需要 RAG</h3>
+          <p>知识边界与幻觉 · 微调 vs RAG<br>
+          两阶段流程 · Embedding 语义坐标<br>
+          <span class="muted">「讲讲 RAG 原理」是 LLM 应用岗面试必考题</span></p>
+        </div>
+        <div class="card">
+          <h3 class="accent">02 · 切分与入库</h3>
+          <p>chunk_size / overlap（面试高频）<br>
+          手写滑窗切分 · 向量数据库 Chroma<br>
+          <span class="muted">向量库 / embedding 模型 / LLM 的三者分工</span></p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <h3 class="accent">03 · 检索增强生成</h3>
+          <p>检索 → 拼接 → 生成 三步链路<br>
+          幻觉抑制三条 prompt 纪律<br>
+          <span class="muted">交付物：rag_chat.py 知识库问答引擎</span></p>
+        </div>
+        <div class="card">
+          <h3 class="accent">04 · 效果评估驱动调优</h3>
+          <p>LLM as judge 最小路径 · Ragas 四指标<br>
+          GraphRAG 进阶视野<br>
+          <span class="muted">没有评估的调优是玄学，有评估的才是工程</span></p>
+        </div>
+      </div>
+    </div>
+    <div class="warn" style="margin-top:6px">
+      <p>本章产出就是<b>项目 1 的核心引擎</b>——语料是虚构公司「星辰科技」的三份制度文档，建库脚本不挑文档，随时换成你感兴趣的领域。</p>
+    </div>
+  </section>
+
+  <!-- 3 分隔 01 -->
+  <section class="slide divider">
+    <span class="day-tag">01</span>
+    <h1>为什么需要 RAG</h1>
+    <p class="desc">大模型不是全知的。它的知识有两个硬边界：<br>训练截止之后的它不知道，私有数据它见都没见过——<b>越到边界外，它答得越自信</b>。</p>
+  </section>
+
+  <!-- 4 幻觉 + 两条路线 -->
+  <section class="slide">
+    <div class="kicker">01 · 为什么需要 RAG</div>
+    <h1>幻觉：不知道，但它会编</h1>
+    <div class="cols" style="align-items:stretch;margin-bottom:16px">
+      <div class="col" style="flex:.95">
+        <div class="bad" style="height:100%">
+          <h3>⚠️ 幻觉现场</h3>
+          <p><b>问：</b>我们公司年假几天？<br>
+          <b>答：</b>年假 15 天，入职满一年即可使用……<br><br>
+          答得有模有样——可惜，<b>全是编的</b>。它没见过你公司的制度。</p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card" style="height:100%;margin-bottom:0">
+          <h3>模型知识的两个硬边界</h3>
+          <p>① <b>训练截止日期之后</b>的，它不知道<br>
+          ② <b>私有数据</b>（公司制度、产品文档、你的笔记），它见都没见过<br>
+          <span class="muted">不知道还硬答，就成了编造——幻觉是 LLM 应用的头号敌人</span></p>
+        </div>
+      </div>
+    </div>
+    <table class="tbl">
+      <tr><th style="width:150px"></th><th>微调 Fine-tuning</th><th>RAG 检索增强生成 ★ 课程主线</th></tr>
+      <tr><td><b>原理</b></td><td>把知识「练进」模型参数</td><td>把资料放在模型「手边」，答题时翻阅</td></tr>
+      <tr><td><b>成本</b></td><td>GPU、数据准备、训练周期</td><td>只要 API 调用</td></tr>
+      <tr><td><b>知识更新</b></td><td>重新训练</td><td>换文档重建索引即可，<b>分钟级</b></td></tr>
+      <tr><td><b>适合</b></td><td>改变风格 / 专业语气</td><td><b>私有知识问答</b></td></tr>
+    </table>
+    <p class="muted" style="font-size:15px;margin-top:12px">这张对比表面试常考——两条路线不是二选一，是各管一头。</p>
+  </section>
+
+  <!-- 5 开卷考试 两阶段 -->
+  <section class="slide">
+    <div class="kicker">01 · 为什么需要 RAG</div>
+    <h1>RAG = 给模型开卷考试<span class="sub">面试白板就画这张图——建议截屏</span></h1>
+    <div class="law">考前把资料整理好（入库），考时先翻出相关页递给它（检索），照着答（生成）。</div>
+    <div class="grow" style="display:flex;flex-direction:column;justify-content:center">
+      <div class="stage-label">离线入库 <small>（做一次）</small></div>
+      <div class="loopflow">
+        <div class="lf-row">
+          <span class="fbox">文档<small>公司制度 / 产品文档</small></span><span class="arr">→</span>
+          <span class="fbox">切分成小块<small>chunk 300 / overlap 50</small></span><span class="arr">→</span>
+          <span class="fbox">每块向量化<small>Embedding</small></span><span class="arr">→</span>
+          <span class="fbox done">存入向量库<small>Chroma</small></span>
+        </div>
+      </div>
+      <div class="stage-label" style="margin-top:20px">在线问答 <small>（每次提问）</small></div>
+      <div class="loopflow">
+        <div class="lf-row">
+          <span class="fbox">问题向量化<small>同一个 Embedding</small></span><span class="arr">→</span>
+          <span class="fbox key">找最相似的 k 块<small>top-k = 3</small></span><span class="arr">→</span>
+          <span class="fbox key">拼进 prompt<small>编号引用 [1][2]</small></span><span class="arr">→</span>
+          <span class="fbox done">生成回答<small>带引用 / 可拒答</small></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 Embedding 语义坐标 -->
+  <section class="slide">
+    <div class="kicker">01 · Embedding</div>
+    <h1>Embedding：给文本一个语义坐标</h1>
+    <div class="grow cols">
+      <div class="col" style="flex:1.05">
+        <div class="space" aria-hidden="true">
+          <div class="ln" style="left:24%;top:76%;width:60%;transform:rotate(-37deg)"></div>
+          <div class="ln near" style="left:71%;top:28%;width:14%;transform:rotate(34deg)"></div>
+          <div class="dotp" style="left:72%;top:26%"><span class="dot"></span><span class="dl">我想请年假</span></div>
+          <div class="dotp" style="left:84%;top:36%"><span class="dot"></span><span class="dl">年假申请流程</span></div>
+          <div class="dotp" style="left:64%;top:42%"><span class="dot"></span><span class="dl">年假能结转吗</span></div>
+          <div class="dotp" style="left:20%;top:74%"><span class="dot far"></span><span class="dl">今晚吃什么</span></div>
+          <div class="dotp" style="left:32%;top:84%"><span class="dot far"></span><span class="dl">明天天气</span></div>
+          <span class="dist near" style="left:73%;top:15%">近</span>
+          <span class="dist far" style="left:46%;top:50%">远</span>
+          <span class="axis">语义空间（示意）</span>
+        </div>
+      </div>
+      <div class="col" style="flex:1">
+        <div class="card">
+          <h3>直觉</h3>
+          <p>Embedding 模型把一段文本变成<b>一串很长的数字</b>（向量，如 1024 个数）——它就是这段文本的语义坐标：<b>意思相近，坐标就靠近</b>。「我想请年假」和「年假申请流程」字面不同，坐标却挨着。</p>
+        </div>
+        <div class="card">
+          <h3>余弦相似度</h3>
+          <p>衡量两个向量「方向有多一致」：<b>-1 到 1</b>，越接近 1 越相似。数学不神秘，几行代码就能算——实验里亲手写一遍。</p>
+        </div>
+        <div class="law" style="font-size:20px"><span class="tag">地基</span><br>意思近 = 坐标近——这一句就是语义检索的全部秘密。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 Embedding API + 实验 -->
+  <section class="slide">
+    <div class="kicker">01 · Embedding 实操</div>
+    <h1>调用 Embedding API：换一把钥匙而已<span class="sub">DeepSeek 只有对话 API —— 本章向量化改用硅基流动，bge-m3 免费（本章 0 元）</span></h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col" style="flex:1.2">
+        <div class="code" style="font-size:15px">client = OpenAI(api_key=EMBED_API_KEY,
+               base_url="https://api.siliconflow.cn/v1")   <span class="c"># 换 base_url</span>
+resp = client.embeddings.create(
+    model="BAAI/bge-m3",        <span class="c"># 免费中文向量模型</span>
+    input=["我想请年假去旅游", "年假的申请流程是什么"],
+)
+vectors = [d.embedding for d in resp.data]
+<span class="c"># 每句话一个 1024 维向量</span></div>
+        <div class="warn">
+          <div class="warn-title">🔑 从本章起 .env 里有两把钥匙</div>
+          <p>对话走 DeepSeek（LLM_API_KEY），向量化走硅基流动（EMBED_API_KEY）——各管一件事，别塞混。接口都是 OpenAI 兼容，代码几乎不变。</p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <h3>为什么是硅基流动</h3>
+          <p>国内手机号注册（cloud.siliconflow.cn），注册送额度；<b>bge-m3 中文向量模型免费</b>。本章全部向量化花费 0 元。</p>
+        </div>
+        <div class="card good">
+          <h3>实验：embedding_lab.py</h3>
+          <p>六句话（两组同主题 + 两句无关），两两算余弦相似度、从高到低排序。<br><br>
+          <b>你会看到：同主题句对稳定排在无关句对前面</b>——「意思近 = 坐标近」变成你自己的实验结论。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 分隔 02 -->
+  <section class="slide divider">
+    <span class="day-tag">02</span>
+    <h1>文档切分与入库</h1>
+    <p class="desc">怎么切、存哪里。<br>chunk_size 和 overlap 是<b>面试高频</b>——先懂为什么，再记数值。</p>
+  </section>
+
+  <!-- 9 切分 -->
+  <section class="slide">
+    <div class="kicker">02 · 切分与入库</div>
+    <h1>切分：chunk_size 与 overlap</h1>
+    <p style="font-size:17.5px;margin-bottom:14px"><b class="accent">为什么不整篇塞进去？</b>① 超上下文窗口、还贵；② 检索粒度太粗——问「餐补」，捞出整篇报销制度。<b>切成小块，按需取用。</b></p>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col">
+        <div class="card">
+          <h3>chunk_size · 每块多大（中文常用 300–500 字）</h3>
+          <p><b>太大</b> → 检索不精准：一块里混着多个主题<br>
+          <b>太小</b> → 上下文碎、语义不完整<br>
+          <span class="muted">面试问「chunk 怎么定」：给区间 + 「用评估验证」</span></p>
+        </div>
+        <div class="card">
+          <h3>overlap · 相邻块重叠多少（常用 50）</h3>
+          <p>防止关键句正好被切在边界上，<b>两边都检索不到</b>。块与块是「叠着走」的。</p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="code" style="font-size:15px"><span class="c"># 块与块叠着走（overlap=50）</span>
+|<span class="s">────── 块1 ──────</span>|
+          |<span class="hl">────── 块2 ──────</span>|
+                 |<span class="s">────── 块3 ──────</span>|
+            <span class="k">←重叠→</span></div>
+        <div class="card good" style="margin-bottom:0">
+          <h3>先手写，再用框架</h3>
+          <p><b>手写滑窗切分</b>（split_text，十几行）——先懂本质；LangChain 的 splitter 是同样思想的工程化版本。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 Chroma -->
+  <section class="slide">
+    <div class="kicker">02 · 切分与入库</div>
+    <h1>Chroma：能按语义查找的抽屉<span class="sub">本地内嵌向量数据库 · pip install chromadb · 数据落在 ./chroma_db · 零运维</span></h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col" style="flex:1.25">
+        <div class="code" style="font-size:14.5px">import chromadb
+
+client = chromadb.PersistentClient(path="./chroma_db")
+collection = client.get_or_create_collection("company_kb")
+
+<span class="c"># 存：id + 原文 + 向量（显式传 bge-m3 的结果）</span>
+collection.add(ids=["leave_0"],
+               documents=["年假 10 天..."],
+               embeddings=[[0.1, ...]])
+
+<span class="c"># 查：问题也向量化，拿回余弦距离最近的 k 块</span>
+result = collection.query(query_embeddings=[[0.2, ...]],
+                          n_results=3)</div>
+      </div>
+      <div class="col">
+        <div class="warn">
+          <div class="warn-title">⚠️ 为什么显式传向量？</div>
+          <p>Chroma 默认会自动下载一个<b>英文</b>向量化模型——国内下载慢、中文效果差。显式传入 bge-m3 的结果，<b>检索质量我们自己说了算</b>。</p>
+        </div>
+        <div class="card good" style="margin-top:14px">
+          <h3>三者分工（面试爱问）</h3>
+          <p><b>向量库</b>：只管存和查<br>
+          <b>Embedding 模型</b>：语义在这里<br>
+          <b>LLM</b>：只负责最后的生成<br>
+          <span class="muted">三个角色各司其职——换语义就换 embedding，换文风就换 LLM</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 分隔 03 -->
+  <section class="slide divider">
+    <span class="day-tag">03</span>
+    <h1>检索增强生成</h1>
+    <p class="desc">rag_chat.py——把前面所有零件串成引擎。<br>这一个文件是<b>本章交付物</b>，也是<b>项目 1 的核心</b>。</p>
+  </section>
+
+  <!-- 12 检索拼接生成 -->
+  <section class="slide">
+    <div class="kicker">03 · 检索增强生成</div>
+    <h1>链路三步：检索 → 拼接 → 生成</h1>
+    <div class="loopflow">
+      <div class="lf-row">
+        <span class="fbox">① 检索<small>retrieve(question, k=3)</small></span><span class="arr">→</span>
+        <span class="fbox key">② 拼接<small>build_prompt · 编号入 prompt</small></span><span class="arr">→</span>
+        <span class="fbox done">③ 生成<small>DeepSeek · 带引用回答</small></span>
+      </div>
+    </div>
+    <div class="grow cols" style="margin-top:16px;align-items:stretch">
+      <div class="col" style="flex:1.15">
+        <p style="font-size:15.5px;margin-bottom:2px" class="muted">第 ② 步之后，模型看到的 prompt 长这样：</p>
+        <div class="code paper" style="font-size:15px">【参考资料】
+[1] 年假当年有效，最多可结转 5 天到次年 3 月底……
+[2] 请年假需提前 3 个工作日在 OA 系统提交……
+
+【问题】年假可以结转吗？</div>
+      </div>
+      <div class="col">
+        <div class="card" style="height:100%;margin-bottom:0">
+          <h3>「增强」发生在第 ② 步</h3>
+          <p>把检索到的资料<b>编号拼进 prompt</b>——就这一步，没有更多魔法。<br><br>
+          资料怎么拼、纪律怎么写，全是 Ch2 的 prompt 功夫：<b>结构、规则、few-shot 都用上了</b>。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 三条纪律 -->
+  <section class="slide">
+    <div class="kicker">03 · 检索增强生成</div>
+    <h1>幻觉抑制：三条 prompt 纪律<span class="sub">写在 SYSTEM_PROMPT 里——拼了资料，模型仍可能夹带私货</span></h1>
+    <div class="grow">
+      <div class="qnum">
+        <span class="n">1</span>
+        <div>
+          <h3>只用资料</h3>
+          <p>只根据【参考资料】回答，不许用自己的知识补充</p>
+        </div>
+      </div>
+      <div class="qnum">
+        <span class="n">2</span>
+        <div>
+          <h3>标注引用</h3>
+          <p>引用处标 [1] [2]——可回溯、可验证，用户能自己去原文核对</p>
+        </div>
+      </div>
+      <div class="qnum">
+        <span class="n">3</span>
+        <div>
+          <h3>诚实拒答</h3>
+          <p>资料不足就明确说「知识库中没有找到相关内容」，禁止编造</p>
+        </div>
+      </div>
+      <div class="law" style="font-size:19px;margin-top:4px"><span class="tag">面试</span><br>
+      问「怎么处理幻觉」——这三条就是标准答案之一。全部是 <b>prompt 层约束</b>：不改模型、不训练，这就是 Prompt Engineering 在工程里的分量。
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 三类问题实验 -->
+  <section class="slide">
+    <div class="kicker">03 · 检索增强生成 · 必做</div>
+    <h1>三类问题考它<span class="sub">python rag_chat.py —— 语料：data/project1-kb 星辰科技三份制度文档</span></h1>
+    <div class="grow">
+      <table class="tbl">
+        <tr><th style="width:120px">类别</th><th style="width:430px">示例问题</th><th>验收看什么</th></tr>
+        <tr><td><b>库内</b></td><td>报销发票最晚什么时候交？餐补要发票吗？</td><td>回答有没有标 <b>[1] [2] 引用</b></td></tr>
+        <tr><td><b>库外</b></td><td>公司 CEO 是谁？上海办公室在哪？</td><td>是否<b>诚实拒答</b>「知识库中没有找到」，而不是接着编</td></tr>
+        <tr><td><b>跨块</b></td><td>入职 3 年的员工，年假和事假审批流程分别是什么？</td><td>答案散在两块里，看它<b>拼不拼得齐</b></td></tr>
+      </table>
+      <div class="cols" style="margin-top:18px;align-items:stretch">
+        <div class="col"><div class="card good" style="height:100%;margin-bottom:0">
+          <h3>最有价值的一类：库外</h3>
+          <p>它证明你的引擎「知道自己不知道」——这是玩具和工程的分界线，也是三条纪律里最难做稳的一条（temperature 压到 0.2 有帮助）。</p>
+        </div></div>
+        <div class="col"><div class="card" style="height:100%;margin-bottom:0">
+          <h3>建库脚本不挑文档</h3>
+          <p>把 <span class="incode">data/project1-kb/</span> 换成你自己的资料（产品手册、学习笔记），就是一个你的私人知识库——项目 1 就这么来的。</p>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 分隔 04 -->
+  <section class="slide divider">
+    <span class="day-tag">04</span>
+    <h1>效果评估驱动调优</h1>
+    <p class="desc"><b>没有评估的调优是玄学，有评估的调优才是工程。</b><br>普通使用者和工程师的分水岭——面试一句「你的 top-k 为什么是 3」，就见分晓。</p>
+  </section>
+
+  <!-- 16 LLM as judge -->
+  <section class="slide">
+    <div class="kicker">04 · 效果评估</div>
+    <h1>最小路径：LLM as judge<span class="sub">chunk 300→600、top-k 3→5，效果好了还是差了？「感觉差不多」不算数</span></h1>
+    <div class="grow">
+      <div class="cols" style="align-items:stretch">
+        <div class="col"><div class="card" style="height:100%">
+          <h3 class="accent">qa_pairs.json</h3>
+          <p>10 条测试问答：问题 + 标准答案，<b>从语料里出的题</b><br>
+          <span class="muted">测试集是地基——题目歪了，后面全歪</span></p>
+        </div></div>
+        <div class="col"><div class="card" style="height:100%">
+          <h3 class="accent">judge_eval.py</h3>
+          <p>每条问题跑一遍 RAG → 让模型扮演评委，按 <b>1–5 分</b>打分<br>
+          <span class="muted">评委输出用 JSON mode 拿结构化分数——Ch2 的手艺直接复用；评委温度必须 0</span></p>
+        </div></div>
+        <div class="col"><div class="card" style="height:100%">
+          <h3 class="accent">eval_results.jsonl</h3>
+          <p>每次评估<b>追加一行</b>（带 label）<br>
+          <span class="muted">天然支持多组对比：三行记录并排比 avg</span></p>
+        </div></div>
+      </div>
+      <div class="law" style="margin-top:16px;font-size:20px">
+      评估的对象是「检索 + 生成」整条链路——所以它能告诉你该改哪头，而不只是「好/不好」。
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 调优实验 -->
+  <section class="slide">
+    <div class="kicker">04 · 效果评估</div>
+    <h1>调优实验：把结论落成一句话</h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col" style="flex:1.15">
+        <div class="code" style="font-size:15px">python build_kb.py --chunk 300
+python judge_eval.py --label "chunk300"
+
+python build_kb.py --chunk 600      <span class="c"># 重建库</span>
+python judge_eval.py --label "chunk600"
+
+python judge_eval.py --k 5 --label "chunk300-k5"
+
+<span class="c"># 打开 eval_results.jsonl：</span>
+<span class="c"># 三行记录，对比 avg，找到最弱的一题</span></div>
+        <div class="warn">
+          <div class="warn-title">⚠️ 常见坑</div>
+          <p>改了 chunk <b>必须重新 build_kb</b>——旧库不重建，评的还是老切分。</p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card good" style="height:100%;margin-bottom:0">
+          <h3>有据回答，长这样</h3>
+          <p style="font-size:17px">「在我的测试集上，chunk=300 平均 <b>4.6</b> 分、chunk=600 平均 <b>4.1</b> 分、k=5 与 k=3 持平，<b>所以选 300 / 3</b>。」</p>
+          <p style="margin-top:12px">面试里聊调参，说得出这句话的人和说「我感觉差不多」的人，不在一个档次。<br><br>
+          <span class="muted">注意措辞的严谨：结论限定在「我的测试集上」——换语料要重跑，这是评估的基本素养。</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 Ragas -->
+  <section class="slide">
+    <div class="kicker">04 · 效果评估 · 完整路径</div>
+    <h1>Ragas 四指标：先定位维度，再动手改<span class="sub">业界标准框架 · 每项 0–1 分，越高越好 · 选做：ragas_eval.py（评委走 DeepSeek、向量走硅基流动）</span></h1>
+    <div class="grow">
+      <table class="tbl">
+        <tr><th style="width:230px">指标</th><th style="width:330px">评什么</th><th>低分说明什么（怎么改）</th></tr>
+        <tr><td><b>Faithfulness</b></td><td>回答忠于检索资料（不编造）</td><td><b>生成端</b>在编造 → 检查三条纪律 / 降温度</td></tr>
+        <tr><td><b>AnswerRelevancy</b></td><td>回答切题</td><td>prompt 指令模糊 → 收紧任务定义</td></tr>
+        <tr><td><b>ContextPrecision</b></td><td>检索结果里相关内容的占比</td><td>检索<b>不准</b> → 调 chunk / 换 embedding</td></tr>
+        <tr><td><b>ContextRecall</b></td><td>标准答案被检索覆盖的程度</td><td>检索<b>不全</b> → 调大 top-k / 改切分</td></tr>
+      </table>
+      <div class="law" style="margin-top:18px;font-size:20px">
+      四个数字出来，先定位是哪个维度低，再决定改检索端还是生成端——别拿着锤子到处敲。
+      </div>
+    </div>
+  </section>
+
+  <!-- 19 GraphRAG -->
+  <section class="slide">
+    <div class="kicker">04 · 进阶视野</div>
+    <h1>GraphRAG：向量 RAG 不是银弹</h1>
+    <div class="grow cols" style="align-items:stretch">
+      <div class="col" style="flex:1.1">
+        <div class="bad" style="height:100%">
+          <h3>向量 RAG 的两个天然短板</h3>
+          <p><b>① 多跳 / 枢纽问题</b><br>
+          「部门总监负责审批哪些事项？」——答案一半在请假制度、一半在报销制度；靠「部门总监」这个实体把两份文档<b>关联</b>起来，而语义相似度不认识「关联」。<br><br>
+          <b>② 全局性问题</b><br>
+          「这套制度的整体设计思路？」——答案散落在所有文档里，top-k 装不下全貌。</p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card" style="height:100%;margin-bottom:0">
+          <h3>GraphRAG 的思路</h3>
+          <p>用 LLM 从语料抽<b>实体和关系</b>（三元组，如「事假—审批人—部门总监」），构建<b>知识图谱</b>；检索时沿图的边多跳推理或按实体聚合。<br><br>
+          <b>代价</b>：图构建要大量 LLM 调用，贵，更新需重算。<br>
+          <span class="muted">选做：graph_rag_mini.py（约 10 分钟）亲手建一张小图——前两题图更完整，第三题向量反而更直接</span></p>
+        </div>
+      </div>
+    </div>
+    <div class="law" style="margin-top:14px;font-size:18px"><span class="tag">面试一句话</span><br>
+    默认用向量 RAG；用评估证明它答不好多跳 / 全局问题了，才考虑 GraphRAG——没有银弹，只有合适。
+    </div>
+  </section>
+
+  <!-- 20 自测 + 预告 -->
+  <section class="slide">
+    <div class="kicker">通关自测</div>
+    <h1>进入项目 1 前，确认你能<span class="sub">全过——面试里「讲讲 RAG」这一整套题，你能独立接了</span></h1>
+    <div class="grow cols">
+      <div class="col">
+        <ul class="checklist">
+          <li><b>白板画出</b>两阶段流程图（离线入库 / 在线问答），并解释每个箭头</li>
+          <li>说清 chunk_size 和 overlap <b>各自解决什么</b>、设大设小的后果</li>
+          <li>说清<b>向量库、embedding 模型、对话模型</b>三者的分工</li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul class="checklist">
+          <li>库外问题（如「CEO 是谁」）被正确拒答，能指出<b>是哪条纪律</b>在起作用</li>
+          <li>完成调优实验，用<b>一句话</b>说出你选的参数和证据</li>
+          <li>（完整路径）Faithfulness 和 ContextRecall 的区别——<b>一个管生成、一个管检索</b></li>
+        </ul>
+      </div>
+    </div>
+    <div class="card" style="margin-top:4px">
+      <p>⏭️ 下一章 <b>Ch4 Function Calling 与 Agent</b>：Ch2 里认过脸的工具调用正式登场——让模型不只回答问题，还能动手调用你的函数。不借助任何框架，手写一个 mini Agent Loop。</p>
+    </div>
+  </section>
+
+  <div id="bar"></div>
+  <div id="pager"></div>
+  <div id="brand">零基础 Agent 开发营 · CH3</div>
+</div>
+
+<script>
+  const stage = document.getElementById('stage');
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const bar = document.getElementById('bar');
+  const pager = document.getElementById('pager');
+  let cur = 0;
+
+  function show(n) {
+    cur = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, i) => s.classList.toggle('active', i === cur));
+    bar.style.width = ((cur + 1) / slides.length * 100) + '%';
+    pager.textContent = (cur + 1) + ' / ' + slides.length;
+    history.replaceState(null, '', '#' + (cur + 1));
+  }
+  function next() { show(cur + 1); }
+  function prev() { show(cur - 1); }
+
+  document.addEventListener('keydown', (e) => {
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); next(); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') { show(0); }
+    else if (e.key === 'End') { show(slides.length - 1); }
+    else if (e.key === 'f' || e.key === 'F') {
+      document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('a')) return;
+    next();
+  });
+
+  function fit() {
+    const s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    stage.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
+  }
+  window.addEventListener('resize', fit);
+
+  const h = parseInt(location.hash.slice(1), 10);
+  show(isNaN(h) ? 0 : h - 1);
+  fit();
+</script>
+</body>
+</html>
